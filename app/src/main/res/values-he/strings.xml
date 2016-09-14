@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">שירות רכבים</string>
+    <string name="button_sign_in">התחברות</string>
+    <string name="button_sign_in_informative">כבר רשום? הקש להתחברות</string>
+    <string name="button_sign_up">הרשמה</string>
+    <string name="button_sign_up_informative">עדיין לא רשום? הקש להרשמה</string>
 </resources>

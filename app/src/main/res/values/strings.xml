@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">Car Service</string>
+    <!-- User Registration -->
+    <string name="button_sign_up">Sign Up</string>
+    <string name="button_sign_up_informative">Not a user? Sign Up</string>
+    <string name="button_sign_in">Sign In</string>
+    <string name="button_sign_in_informative">Already a user? Sign In</string>
 </resources>
