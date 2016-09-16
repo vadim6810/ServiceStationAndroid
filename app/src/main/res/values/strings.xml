@@ -5,4 +5,7 @@
     <string name="button_sign_up_informative">Not a user? Sign Up</string>
     <string name="button_sign_in">Sign In</string>
     <string name="button_sign_in_informative">Already a user? Sign In</string>
+    <string name="tab_title_recent_services">Recent Services</string>
+    <string name="tab_title_find_services">Find Services</string>
+    <string name="tab_title_request_service">Request Service</string>
 </resources>

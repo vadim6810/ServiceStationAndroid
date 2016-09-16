@@ -5,4 +5,7 @@
     <string name="button_sign_in_informative">כבר רשום? הקש להתחברות</string>
     <string name="button_sign_up">הרשמה</string>
     <string name="button_sign_up_informative">עדיין לא רשום? הקש להרשמה</string>
+    <string name="tab_title_recent_services">שירותים אחרונים</string>
+    <string name="tab_title_find_services">חיפוש שירות</string>
+    <string name="tab_title_request_service">הזמן שירות</string>
 </resources>

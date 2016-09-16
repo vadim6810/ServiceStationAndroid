@@ -5,4 +5,4 @@
     android:layout_height="?attr/actionBarSize"
     android:layout_width="match_parent"
     android:theme="@style/ToolbarTheme"
-    app:layout_scrollFlags="scroll|enterAlways"/>
+    app:layout_scrollFlags="scroll|enterAlways|snap"/>

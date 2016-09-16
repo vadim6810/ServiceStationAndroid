@@ -5,4 +5,7 @@
     <string name="button_sign_in_informative">Уже пользователь? Войти в систему</string>
     <string name="button_sign_up">Зарегистрироваться</string>
     <string name="button_sign_up_informative">Не зарегистрирован? Зарегистрироваться</string>
+    <string name="tab_title_recent_services">Последние услуги</string>
+    <string name="tab_title_find_services">Найти службу</string>
+    <string name="tab_title_request_service">Запрос на обслуживание</string>
 </resources>
