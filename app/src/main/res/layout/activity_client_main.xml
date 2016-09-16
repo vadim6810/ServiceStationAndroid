@@ -11,12 +11,8 @@
         android:layout_height="wrap_content"
         android:layout_width="match_parent">
 
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/actionBar"
-            android:layout_height="?attr/actionBarSize"
-            android:layout_width="match_parent"
-            android:theme="@style/ToolbarTheme"
-            app:layout_scrollFlags="scroll|enterAlways"/>
+        <include layout="@layout/toolbar"
+            android:id="@+id/actionBar" />
 
     </android.support.design.widget.AppBarLayout>
 
