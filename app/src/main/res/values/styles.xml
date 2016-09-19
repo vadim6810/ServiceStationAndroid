@@ -9,10 +9,16 @@
         <!-- Settings -->
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+        <item name="android:itemTextAppearance">@style/TextAppearance</item>
     </style>
 
     <style name="ToolbarTheme" parent="AppTheme">
         <item name="android:textColorPrimary">@color/colorToolbarPrimaryText</item>
+    </style>
+
+    <!-- Changes each overflow menu item color -->
+    <style name="TextAppearance">
+        <item name="android:textColor">@color/colorPrimaryText</item>
     </style>
 
 </resources>

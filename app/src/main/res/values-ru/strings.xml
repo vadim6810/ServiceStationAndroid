@@ -8,4 +8,6 @@
     <string name="tab_title_recent_services">Последние услуги</string>
     <string name="tab_title_find_services">Найти службу</string>
     <string name="tab_title_request_service">Запрос на обслуживание</string>
+    <string name="menu_item_profile">Профиль</string>
+    <string name="menu_item_about">об</string>
 </resources>

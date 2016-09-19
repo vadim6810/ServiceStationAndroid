@@ -8,4 +8,6 @@
     <string name="tab_title_recent_services">Recent Services</string>
     <string name="tab_title_find_services">Find Services</string>
     <string name="tab_title_request_service">Request Service</string>
+    <string name="menu_item_profile">Profile</string>
+    <string name="menu_item_about">About</string>
 </resources>

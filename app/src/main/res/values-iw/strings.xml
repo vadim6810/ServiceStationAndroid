@@ -8,4 +8,6 @@
     <string name="tab_title_recent_services">שירותים אחרונים</string>
     <string name="tab_title_find_services">חיפוש שירות</string>
     <string name="tab_title_request_service">הזמן שירות</string>
+    <string name="menu_item_profile">פרופיל</string>
+    <string name="menu_item_about">אודות</string>
 </resources>
