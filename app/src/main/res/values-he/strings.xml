@@ -8,6 +8,18 @@
     <string name="tab_title_recent_services">שירותים אחרונים</string>
     <string name="tab_title_find_services">חיפוש שירות</string>
     <string name="tab_title_request_service">הזמן שירות</string>
+    <string name="button_expand_search_fields">הקש על מנת למצוא שירותי רכב</string>
+    <string name="district_south">דרום</string>
+    <string name="district_center">מרכז</string>
+    <string name="district_north">צפון</string>
+    <string name="district">מחוז</string>
+    <string name="required_services">שירות נדרש</string>
+    <string name="required_service_car_wash">שטיפת רכב</string>
+    <string name="required_service_tyre_repair">תיקון צמיגים</string>
+    <string name="required_service_tuning">כיוונון</string>
     <string name="menu_item_profile">פרופיל</string>
     <string name="menu_item_about">אודות</string>
+    <string name="required_service_air_cond_refill">מילוי ותיקון מזגן</string>
+    <string name="find_service_button">מצא</string>
+    <string name="clear_fields_button">נקה שדות</string>
 </resources>

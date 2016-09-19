@@ -8,6 +8,18 @@
     <string name="tab_title_recent_services">Последние услуги</string>
     <string name="tab_title_find_services">Найти службу</string>
     <string name="tab_title_request_service">Запрос на обслуживание</string>
+    <string name="button_expand_search_fields">Нажмите, чтобы найти услуги</string>
+    <string name="district_south">Юг</string>
+    <string name="district_center">Центр</string>
+    <string name="district_north">Север</string>
+    <string name="district">Район</string>
+    <string name="required_services">Требуемые услуги</string>
+    <string name="required_service_car_wash">Автомойка</string>
+    <string name="required_service_tyre_repair">Ремонт шин</string>
+    <string name="required_service_air_cond_refill">Ремонт и заправка кондиционерa</string>
+    <string name="required_service_tuning">Тюнинг</string>
     <string name="menu_item_profile">Профиль</string>
     <string name="menu_item_about">об</string>
+    <string name="find_service_button">Найти</string>
+    <string name="clear_fields_button">Очистить поля</string>
 </resources>

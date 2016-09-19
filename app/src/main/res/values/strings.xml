@@ -8,6 +8,18 @@
     <string name="tab_title_recent_services">Recent Services</string>
     <string name="tab_title_find_services">Find Services</string>
     <string name="tab_title_request_service">Request Service</string>
+    <string name="button_expand_search_fields">Tap to find services</string>
+    <string name="district_south">South</string>
+    <string name="district_center">Center</string>
+    <string name="district_north">North</string>
+    <string name="district">District</string>
+    <string name="required_services">Required Services</string>
+    <string name="required_service_car_wash">Car Wash</string>
+    <string name="required_service_tyre_repair">Tyre Repair</string>
+    <string name="required_service_air_cond_refill"><![CDATA[Air Conditioner Repair & Refill]]></string>
+    <string name="required_service_tuning">Tuning</string>
     <string name="menu_item_profile">Profile</string>
     <string name="menu_item_about">About</string>
+    <string name="find_service_button">Find</string>
+    <string name="clear_fields_button">Clear Fields</string>
 </resources>
