@@ -8,4 +8,5 @@
     <color name="colorSecondaryText">#757575</color>
     <color name="colorDivider">#BDBDBD</color>
     <color name="colorToolbarPrimaryText">#FFFFFF</color>
+    <color name="colorClientMainBackground">#1C000000</color>
 </resources>
