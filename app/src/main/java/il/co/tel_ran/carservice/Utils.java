@@ -93,4 +93,13 @@ public class Utils {
                         .build())
                 .build(activity);
     }
+
+    public static int measureChildrenWidth(ViewGroup view) {
+        int measuredChildrenWidth = 0;
+        for (int i = 0, j = view.getChildCount(); i < j; i++) {
+            measuredChildrenWidth += view.getChildAt(i).getMeasuredWidth();
+        }
+
+        return measuredChildrenWidth;
+    }
 }
