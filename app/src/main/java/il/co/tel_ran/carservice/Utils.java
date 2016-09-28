@@ -1,10 +1,17 @@
 package il.co.tel_ran.carservice;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Build;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.Transformation;
+
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
+import com.google.android.gms.location.places.AutocompleteFilter;
+import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 
 /**
  * Created by Max on 17/09/2016.
@@ -72,5 +79,18 @@ public class Utils {
 
         collapseAnimation.setDuration(duration);
         view.startAnimation(collapseAnimation);
+    }
+
+    public static Intent buildPlaceAutoCompleteIntent(Activity activity)
+            throws GooglePlayServicesNotAvailableException, GooglePlayServicesRepairableException {
+        // Use MODE_OVERLAY for a transparent background.
+        // Filters will only allow cities in Israel to appear.
+        return new PlaceAutocomplete.IntentBuilder(
+                PlaceAutocomplete.MODE_OVERLAY)
+                .setFilter(new AutocompleteFilter.Builder()
+                        .setCountry("IL")
+                        .setTypeFilter(AutocompleteFilter.TYPE_FILTER_CITIES)
+                        .build())
+                .build(activity);
     }
 }
