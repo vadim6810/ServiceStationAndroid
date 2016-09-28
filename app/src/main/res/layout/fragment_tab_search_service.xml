@@ -42,29 +42,22 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/district"
+                android:text="@string/location"
                 android:textSize="20sp"/>
-            <LinearLayout
+            <Button
+                android:id="@+id/search_city_button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingTop="@dimen/item_spacing"
-                android:orientation="horizontal">
-                <android.support.v7.widget.AppCompatCheckBox
-                    android:id="@+id/district_checkbox_south"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/district_south"/>
-                <android.support.v7.widget.AppCompatCheckBox
-                    android:id="@+id/district_checkbox_center"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/district_center"/>
-                <android.support.v7.widget.AppCompatCheckBox
-                    android:id="@+id/district_checkbox_north"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/district_north"/>
-            </LinearLayout>
+                android:background="@drawable/transparent_background_interactive"
+                android:drawableLeft="@drawable/places_ic_search"
+                android:drawableStart="@drawable/places_ic_search"
+                android:drawablePadding="@dimen/item_spacing"
+                android:gravity="start|center_vertical"
+                android:text="@string/search_location_button_hint"
+                android:textColor="@android:color/darker_gray"
+                android:textAllCaps="false"
+                android:textSize="20sp"/>
             <TextView
                 android:paddingTop="@dimen/activity_vertical_margin"
                 android:layout_width="match_parent"
