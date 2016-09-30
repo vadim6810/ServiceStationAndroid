@@ -8,6 +8,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.AppCompatCheckBox;
 import android.support.v7.widget.AppCompatImageButton;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -56,6 +58,8 @@ public class SearchServiceTabFragment extends Fragment
 
     private AppCompatCheckBox[] servicesCheckBoxes = new AppCompatCheckBox[SERVICE_CHECKBOX_IDS.length];
 
+    private RecyclerView searchResultsRecyclerView;
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -80,6 +84,14 @@ public class SearchServiceTabFragment extends Fragment
         for (int i = 0; i < servicesCheckBoxes.length; i++) {
             servicesCheckBoxes[i] = (AppCompatCheckBox) layout.findViewById(SERVICE_CHECKBOX_IDS[i]);
         }
+
+        searchResultsRecyclerView = (RecyclerView) layout.findViewById(
+                R.id.search_results_recycler_view);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
+        searchResultsRecyclerView.setLayoutManager(layoutManager);
+        ServiceSearchResultAdapter searchResultAdapter = new ServiceSearchResultAdapter(
+                new ArrayList<ServiceSearchResult>(), getContext());
+        searchResultsRecyclerView.setAdapter(searchResultAdapter);
 
         return layout;
     }
