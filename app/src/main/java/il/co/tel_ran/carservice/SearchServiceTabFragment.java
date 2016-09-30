@@ -35,7 +35,8 @@ import static android.app.Activity.RESULT_OK;
  * Created by Max on 16/09/2016.
  */
 public class SearchServiceTabFragment extends Fragment
-    implements View.OnClickListener, ChipView.OnChipDeleteClickListener {
+    implements View.OnClickListener, ChipView.OnChipDeleteClickListener,
+        ServerConnection.OnServicesRetrievedListener {
 
     private final static int[] SERVICE_CHECKBOX_IDS = {
             R.id.service_checkbox_car_wash,
@@ -109,6 +110,8 @@ public class SearchServiceTabFragment extends Fragment
     @Override
     public void onClick(View view) {
         int EXPAND_COLLAPSE_DURATION = 350;
+        ClientMainActivity containerActivity = (ClientMainActivity) getActivity();
+
         switch (view.getId()) {
             case R.id.expand_search_fields_button:
                 Utils.collapseView(expandFieldsButton, EXPAND_COLLAPSE_DURATION);
@@ -131,7 +134,6 @@ public class SearchServiceTabFragment extends Fragment
 
                 break;
             case R.id.search_city_button:
-                ClientMainActivity containerActivity = (ClientMainActivity) getActivity();
                 GoogleApiClient googleApiClient = containerActivity.getGoogleApiClient();
 
                 if (googleApiClient != null && googleApiClient.isConnected()) {
@@ -147,7 +149,54 @@ public class SearchServiceTabFragment extends Fragment
                     }
                 }
                 break;
+            case R.id.find_services_button:
+                Utils.collapseView(searchFieldsLayout, EXPAND_COLLAPSE_DURATION);
+                Utils.expandView(expandFieldsButton, EXPAND_COLLAPSE_DURATION);
+
+                ServiceSearchQuery searchQuery = new ServiceSearchQuery(locations);
+                for (int i = 0; i < SERVICE_CHECKBOX_IDS.length; i++) {
+                    // This is a new created object with empty service types (all toggled off).
+                    // Therefore only add the checked ones.
+                    if (!servicesCheckBoxes[i].isChecked())
+                        continue;
+
+                    switch (SERVICE_CHECKBOX_IDS[i]) {
+                        case R.id.service_checkbox_air_cond:
+                            searchQuery.toggleServiceType(
+                                    ServiceType.SERVICE_TYPE_AC_REPAIR_REFILL, true);
+                            break;
+                        case R.id.service_checkbox_car_wash:
+                            searchQuery.toggleServiceType(
+                                    ServiceType.SERVICE_TYPE_CAR_WASH, true);
+                            break;
+                        case R.id.service_checkbox_tuning:
+                            searchQuery.toggleServiceType(
+                                    ServiceType.SERVICE_TYPE_TUNING, true);
+                            break;
+                        case R.id.service_checkbox_tyre_repair:
+                            searchQuery.toggleServiceType(
+                                    ServiceType.SERVICE_TYPE_TYRE_REPAIR, true);
+                            break;
+                    }
+                }
+
+                ServerConnection connection = containerActivity.getServerConnection();
+                if (connection != null) {
+                    connection.findServices(searchQuery, containerActivity.getGoogleApiClient(),
+                            this);
+                }
+                break;
         }
+    }
+
+    @Override
+    public void onServicesRetrievingStarted() {
+
+    }
+
+    @Override
+    public void onServicesRetrieved(List<ServiceSearchResult> searchResults) {
+
     }
 
     @Override
