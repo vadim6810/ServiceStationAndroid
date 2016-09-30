@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
@@ -59,6 +60,7 @@ public class SearchServiceTabFragment extends Fragment
     private AppCompatCheckBox[] servicesCheckBoxes = new AppCompatCheckBox[SERVICE_CHECKBOX_IDS.length];
 
     private RecyclerView searchResultsRecyclerView;
+    private ProgressBar resultsProgressBar;
 
     @Nullable
     @Override
@@ -92,6 +94,8 @@ public class SearchServiceTabFragment extends Fragment
         ServiceSearchResultAdapter searchResultAdapter = new ServiceSearchResultAdapter(
                 new ArrayList<ServiceSearchResult>(), getContext());
         searchResultsRecyclerView.setAdapter(searchResultAdapter);
+
+        resultsProgressBar = (ProgressBar) layout.findViewById(R.id.search_results_progress_bar);
 
         return layout;
     }
@@ -200,12 +204,22 @@ public class SearchServiceTabFragment extends Fragment
 
     @Override
     public void onServicesRetrievingStarted() {
+        ServiceSearchResultAdapter adapter = (ServiceSearchResultAdapter) searchResultsRecyclerView
+                .getAdapter();
 
+        adapter.removeAllItems();
+
+        resultsProgressBar.setVisibility(View.VISIBLE);
     }
 
     @Override
     public void onServicesRetrieved(List<ServiceSearchResult> searchResults) {
+        resultsProgressBar.setVisibility(View.GONE);
 
+        ServiceSearchResultAdapter adapter = (ServiceSearchResultAdapter) searchResultsRecyclerView
+                .getAdapter();
+
+        adapter.addItems(searchResults);
     }
 
     @Override
