@@ -102,4 +102,22 @@ public class Utils {
 
         return measuredChildrenWidth;
     }
+
+    public static String parseCityNameFromAddress(CharSequence address) {
+        // Google Places API return human-readable address with types separated by commas.
+        String[] addressParts = ((String) address).split(",");
+        switch (addressParts.length) {
+            case 2:
+                // City Name, Country
+                return addressParts[0].trim();
+            case 3:
+                // Street Name, City Name, Country
+                // FALLTHROUGH
+            case 4:
+                // Street Name, City Name, Postcode, Country
+                return addressParts[1].trim();
+        }
+
+        return "";
+    }
 }
