@@ -41,6 +41,12 @@ public class ClientMainActivity extends AppCompatActivity implements GoogleApiCl
     }
 
     @Override
+    protected void onStop() {
+        super.onStop();
+        mServerConnection.cancelAllTasks();
+    }
+
+    @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
         // Handle connection results.
     }
