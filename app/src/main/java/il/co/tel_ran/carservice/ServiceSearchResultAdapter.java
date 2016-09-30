@@ -17,7 +17,7 @@ import java.util.List;
  */
 
 public class ServiceSearchResultAdapter
-        extends RecyclerView.Adapter<ServiceSearchResultAdapter.ViewHolder> {
+        extends RecyclerView.Adapter<ServiceSearchResultAdapter.ViewHolder> implements View.OnClickListener {
 
     private final String serviceCarWashStr;
     private final String serviceTuningStr;
@@ -25,14 +25,28 @@ public class ServiceSearchResultAdapter
     private final String serviceTyreRepairStr;
 
     private List<ServiceSearchResult> mSearchResults = new ArrayList<ServiceSearchResult>();
-    
-    public ServiceSearchResultAdapter(List<ServiceSearchResult> searchResults, Context context) {
+
+    private ServiceSearchResultClickListener mListener;
+
+    public interface ServiceSearchResultClickListener {
+        void onClickSearchResult(View view);
+    }
+
+    public ServiceSearchResultAdapter(List<ServiceSearchResult> searchResults, Context context,
+                                      ServiceSearchResultClickListener listener) {
         mSearchResults = searchResults;
 
         serviceCarWashStr        = context.getString(R.string.required_service_car_wash);
         serviceTuningStr         = context.getString(R.string.required_service_tuning);
         serviceTyreRepairStr     = context.getString(R.string.required_service_tyre_repair);
         serviceACRepairRefillStr = context.getString(R.string.required_service_air_cond_refill);
+
+        mListener = listener;
+    }
+
+    @Override
+    public void onClick(View v) {
+        mListener.onClickSearchResult(v);
     }
 
     @Override
@@ -41,6 +55,8 @@ public class ServiceSearchResultAdapter
 
         View serviceSearchResult = LayoutInflater.from(parentContext)
                 .inflate(R.layout.service_search_result_layout, parent, false);
+
+        serviceSearchResult.setOnClickListener(this);
 
         return new ViewHolder(serviceSearchResult);
     }
@@ -82,7 +98,7 @@ public class ServiceSearchResultAdapter
         return mSearchResults.size();
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public static class ViewHolder extends RecyclerView.ViewHolder {
 
         private final TextView serviceNameTextView;
         private final TextView availableServicesTextView;
@@ -97,13 +113,6 @@ public class ServiceSearchResultAdapter
                     R.id.result_available_services_text_view);
             locationTextView = (TextView) layout.findViewById(
                     R.id.result_location_text_view);
-
-            layout.setOnClickListener(this);
-        }
-
-        @Override
-        public void onClick(View v) {
-            // TODO: Pass click to a listener which will be implemented elsewhere.
         }
     }
 

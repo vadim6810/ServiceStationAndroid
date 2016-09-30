@@ -36,7 +36,8 @@ import static android.app.Activity.RESULT_OK;
  */
 public class SearchServiceTabFragment extends Fragment
     implements View.OnClickListener, ChipView.OnChipDeleteClickListener,
-        ServerConnection.OnServicesRetrievedListener {
+        ServerConnection.OnServicesRetrievedListener,
+        ServiceSearchResultAdapter.ServiceSearchResultClickListener {
 
     private final static int[] SERVICE_CHECKBOX_IDS = {
             R.id.service_checkbox_car_wash,
@@ -92,7 +93,7 @@ public class SearchServiceTabFragment extends Fragment
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         searchResultsRecyclerView.setLayoutManager(layoutManager);
         ServiceSearchResultAdapter searchResultAdapter = new ServiceSearchResultAdapter(
-                new ArrayList<ServiceSearchResult>(), getContext());
+                new ArrayList<ServiceSearchResult>(), getContext(), this);
         searchResultsRecyclerView.setAdapter(searchResultAdapter);
 
         resultsProgressBar = (ProgressBar) layout.findViewById(R.id.search_results_progress_bar);
@@ -220,6 +221,15 @@ public class SearchServiceTabFragment extends Fragment
                 .getAdapter();
 
         adapter.addItems(searchResults);
+    }
+
+    @Override
+    public void onClickSearchResult(View view) {
+        // TODO: Add check for user signed in.
+        int itemPos = searchResultsRecyclerView.getChildAdapterPosition(view);
+        ServiceSearchResultAdapter adapter = (ServiceSearchResultAdapter) searchResultsRecyclerView
+                .getAdapter();
+        ServiceSearchResult result = adapter.getItem(itemPos);
     }
 
     @Override
