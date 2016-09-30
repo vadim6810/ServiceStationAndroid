@@ -21,6 +21,8 @@ public class ClientMainActivity extends AppCompatActivity implements GoogleApiCl
 
     private GoogleApiClient mGoogleApiClient;
 
+    private ServerConnection mServerConnection;
+
     private View userAccountControlLayout;
 
     @Override
@@ -34,6 +36,8 @@ public class ClientMainActivity extends AppCompatActivity implements GoogleApiCl
 
         setupActionBar();
         setupTabLayout();
+
+        setupServerConnection();
     }
 
     @Override
@@ -71,6 +75,10 @@ public class ClientMainActivity extends AppCompatActivity implements GoogleApiCl
         return mGoogleApiClient;
     }
 
+    public ServerConnection getServerConnection() {
+        return mServerConnection;
+    }
+
     private void setupGoogleApiClient() {
         mGoogleApiClient = new GoogleApiClient
                 .Builder(this)
@@ -78,6 +86,10 @@ public class ClientMainActivity extends AppCompatActivity implements GoogleApiCl
                 .addApi(Places.PLACE_DETECTION_API)
                 .enableAutoManage(this, this)
                 .build();
+    }
+
+    private void setupServerConnection() {
+        mServerConnection = new ServerConnection();
     }
 
     private void setupActionBar() {
