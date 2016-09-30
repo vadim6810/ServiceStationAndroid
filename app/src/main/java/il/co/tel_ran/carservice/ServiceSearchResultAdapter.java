@@ -131,6 +131,14 @@ public class ServiceSearchResultAdapter
         mSearchResults.clear();
     }
 
+    public ServiceSearchResult getItem(int position) {
+        if (position >= 0 && position < mSearchResults.size()) {
+            return mSearchResults.get(position);
+        }
+
+        return null;
+    }
+
     private void addItem(ServiceSearchResult searchResult, boolean notify) {
         if (searchResult != null) {
             mSearchResults.add(searchResult);
