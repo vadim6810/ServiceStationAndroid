@@ -21,10 +21,14 @@ public class ClientMainActivity extends AppCompatActivity implements GoogleApiCl
 
     private GoogleApiClient mGoogleApiClient;
 
+    private View userAccountControlLayout;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_client_main);
+
+        userAccountControlLayout = findViewById(R.id.user_control_layout);
 
         setupGoogleApiClient();
 
@@ -84,6 +88,24 @@ public class ClientMainActivity extends AppCompatActivity implements GoogleApiCl
     private void setupTabLayout() {
         ViewPager tabsViewPager = (ViewPager) findViewById(R.id.tabs_viewpager);
         tabsViewPager.setAdapter(new TabsPagerAdapter(getSupportFragmentManager()));
+
+        if (userAccountControlLayout.getVisibility() == View.VISIBLE) {
+            int paddingLeft = tabsViewPager.getPaddingLeft();
+            int paddingRight = tabsViewPager.getPaddingRight();
+            int paddingTop = tabsViewPager.getPaddingTop();
+            int paddingBottom = tabsViewPager.getPaddingBottom();
+
+            userAccountControlLayout.measure(View.MeasureSpec.UNSPECIFIED,
+                    View.MeasureSpec.UNSPECIFIED);
+
+            // Adding this much padding reduces the height of the ViewPager so there is
+            // no interference between the ViewPager and the Sign In/Up layout.
+            int addedPadding = (int) (userAccountControlLayout.getMeasuredHeight()
+                    + getResources().getDimension(R.dimen.activity_horizontal_margin));
+
+            tabsViewPager.setPadding(paddingLeft, paddingTop,
+                    paddingRight, paddingBottom + addedPadding);
+        }
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tab_layout);
         tabLayout.setupWithViewPager(tabsViewPager);
