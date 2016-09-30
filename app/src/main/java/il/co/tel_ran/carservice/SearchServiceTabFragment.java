@@ -92,7 +92,9 @@ public class SearchServiceTabFragment extends Fragment
             case PLACE_AUTOCOMPLETE_REQUEST_CODE:
                 if (resultCode == RESULT_OK) {
                     Place place = PlaceAutocomplete.getPlace(getActivity(), data);
-                    addPlaceChip(place);
+                    if (!locations.contains(place)) {
+                        addPlaceChip(place);
+                    }
                 } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
                     Status status = PlaceAutocomplete.getStatus(getActivity(), data);
                     // TODO: Handle error
