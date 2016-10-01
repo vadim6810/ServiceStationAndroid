@@ -1,21 +1,29 @@
 package il.co.tel_ran.carservice;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.AppCompatCheckBox;
 import android.support.v7.widget.AppCompatImageButton;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
@@ -25,8 +33,11 @@ import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 import com.hotmail.maximglukhov.chipview.ChipView;
 
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;
@@ -226,10 +237,116 @@ public class SearchServiceTabFragment extends Fragment
     @Override
     public void onClickSearchResult(View view) {
         // TODO: Add check for user signed in.
+
+        // Find the position in the adapter for this view.
         int itemPos = searchResultsRecyclerView.getChildAdapterPosition(view);
         ServiceSearchResultAdapter adapter = (ServiceSearchResultAdapter) searchResultsRecyclerView
                 .getAdapter();
-        ServiceSearchResult result = adapter.getItem(itemPos);
+        // Get the result object for this position.
+        final ServiceSearchResult searchResult = adapter.getItem(itemPos);
+
+        // Inflate card layout.
+        LayoutInflater inflater = (LayoutInflater) getContext()
+                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View cardLayout = inflater.inflate(R.layout.service_details_card_layout, null);
+
+        // Build a dialog with card layout.
+        final Dialog dialog = new Dialog(getContext());
+        dialog.setContentView(cardLayout);
+        dialog.show();
+
+        // ImageView for service's photo (based on Google Maps address).
+        final ImageView placeImageView = (ImageView) cardLayout
+                .findViewById(R.id.service_details_photo);
+        // Measuring is required so we can pass width & height to Google API to retrieve
+        // scaled photo.
+        placeImageView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+
+        // Set service's name
+        final TextView serviceNameTextView = (TextView) cardLayout
+                .findViewById(R.id.service_details_name);
+        serviceNameTextView.setText(searchResult.getName());
+
+        // Set service's address (from Google Maps).
+        final TextView serviceAddressTextView = (TextView) cardLayout
+                .findViewById(R.id.service_details_address);
+        serviceAddressTextView.setText(searchResult.getLocation().getAddress());
+
+        // Get the text from the search result view (from the adapter).
+        // This is done because the EnumSet<ServiceType> types were already parsed to string.
+        // It is easier to simply extract it from the TextView.
+        CharSequence servicesText = ((TextView)view
+                .findViewById(R.id.result_available_services_text_view)).getText();
+        final TextView serviceTypesTextView = (TextView) cardLayout
+                .findViewById(R.id.service_details_services);
+        serviceTypesTextView.setText(
+                getString(R.string.service_details_available_services, servicesText));
+
+        // Set avg rating & submitted rating count.
+        final TextView ratingSubmitTextView = (TextView) cardLayout
+                .findViewById(R.id.rating_submit_count);
+        ratingSubmitTextView.setText(String.format(
+                Locale.getDefault(), "%.2f", searchResult.getAvgRating())
+                + " (" + Integer.toString(searchResult.getSubmittedRatings()) + ')');
+
+        // Listen to map FAB.
+        final FloatingActionButton openMapFAB = (FloatingActionButton) cardLayout
+                .findViewById(R.id.open_map_fab);
+
+        openMapFAB.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Open Google Maps with navigation directions.
+                Uri gmmIntentUri = Uri.parse(
+                        "google.navigation:q=" + searchResult.getLocation().getAddress());
+                Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+                mapIntent.setPackage("com.google.android.apps.maps");
+                startActivity(mapIntent);
+            }
+        });
+
+        // Rating stars ImageView IDs
+        final int[] ratingStarIds = {
+                R.id.rating_star_1,
+                R.id.rating_star_2,
+                R.id.rating_star_3,
+                R.id.rating_star_4,
+                R.id.rating_star_5,
+        };
+        final ImageView[] ratingStars = new ImageView[ratingStarIds.length];
+        for (int i = 0; i < ratingStarIds.length; i++) {
+            ratingStars[i] = (ImageView) cardLayout.findViewById(ratingStarIds[i]);
+            /*
+            Set the source according to the difference between avg rating and index.
+            It is necessary to "fill" all stars up to the average rating (0.0f-5.0f).
+
+            As long as the difference in every iteration is bigger than 1, it's a full star.
+            If the difference is negative the star is empty.
+            If the difference is a fraction (>0 & <1) it's half a star.
+             */
+            float diff = searchResult.getAvgRating() - i;
+            if (diff >= 1) {
+                ratingStars[i].setImageResource(R.mipmap.ic_star_full);
+            } else if (diff <= 0) {
+                ratingStars[i].setImageResource(R.mipmap.ic_star_empty);
+            } else {
+                ratingStars[i].setImageResource(R.mipmap.ic_star_half);
+            }
+        }
+
+        // Get photo for this Google Maps address to display.
+        new LoadPlacePhotoTask(((ClientMainActivity) getActivity()).getGoogleApiClient(),
+                placeImageView.getMeasuredWidth(), placeImageView.getMeasuredHeight()) {
+
+            @Override
+            protected void onPostExecute(Bitmap bitmapPhoto) {
+                if (bitmapPhoto != null) {
+                    // Photo has been loaded, display it.
+                    placeImageView.setImageBitmap(bitmapPhoto);
+
+                }
+            }
+        }.execute(searchResult.getLocation().getId());
     }
 
     @Override
