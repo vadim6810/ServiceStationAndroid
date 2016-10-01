@@ -20,4 +20,6 @@
     <string name="find_service_button">Найти</string>
     <string name="clear_fields_button">Очистить поля</string>
     <string name="search_location_button_hint">Нажмите для поиска&#8230;</string>
+    <string name="dismiss">Закрыть</string>
+    <string name="service_details_available_services">Предоставляемые услуги: %s</string>
 </resources>

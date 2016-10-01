@@ -20,4 +20,6 @@
     <string name="find_service_button">Find</string>
     <string name="clear_fields_button">Clear Fields</string>
     <string name="search_location_button_hint">Tap to search&#8230;</string>
+    <string name="dismiss">Dismiss</string>
+    <string name="service_details_available_services">Provided Services: %s</string>
 </resources>

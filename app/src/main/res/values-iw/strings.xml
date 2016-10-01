@@ -20,4 +20,6 @@
     <string name="find_service_button">מצא</string>
     <string name="clear_fields_button">נקה שדות</string>
     <string name="search_location_button_hint">הקש על-מנת לחפש&#8230;</string>
+    <string name="dismiss">סגור</string>
+    <string name="service_details_available_services">שירותים מוצעים: %s</string>
 </resources>
