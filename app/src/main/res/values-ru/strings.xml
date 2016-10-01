@@ -19,5 +19,5 @@
     <string name="menu_item_about">об</string>
     <string name="find_service_button">Найти</string>
     <string name="clear_fields_button">Очистить поля</string>
-    <string name="search_location_button_hint">Нажмите для поиска...</string>
+    <string name="search_location_button_hint">Нажмите для поиска&#8230;</string>
 </resources>

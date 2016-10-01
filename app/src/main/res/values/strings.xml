@@ -19,5 +19,5 @@
     <string name="menu_item_about">About</string>
     <string name="find_service_button">Find</string>
     <string name="clear_fields_button">Clear Fields</string>
-    <string name="search_location_button_hint">Tap to search...</string>
+    <string name="search_location_button_hint">Tap to search&#8230;</string>
 </resources>

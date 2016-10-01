@@ -19,5 +19,5 @@
     <string name="menu_item_about">אודות</string>
     <string name="find_service_button">מצא</string>
     <string name="clear_fields_button">נקה שדות</string>
-    <string name="search_location_button_hint">הקש על-מנת לחפש...</string>
+    <string name="search_location_button_hint">הקש על-מנת לחפש&#8230;</string>
 </resources>
