@@ -104,19 +104,31 @@ public class Utils {
     }
 
     public static String parseCityNameFromAddress(CharSequence address) {
+        boolean isRTL = Utils.isRTL((String) address);
         // Google Places API return human-readable address with types separated by commas.
         String[] addressParts = ((String) address).split(",");
         switch (addressParts.length) {
             case 2:
-                // City Name, Country
+                // City Name, Country (Opposite for RTL)
                 return addressParts[0].trim();
             case 3:
-                // Street Name, City Name, Country
+                // Street Name, City Name, Country (Opposite for RTL)
                 // FALLTHROUGH
             case 4:
-                // Street Name, City Name, Postcode, Country
-                return addressParts[1].trim();
+                // Street Name, City Name, Postcode, Country (Opposite for RTL)
+                return addressParts[isRTL ? 2 : 1].trim();
         }
+
+        return "";
+    }
+
+    public static boolean isRTL (String string) {
+        if (string.isEmpty()) {
+            return false;
+        }
+        char c = string.charAt(0);
+        return c >= 0x590 && c <= 0x6ff;
+    }
 
         return "";
     }
