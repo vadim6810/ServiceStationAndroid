@@ -163,40 +163,49 @@ public class ServerConnection {
     private List<SampleRawResult> getSampleRawResults() {
         List<SampleRawResult> sampleRawResults = new ArrayList<>();
 
-        Random random = new Random();
-
         sampleRawResults.add(new SampleRawResult("Sample Service 1", null,
-                random.nextFloat(), random.nextInt(),
-                EnumSet.of(ServiceType.SERVICE_TYPE_AC_REPAIR_REFILL),
-                "ChIJs5RXm2tmAhUR8KVchevUuh0"));
-        sampleRawResults.add(new SampleRawResult("Sample Service 2", null,
-                random.nextFloat(), random.nextInt(),
-                EnumSet.of(ServiceType.SERVICE_TYPE_CAR_WASH),
-                "ChIJU_6mLAFGAhUR0RKnIKBwupY"));
-        sampleRawResults.add(new SampleRawResult("Sample Service 3", null,
-                random.nextFloat(), random.nextInt(),
+                randFloat(5.0f, 0.5f), randInt(100, 1),
                 EnumSet.of(ServiceType.SERVICE_TYPE_TUNING, ServiceType.SERVICE_TYPE_TYRE_REPAIR),
-                "ChIJAa6V6yE_AhURjyBESg85Ogk"));
+                "ChIJ73TZ6KRMHRURfT9T61-w7QY"));
+        sampleRawResults.add(new SampleRawResult("Sample Service 2", null,
+                randFloat(5.0f, 0.5f), randInt(100, 1),
+                EnumSet.of(ServiceType.SERVICE_TYPE_TYRE_REPAIR),
+                "ChIJnSco919LHRURg2ZruWtsDmg"));
+        sampleRawResults.add(new SampleRawResult("Sample Service 3", null,
+                randFloat(5.0f, 0.5f), randInt(100, 1),
+                EnumSet.of(ServiceType.SERVICE_TYPE_AC_REPAIR_REFILL,
+                        ServiceType.SERVICE_TYPE_TUNING),
+                "ChIJzfEJQkCjAhURl70lo2y4SxA"));
         sampleRawResults.add(new SampleRawResult("Sample Service 4", null,
-                random.nextFloat(), random.nextInt(),
+                randFloat(5.0f, 0.5f), randInt(100, 1),
                 EnumSet.of(ServiceType.SERVICE_TYPE_AC_REPAIR_REFILL,
                         ServiceType.SERVICE_TYPE_TYRE_REPAIR),
-                "ChIJzXfCp-S2AhURqjtizUhdRe4"));
+                "ChIJrbITsnBLHRURxOktiI37Yn4"));
         sampleRawResults.add(new SampleRawResult("Sample Service 5", null,
-                random.nextFloat(), random.nextInt(),
-                EnumSet.of(ServiceType.SERVICE_TYPE_CAR_WASH), "ChIJS_zBNNbXAhURy-FuRT5ib9k"));
+                randFloat(5.0f, 0.5f), randInt(100, 1),
+                EnumSet.of(ServiceType.SERVICE_TYPE_TYRE_REPAIR), "ChIJpxhWFYNAHRURmP31dRn87zA"));
         sampleRawResults.add(new SampleRawResult("Sample Service 6", null,
-                random.nextFloat(), random.nextInt(),
+                randFloat(5.0f, 0.5f), randInt(100, 1),
                 EnumSet.of(ServiceType.SERVICE_TYPE_CAR_WASH, ServiceType.SERVICE_TYPE_TUNING),
-                "ChIJC-qoAAIAAxURl8EhejtlMgI"));
+                "ChIJmckm3fVLHRUR0DtEhUiQGhA"));
         sampleRawResults.add(new SampleRawResult("Sample Service 7", null,
-                random.nextFloat(), random.nextInt(),
+                randFloat(5.0f, 0.5f), randInt(100, 1),
                 EnumSet.of(ServiceType.SERVICE_TYPE_AC_REPAIR_REFILL,
                         ServiceType.SERVICE_TYPE_CAR_WASH, ServiceType.SERVICE_TYPE_TUNING,
                         ServiceType.SERVICE_TYPE_TYRE_REPAIR),
-                "ChIJ4UgSuMNlAhURSA3oVGl0VIM"));
+                "ChIJSRHA_51LHRUR15zBsFayP_U"));
 
         return sampleRawResults;
+    }
+
+    // TODO: Remove when switching to real results.
+    private int randInt(int max, int min) {
+        return new Random().nextInt((max - min) + 1) + min;
+    }
+
+    // TODO: Remove when switching to real results.
+    private float randFloat(float max, float min) {
+        return new Random().nextFloat() * (max - min) + min;
     }
 
     // TODO: Remove when switching to real results.
