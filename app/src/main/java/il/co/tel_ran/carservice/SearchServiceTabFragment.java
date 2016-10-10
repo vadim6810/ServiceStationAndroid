@@ -370,6 +370,21 @@ public class SearchServiceTabFragment extends Fragment
                 .findViewById(R.id.open_map_fab);
         openMapFAB.setTag(searchResult);
         openMapFAB.setOnClickListener(this);
+
+        final ImageView contactDetails = (ImageView) cardLayout.findViewById(
+                R.id.contact_details_image_view);
+        contactDetails.setTag(searchResult);
+        contactDetails.setOnClickListener(this);
+
+        final ImageView leaveMessage = (ImageView) cardLayout.findViewById(
+                R.id.leave_message_image_view);
+        leaveMessage.setTag(searchResult);
+        leaveMessage.setOnClickListener(this);
+
+        final ImageView leaveRating = (ImageView) cardLayout.findViewById(
+                R.id.leave_rating_image_view);
+        leaveRating.setTag(searchResult);
+        leaveRating.setOnClickListener(this);
     }
 
     @Override
