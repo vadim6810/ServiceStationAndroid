@@ -70,42 +70,52 @@ public class SearchServiceTabFragment extends Fragment
     private RecyclerView searchResultsRecyclerView;
     private ProgressBar resultsProgressBar;
 
+    private View mainLayout;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setRetainInstance(true);
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View layout = inflater.inflate(R.layout.fragment_tab_search_service, container, false);
+        if (mainLayout == null) {
+            mainLayout = inflater.inflate(R.layout.fragment_tab_search_service, container, false);
 
-        searchFieldsLayout = (LinearLayout) layout.findViewById(R.id.find_service_expandable_layout);
+            searchFieldsLayout = (LinearLayout) mainLayout.findViewById(R.id.find_service_expandable_layout);
 
-        expandFieldsButton = (Button) layout.findViewById(R.id.expand_search_fields_button);
-        expandFieldsButton.setOnClickListener(this);
-        AppCompatImageButton collapseFieldsButton = (AppCompatImageButton) layout.findViewById(R.id.collapse_search_fields_button);
-        collapseFieldsButton.setOnClickListener(this);
+            expandFieldsButton = (Button) mainLayout.findViewById(R.id.expand_search_fields_button);
+            expandFieldsButton.setOnClickListener(this);
+            AppCompatImageButton collapseFieldsButton = (AppCompatImageButton) mainLayout.findViewById(R.id.collapse_search_fields_button);
+            collapseFieldsButton.setOnClickListener(this);
 
-        Button findServicesButton = (Button) layout.findViewById(R.id.find_services_button);
-        findServicesButton.setOnClickListener(this);
+            Button findServicesButton = (Button) mainLayout.findViewById(R.id.find_services_button);
+            findServicesButton.setOnClickListener(this);
 
-        Button clearFieldsButton = (Button) layout.findViewById(R.id.clear_search_fields_button);
-        clearFieldsButton.setOnClickListener(this);
+            Button clearFieldsButton = (Button) mainLayout.findViewById(R.id.clear_search_fields_button);
+            clearFieldsButton.setOnClickListener(this);
 
-        searchLocationButton = (Button) layout.findViewById(R.id.search_city_button);
-        searchLocationButton.setOnClickListener(this);
+            searchLocationButton = (Button) mainLayout.findViewById(R.id.search_city_button);
+            searchLocationButton.setOnClickListener(this);
 
-        for (int i = 0; i < servicesCheckBoxes.length; i++) {
-            servicesCheckBoxes[i] = (AppCompatCheckBox) layout.findViewById(SERVICE_CHECKBOX_IDS[i]);
+            for (int i = 0; i < servicesCheckBoxes.length; i++) {
+                servicesCheckBoxes[i] = (AppCompatCheckBox) mainLayout.findViewById(SERVICE_CHECKBOX_IDS[i]);
+            }
+
+            searchResultsRecyclerView = (RecyclerView) mainLayout.findViewById(
+                    R.id.search_results_recycler_view);
+            LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
+            searchResultsRecyclerView.setLayoutManager(layoutManager);
+            ServiceSearchResultAdapter searchResultAdapter = new ServiceSearchResultAdapter(
+                    new ArrayList<ServiceSearchResult>(), getContext(), this);
+            searchResultsRecyclerView.setAdapter(searchResultAdapter);
+
+            resultsProgressBar = (ProgressBar) mainLayout.findViewById(R.id.search_results_progress_bar);
         }
 
-        searchResultsRecyclerView = (RecyclerView) layout.findViewById(
-                R.id.search_results_recycler_view);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
-        searchResultsRecyclerView.setLayoutManager(layoutManager);
-        ServiceSearchResultAdapter searchResultAdapter = new ServiceSearchResultAdapter(
-                new ArrayList<ServiceSearchResult>(), getContext(), this);
-        searchResultsRecyclerView.setAdapter(searchResultAdapter);
-
-        resultsProgressBar = (ProgressBar) layout.findViewById(R.id.search_results_progress_bar);
-
-        return layout;
+        return mainLayout;
     }
 
     @Override

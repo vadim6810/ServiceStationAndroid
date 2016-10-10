@@ -25,6 +25,16 @@ public class ClientMainActivity extends AppCompatActivity implements GoogleApiCl
 
     private View userAccountControlLayout;
 
+    private static final int TAB_FRAGMENT_RECENT_SERVICES_INDEX = 0;
+    private RecentServicesTabFragment recentServicesTabFragment;
+    private static final int TAB_FRAGMENT_SEARCH_SERVICES_INDEX = 1;
+    private SearchServiceTabFragment searchServiceTabFragment;
+    private static final int TAB_FRAGMENT_REQUEST_SERVICES_INDEX = 2;
+    private RequestServiceTabFragment requestServiceTabFragment;
+
+    private RetainedFragment dataFragment;
+    private TabLayout tabLayout;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,12 +42,41 @@ public class ClientMainActivity extends AppCompatActivity implements GoogleApiCl
 
         userAccountControlLayout = findViewById(R.id.user_control_layout);
 
+        // find the retained fragment on activity restarts
+        FragmentManager fm = getSupportFragmentManager();
+        dataFragment = (RetainedFragment) fm.findFragmentByTag(
+                RetainedFragment.CLIENT_MAIN_ACTIVITY_RETAINED_FRAGMENT_TAG);
+
+        // create the fragment and data the first time
+        if (dataFragment == null) {
+            // add the fragment
+            dataFragment = new RetainedFragment();
+            fm.beginTransaction().add(dataFragment,
+                    RetainedFragment.CLIENT_MAIN_ACTIVITY_RETAINED_FRAGMENT_TAG).commit();
+
+            // Initialize data
+            setupServerConnection();
+            createTabFragment(TAB_FRAGMENT_RECENT_SERVICES_INDEX);
+            createTabFragment(TAB_FRAGMENT_SEARCH_SERVICES_INDEX);
+            createTabFragment(TAB_FRAGMENT_REQUEST_SERVICES_INDEX);
+
+            ClientActivityRetainedData data = new ClientActivityRetainedData(mGoogleApiClient,
+                    mServerConnection, recentServicesTabFragment, searchServiceTabFragment,
+                    requestServiceTabFragment);
+
+            dataFragment.setData(data);
+        } else {
+            ClientActivityRetainedData data = (ClientActivityRetainedData) dataFragment.getData();
+            mServerConnection = data.getServerConnection();
+            recentServicesTabFragment = data.getRecentServicesTabFragment();
+            searchServiceTabFragment = data.getSearchServiceTabFragment();
+            requestServiceTabFragment = data.getRequestServiceTabFragment();
+        }
+
         setupGoogleApiClient();
 
         setupActionBar();
         setupTabLayout();
-
-        setupServerConnection();
     }
 
     @Override
@@ -125,7 +164,7 @@ public class ClientMainActivity extends AppCompatActivity implements GoogleApiCl
                     paddingRight, paddingBottom + addedPadding);
         }
 
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.tab_layout);
+        tabLayout = (TabLayout) findViewById(R.id.tab_layout);
         tabLayout.setupWithViewPager(tabsViewPager);
     }
 
@@ -145,16 +184,14 @@ public class ClientMainActivity extends AppCompatActivity implements GoogleApiCl
 
         @Override
         public Fragment getItem(int position) {
+            createTabFragment(position);
             switch (position) {
                 case 0:
-                    // Recent services
-                    return new RecentServicesTabFragment();
+                    return recentServicesTabFragment;
                 case 1:
-                    // Search for service
-                    return new SearchServiceTabFragment();
+                    return searchServiceTabFragment;
                 case 2:
-                    // Request service
-                    return new RequestServiceTabFragment();
+                    return requestServiceTabFragment;
             }
             return null;
         }
@@ -168,5 +205,27 @@ public class ClientMainActivity extends AppCompatActivity implements GoogleApiCl
         public CharSequence getPageTitle(int position) {
             return tabTitles[position];
         }
+    }
+
+    private boolean createTabFragment(int tabIndex) {
+        switch (tabIndex) {
+            case TAB_FRAGMENT_RECENT_SERVICES_INDEX:
+                if (recentServicesTabFragment == null) {
+                    recentServicesTabFragment = new RecentServicesTabFragment();
+                    return true;
+                }
+            case TAB_FRAGMENT_SEARCH_SERVICES_INDEX:
+                if (searchServiceTabFragment == null) {
+                    searchServiceTabFragment = new SearchServiceTabFragment();
+                    return true;
+                }
+            case TAB_FRAGMENT_REQUEST_SERVICES_INDEX:
+                if (requestServiceTabFragment == null) {
+                    requestServiceTabFragment = new RequestServiceTabFragment();
+                    return true;
+                }
+        }
+
+        return false;
     }
 }
