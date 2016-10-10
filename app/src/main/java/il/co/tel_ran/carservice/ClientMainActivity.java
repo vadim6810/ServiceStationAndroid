@@ -124,6 +124,10 @@ public class ClientMainActivity extends AppCompatActivity implements GoogleApiCl
         return mServerConnection;
     }
 
+    public boolean isUserControlLayoutVisible() {
+        return userAccountControlLayout.getVisibility() == View.VISIBLE;
+    }
+
     private void setupGoogleApiClient() {
         mGoogleApiClient = new GoogleApiClient
                 .Builder(this)
@@ -147,9 +151,6 @@ public class ClientMainActivity extends AppCompatActivity implements GoogleApiCl
         tabsViewPager.setAdapter(new TabsPagerAdapter(getSupportFragmentManager()));
 
         if (userAccountControlLayout.getVisibility() == View.VISIBLE) {
-            int paddingLeft = tabsViewPager.getPaddingLeft();
-            int paddingRight = tabsViewPager.getPaddingRight();
-            int paddingTop = tabsViewPager.getPaddingTop();
             int paddingBottom = tabsViewPager.getPaddingBottom();
 
             userAccountControlLayout.measure(View.MeasureSpec.UNSPECIFIED,
@@ -160,8 +161,8 @@ public class ClientMainActivity extends AppCompatActivity implements GoogleApiCl
             int addedPadding = (int) (userAccountControlLayout.getMeasuredHeight()
                     + getResources().getDimension(R.dimen.activity_horizontal_margin));
 
-            tabsViewPager.setPadding(paddingLeft, paddingTop,
-                    paddingRight, paddingBottom + addedPadding);
+            Utils.setSpecificPadding(tabsViewPager, Utils.Padding.BOTTOM,
+                    paddingBottom + addedPadding);
         }
 
         tabLayout = (TabLayout) findViewById(R.id.tab_layout);

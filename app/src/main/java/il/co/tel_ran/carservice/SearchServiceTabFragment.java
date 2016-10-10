@@ -3,6 +3,7 @@ package il.co.tel_ran.carservice;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
@@ -21,6 +22,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
@@ -55,7 +57,7 @@ public class SearchServiceTabFragment extends Fragment
 
     private static final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
 
-    private LinearLayout searchFieldsLayout;
+    private ScrollView searchFieldsLayout;
     private Button expandFieldsButton;
 
     // Holds all programmatically created layouts to keep ChipView objects.
@@ -84,7 +86,7 @@ public class SearchServiceTabFragment extends Fragment
         if (mainLayout == null) {
             mainLayout = inflater.inflate(R.layout.fragment_tab_search_service, container, false);
 
-            searchFieldsLayout = (LinearLayout) mainLayout.findViewById(R.id.find_service_expandable_layout);
+            searchFieldsLayout = (ScrollView) mainLayout.findViewById(R.id.find_service_expandable_layout);
 
             expandFieldsButton = (Button) mainLayout.findViewById(R.id.expand_search_fields_button);
             expandFieldsButton.setOnClickListener(this);
@@ -113,6 +115,22 @@ public class SearchServiceTabFragment extends Fragment
             searchResultsRecyclerView.setAdapter(searchResultAdapter);
 
             resultsProgressBar = (ProgressBar) mainLayout.findViewById(R.id.search_results_progress_bar);
+        } else {
+            if (((ClientMainActivity) getActivity()).isUserControlLayoutVisible()) {
+                View findServiceLayout = mainLayout.findViewById(R.id.find_service_layout);
+                int bottom = findServiceLayout.getPaddingBottom();
+                int configLayoutHeight = (int) getResources().getDimension(
+                        R.dimen.snackbar_single_line_height);
+
+                Configuration newConfig = getResources().getConfiguration();
+                if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                    Utils.setSpecificPadding(findServiceLayout, Utils.Padding.BOTTOM, bottom +
+                            configLayoutHeight);
+                } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
+                    Utils.setSpecificPadding(findServiceLayout, Utils.Padding.BOTTOM, bottom -
+                            configLayoutHeight);
+                }
+            }
         }
 
         return mainLayout;

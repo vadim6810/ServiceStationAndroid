@@ -36,7 +36,7 @@
             android:textSize="20sp"
             android:background="@drawable/transparent_background_interactive" />
 
-        <LinearLayout
+        <ScrollView
             android:id="@+id/find_service_expandable_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -46,100 +46,107 @@
             android:paddingEnd="@dimen/activity_horizontal_margin"
             android:paddingTop="@dimen/activity_vertical_margin"
             android:paddingBottom="@dimen/activity_vertical_margin"
+            android:scrollbars="none"
             android:orientation="vertical"
             android:visibility="gone">
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/location"
-                android:textSize="20sp"/>
-            <Button
-                android:id="@+id/search_city_button"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingTop="@dimen/item_spacing"
-                android:background="@drawable/transparent_background_interactive"
-                android:drawableLeft="@drawable/places_ic_search"
-                android:drawableStart="@drawable/places_ic_search"
-                android:drawablePadding="@dimen/item_spacing"
-                android:gravity="start|center_vertical"
-                android:text="@string/search_location_button_hint"
-                android:textColor="@android:color/darker_gray"
-                android:textAllCaps="false"
-                android:textSize="20sp"/>
-            <TextView
-                android:paddingTop="@dimen/activity_vertical_margin"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/required_services"
-                android:textSize="20sp"/>
             <LinearLayout
+                android:id="@+id/find_service_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingTop="@dimen/item_spacing"
-                android:orientation="horizontal">
-                <android.support.v7.widget.AppCompatCheckBox
-                    android:id="@+id/service_checkbox_car_wash"
-                    android:layout_width="wrap_content"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/required_service_car_wash"/>
-                <android.support.v7.widget.AppCompatCheckBox
-                    android:id="@+id/service_checkbox_tuning"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/required_service_tuning"/>
-                <android.support.v7.widget.AppCompatCheckBox
-                    android:id="@+id/service_checkbox_tyre_repair"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/required_service_tyre_repair"/>
-            </LinearLayout>
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingTop="@dimen/item_spacing"
-                android:orientation="horizontal">
-                <android.support.v7.widget.AppCompatCheckBox
-                    android:id="@+id/service_checkbox_air_cond"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/required_service_air_cond_refill"/>
-            </LinearLayout>
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingTop="@dimen/item_spacing"
-                android:orientation="horizontal"
-                android:gravity="center"
-                android:weightSum="3">
+                    android:text="@string/location"
+                    android:textSize="20sp"/>
                 <Button
-                    android:id="@+id/find_services_button"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
+                    android:id="@+id/search_city_button"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:paddingTop="@dimen/item_spacing"
                     android:background="@drawable/transparent_background_interactive"
-                    android:text="@string/find_service_button"
-                    android:textColor="?attr/colorAccent"
-                    android:textAllCaps="false"/>
-                <android.support.v7.widget.AppCompatImageButton
-                    android:id="@+id/collapse_search_fields_button"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:background="@drawable/transparent_background_interactive"
-                    android:src="@drawable/ic_keyboard_arrow_up_black_24dp"/>
-                <Button
-                    android:id="@+id/clear_search_fields_button"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
+                    android:drawableLeft="@drawable/places_ic_search"
+                    android:drawableStart="@drawable/places_ic_search"
+                    android:drawablePadding="@dimen/item_spacing"
+                    android:gravity="start|center_vertical"
+                    android:text="@string/search_location_button_hint"
+                    android:textColor="@android:color/darker_gray"
+                    android:textAllCaps="false"
+                    android:textSize="20sp"/>
+                <TextView
+                    android:paddingTop="@dimen/activity_vertical_margin"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/transparent_background_interactive"
-                    android:text="@string/clear_fields_button"
-                    android:textColor="?attr/colorAccent"
-                    android:textAllCaps="false"/>
+                    android:text="@string/required_services"
+                    android:textSize="20sp"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="@dimen/item_spacing"
+                    android:orientation="horizontal">
+                    <android.support.v7.widget.AppCompatCheckBox
+                        android:id="@+id/service_checkbox_car_wash"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/required_service_car_wash"/>
+                    <android.support.v7.widget.AppCompatCheckBox
+                        android:id="@+id/service_checkbox_tuning"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/required_service_tuning"/>
+                    <android.support.v7.widget.AppCompatCheckBox
+                        android:id="@+id/service_checkbox_tyre_repair"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/required_service_tyre_repair"/>
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="@dimen/item_spacing"
+                    android:orientation="horizontal">
+                    <android.support.v7.widget.AppCompatCheckBox
+                        android:id="@+id/service_checkbox_air_cond"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/required_service_air_cond_refill"/>
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="@dimen/item_spacing"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:weightSum="3">
+                    <Button
+                        android:id="@+id/find_services_button"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/transparent_background_interactive"
+                        android:text="@string/find_service_button"
+                        android:textColor="?attr/colorAccent"
+                        android:textAllCaps="false"/>
+                    <android.support.v7.widget.AppCompatImageButton
+                        android:id="@+id/collapse_search_fields_button"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="@drawable/transparent_background_interactive"
+                        android:src="@drawable/ic_keyboard_arrow_up_black_24dp"/>
+                    <Button
+                        android:id="@+id/clear_search_fields_button"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/transparent_background_interactive"
+                        android:text="@string/clear_fields_button"
+                        android:textColor="?attr/colorAccent"
+                        android:textAllCaps="false"/>
+                </LinearLayout>
             </LinearLayout>
 
-        </LinearLayout>
+        </ScrollView>
 
         <View
             android:layout_height="1dp"
