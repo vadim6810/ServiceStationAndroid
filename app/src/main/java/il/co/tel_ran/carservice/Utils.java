@@ -18,6 +18,13 @@ import com.google.android.gms.location.places.ui.PlaceAutocomplete;
  */
 public class Utils {
 
+    enum Padding {
+        LEFT,
+        RIGHT,
+        TOP,
+        BOTTOM
+    }
+
     public static void expandView(final View view) {
         // Use 1dp/ms
         expandView(view, (int)(view.getMeasuredHeight() /
@@ -128,5 +135,27 @@ public class Utils {
         }
         char c = string.charAt(0);
         return c >= 0x590 && c <= 0x6ff;
+    }
+
+    public static void setSpecificPadding(View view, Padding padding, int amount) {
+        int left = view.getPaddingLeft();
+        int right = view.getPaddingRight();
+        int top = view.getPaddingTop();
+        int bottom = view.getPaddingBottom();
+
+        switch (padding) {
+            case LEFT:
+                view.setPadding(amount, top, right, bottom);
+                break;
+            case TOP:
+                view.setPadding(left, amount, right, bottom);
+                break;
+            case RIGHT:
+                view.setPadding(left, top, amount, bottom);
+                break;
+            case BOTTOM:
+                view.setPadding(left, top, right, amount);
+                break;
+        }
     }
 }
