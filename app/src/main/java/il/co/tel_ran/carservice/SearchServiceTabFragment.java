@@ -235,6 +235,15 @@ public class SearchServiceTabFragment extends Fragment
                             this);
                 }
                 break;
+            case R.id.open_map_fab:
+                ServiceSearchResult searchResult = (ServiceSearchResult) view.getTag();
+                // Open Google Maps with navigation directions.
+                Uri gmmIntentUri = Uri.parse(
+                        "google.navigation:q=" + searchResult.getLocation().getAddress());
+                Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+                mapIntent.setPackage("com.google.android.apps.maps");
+                startActivity(mapIntent);
+                break;
         }
     }
 
@@ -313,22 +322,6 @@ public class SearchServiceTabFragment extends Fragment
                 Locale.getDefault(), "%.2f", searchResult.getAvgRating())
                 + " (" + Integer.toString(searchResult.getSubmittedRatings()) + ')');
 
-        // Listen to map FAB.
-        final FloatingActionButton openMapFAB = (FloatingActionButton) cardLayout
-                .findViewById(R.id.open_map_fab);
-
-        openMapFAB.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Open Google Maps with navigation directions.
-                Uri gmmIntentUri = Uri.parse(
-                        "google.navigation:q=" + searchResult.getLocation().getAddress());
-                Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
-                mapIntent.setPackage("com.google.android.apps.maps");
-                startActivity(mapIntent);
-            }
-        });
-
         // Rating stars ImageView IDs
         final int[] ratingStarIds = {
                 R.id.rating_star_1,
@@ -371,6 +364,12 @@ public class SearchServiceTabFragment extends Fragment
                 }
             }
         }.execute(searchResult.getLocation().getId());
+
+        // Hide the data as a tag in all of the clickable items so it can be used in onClick.
+        final FloatingActionButton openMapFAB = (FloatingActionButton) cardLayout
+                .findViewById(R.id.open_map_fab);
+        openMapFAB.setTag(searchResult);
+        openMapFAB.setOnClickListener(this);
     }
 
     @Override
