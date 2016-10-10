@@ -129,7 +129,4 @@ public class Utils {
         char c = string.charAt(0);
         return c >= 0x590 && c <= 0x6ff;
     }
-
-        return "";
-    }
 }
