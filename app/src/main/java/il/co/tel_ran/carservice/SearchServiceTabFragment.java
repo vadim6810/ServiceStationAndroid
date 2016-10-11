@@ -251,6 +251,9 @@ public class SearchServiceTabFragment extends Fragment
                 mapIntent.setPackage("com.google.android.apps.maps");
                 startActivity(mapIntent);
                 break;
+            case ITEM_CONTACT_DETAILS:
+                showContactDetailsDialog(result);
+                break;
             case ITEM_DISMISS:
                 dialogFragment.dismiss();
                 break;
@@ -434,5 +437,17 @@ public class SearchServiceTabFragment extends Fragment
             fragmentTransaction.addToBackStack(null);
             serviceDetailsDialog.show(fragmentTransaction, "service_details_dialog");
         }
+    }
+
+    private void showContactDetailsDialog(ServiceSearchResult searchResult) {
+        ServiceContactDetailsDialog contactDetailsDialog = ServiceContactDetailsDialog.getInstance(
+                searchResult.getPhonenumber(), searchResult.getEmail());
+        FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+        Fragment previousDialog = getFragmentManager().findFragmentByTag("contact_details_dialog");
+        if (previousDialog != null) {
+            fragmentTransaction.remove(previousDialog);
+        }
+        fragmentTransaction.addToBackStack(null);
+        contactDetailsDialog.show(fragmentTransaction, "contact_details_dialog");
     }
 }
