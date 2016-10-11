@@ -1,15 +1,14 @@
 package il.co.tel_ran.carservice;
 
-import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.AppCompatCheckBox;
 import android.support.v7.widget.AppCompatImageButton;
@@ -19,7 +18,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
@@ -35,7 +33,6 @@ import com.hotmail.maximglukhov.chipview.ChipView;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;
@@ -46,7 +43,8 @@ import static android.app.Activity.RESULT_OK;
 public class SearchServiceTabFragment extends Fragment
     implements View.OnClickListener, ChipView.OnChipDeleteClickListener,
         ServerConnection.OnServicesRetrievedListener,
-        ServiceSearchResultAdapter.ServiceSearchResultClickListener {
+        ServiceSearchResultAdapter.ServiceSearchResultClickListener,
+        ServiceDetailsDialog.ServiceDetailsDialogListener {
 
     private final static int[] SERVICE_CHECKBOX_IDS = {
             R.id.service_checkbox_car_wash,
@@ -73,6 +71,8 @@ public class SearchServiceTabFragment extends Fragment
     private ProgressBar resultsProgressBar;
 
     private View mainLayout;
+
+    private ServiceDetailsDialog serviceDetailsDialog;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -116,6 +116,7 @@ public class SearchServiceTabFragment extends Fragment
 
             resultsProgressBar = (ProgressBar) mainLayout.findViewById(R.id.search_results_progress_bar);
         } else {
+
             if (((ClientMainActivity) getActivity()).isUserControlLayoutVisible()) {
                 View findServiceLayout = mainLayout.findViewById(R.id.find_service_layout);
                 int bottom = findServiceLayout.getPaddingBottom();
@@ -235,14 +236,23 @@ public class SearchServiceTabFragment extends Fragment
                             this);
                 }
                 break;
-            case R.id.open_map_fab:
-                ServiceSearchResult searchResult = (ServiceSearchResult) view.getTag();
+        }
+    }
+
+    @Override
+    public void onItemClick(DialogFragment dialogFragment, ServiceDetailsDialog.ITEM_TYPE itemType,
+                            ServiceSearchResult result, View view) {
+        switch (itemType) {
+            case ITEM_FAB:
                 // Open Google Maps with navigation directions.
                 Uri gmmIntentUri = Uri.parse(
-                        "google.navigation:q=" + searchResult.getLocation().getAddress());
+                        "google.navigation:q=" + result.getLocation().getAddress());
                 Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
                 mapIntent.setPackage("com.google.android.apps.maps");
                 startActivity(mapIntent);
+                break;
+            case ITEM_DISMISS:
+                dialogFragment.dismiss();
                 break;
         }
     }
@@ -278,113 +288,13 @@ public class SearchServiceTabFragment extends Fragment
         // Get the result object for this position.
         final ServiceSearchResult searchResult = adapter.getItem(itemPos);
 
-        // Inflate card layout.
-        LayoutInflater inflater = (LayoutInflater) getContext()
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View cardLayout = inflater.inflate(R.layout.service_details_card_layout, null);
-
-        // Build a dialog with card layout.
-        final Dialog dialog = new Dialog(getContext());
-        dialog.setContentView(cardLayout);
-        dialog.show();
-
-        // ImageView for service's photo (based on Google Maps address).
-        final ImageView placeImageView = (ImageView) cardLayout
-                .findViewById(R.id.service_details_photo);
-        // Measuring is required so we can pass width & height to Google API to retrieve
-        // scaled photo.
-        placeImageView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
-
-        // Set service's name
-        final TextView serviceNameTextView = (TextView) cardLayout
-                .findViewById(R.id.service_details_name);
-        serviceNameTextView.setText(searchResult.getName());
-
-        // Set service's address (from Google Maps).
-        final TextView serviceAddressTextView = (TextView) cardLayout
-                .findViewById(R.id.service_details_address);
-        serviceAddressTextView.setText(searchResult.getLocation().getAddress());
-
-        // Get the text from the search result view (from the adapter).
+        // Get the services text from the search result view (from the adapter).
         // This is done because the EnumSet<ServiceType> types were already parsed to string.
         // It is easier to simply extract it from the TextView.
         CharSequence servicesText = ((TextView)view
                 .findViewById(R.id.result_available_services_text_view)).getText();
-        final TextView serviceTypesTextView = (TextView) cardLayout
-                .findViewById(R.id.service_details_services);
-        serviceTypesTextView.setText(
-                getString(R.string.service_details_available_services, servicesText));
 
-        // Set avg rating & submitted rating count.
-        final TextView ratingSubmitTextView = (TextView) cardLayout
-                .findViewById(R.id.rating_submit_count);
-        ratingSubmitTextView.setText(String.format(
-                Locale.getDefault(), "%.2f", searchResult.getAvgRating())
-                + " (" + Integer.toString(searchResult.getSubmittedRatings()) + ')');
-
-        // Rating stars ImageView IDs
-        final int[] ratingStarIds = {
-                R.id.rating_star_1,
-                R.id.rating_star_2,
-                R.id.rating_star_3,
-                R.id.rating_star_4,
-                R.id.rating_star_5,
-        };
-        final ImageView[] ratingStars = new ImageView[ratingStarIds.length];
-        for (int i = 0; i < ratingStarIds.length; i++) {
-            ratingStars[i] = (ImageView) cardLayout.findViewById(ratingStarIds[i]);
-            /*
-            Set the source according to the difference between avg rating and index.
-            It is necessary to "fill" all stars up to the average rating (0.0f-5.0f).
-
-            As long as the difference in every iteration is bigger than 1, it's a full star.
-            If the difference is negative the star is empty.
-            If the difference is a fraction (>0 & <1) it's half a star.
-             */
-            float diff = searchResult.getAvgRating() - i;
-            if (diff >= 1) {
-                ratingStars[i].setImageResource(R.mipmap.ic_star_full);
-            } else if (diff <= 0) {
-                ratingStars[i].setImageResource(R.mipmap.ic_star_empty);
-            } else {
-                ratingStars[i].setImageResource(R.mipmap.ic_star_half);
-            }
-        }
-
-        // Get photo for this Google Maps address to display.
-        new LoadPlacePhotoTask(((ClientMainActivity) getActivity()).getGoogleApiClient(),
-                placeImageView.getMeasuredWidth(), placeImageView.getMeasuredHeight()) {
-
-            @Override
-            protected void onPostExecute(Bitmap bitmapPhoto) {
-                if (bitmapPhoto != null) {
-                    // Photo has been loaded, display it.
-                    placeImageView.setImageBitmap(bitmapPhoto);
-
-                }
-            }
-        }.execute(searchResult.getLocation().getId());
-
-        // Hide the data as a tag in all of the clickable items so it can be used in onClick.
-        final FloatingActionButton openMapFAB = (FloatingActionButton) cardLayout
-                .findViewById(R.id.open_map_fab);
-        openMapFAB.setTag(searchResult);
-        openMapFAB.setOnClickListener(this);
-
-        final ImageView contactDetails = (ImageView) cardLayout.findViewById(
-                R.id.contact_details_image_view);
-        contactDetails.setTag(searchResult);
-        contactDetails.setOnClickListener(this);
-
-        final ImageView leaveMessage = (ImageView) cardLayout.findViewById(
-                R.id.leave_message_image_view);
-        leaveMessage.setTag(searchResult);
-        leaveMessage.setOnClickListener(this);
-
-        final ImageView leaveRating = (ImageView) cardLayout.findViewById(
-                R.id.leave_rating_image_view);
-        leaveRating.setTag(searchResult);
-        leaveRating.setOnClickListener(this);
+        showServiceDetailsDialog(searchResult, servicesText);
     }
 
     @Override
@@ -504,6 +414,25 @@ public class SearchServiceTabFragment extends Fragment
         } else {
             // If we don't need to create a new container layout add it to the current layout.
             lastContainer.addView(locationChip);
+        }
+    }
+
+    private void showServiceDetailsDialog(ServiceSearchResult searchResult,
+                                          CharSequence servicesText) {
+        serviceDetailsDialog = ServiceDetailsDialog.getInstance(servicesText, searchResult,
+                this);
+        showServiceDetailsDialog();
+    }
+
+    private void showServiceDetailsDialog() {
+        if (serviceDetailsDialog != null) {
+            FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+            Fragment previousDialog = getFragmentManager().findFragmentByTag("service_details_dialog");
+            if (previousDialog != null) {
+                fragmentTransaction.remove(previousDialog);
+            }
+            fragmentTransaction.addToBackStack(null);
+            serviceDetailsDialog.show(fragmentTransaction, "service_details_dialog");
         }
     }
 }
