@@ -16,14 +16,19 @@ public class ServiceSearchResult {
     private int mSubmittedRatings;
     private EnumSet<ServiceType> mAvailableServices = EnumSet.noneOf(ServiceType.class);
     private String mCityName;
+    private String mPhonenumber;
+    private String mEmail;
 
     public ServiceSearchResult(String name, Place location, float avgRating, int submittedRatings,
-                               EnumSet<ServiceType> availableServices, String cityName) {
+                               EnumSet<ServiceType> availableServices, String cityName,
+                               String phoneNumber, String email) {
         mServiceName        = name;
         mLocation           = location;
         mAvgRating          = avgRating;
         mSubmittedRatings   = submittedRatings;
         mAvailableServices  = availableServices;
+        mPhonenumber = phoneNumber;
+        mEmail              = email;
         // TODO: Uncomment this when using real results.
         //mCityName           = Utils.parseCityNameFromAddress(location.getAddress());
     }
@@ -50,6 +55,14 @@ public class ServiceSearchResult {
 
     public EnumSet<ServiceType> getAvailableServices() {
         return mAvailableServices;
+    }
+
+    public String getPhonenumber() {
+        return mPhonenumber;
+    }
+
+    public String getEmail() {
+        return mEmail;
     }
 
     // TODO: Remove when using real results.

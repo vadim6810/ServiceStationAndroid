@@ -166,34 +166,35 @@ public class ServerConnection {
         sampleRawResults.add(new SampleRawResult("Sample Service 1", null,
                 randFloat(5.0f, 0.5f), randInt(100, 1),
                 EnumSet.of(ServiceType.SERVICE_TYPE_TUNING, ServiceType.SERVICE_TYPE_TYRE_REPAIR),
-                "ChIJ73TZ6KRMHRURfT9T61-w7QY"));
+                "ChIJ73TZ6KRMHRURfT9T61-w7QY", "0847164955", "sampleservice1@gmail.com"));
         sampleRawResults.add(new SampleRawResult("Sample Service 2", null,
                 randFloat(5.0f, 0.5f), randInt(100, 1),
                 EnumSet.of(ServiceType.SERVICE_TYPE_TYRE_REPAIR),
-                "ChIJnSco919LHRURg2ZruWtsDmg"));
+                "ChIJnSco919LHRURg2ZruWtsDmg", "0847648955", "sampleservice2@gmail.com"));
         sampleRawResults.add(new SampleRawResult("Sample Service 3", null,
                 randFloat(5.0f, 0.5f), randInt(100, 1),
                 EnumSet.of(ServiceType.SERVICE_TYPE_AC_REPAIR_REFILL,
                         ServiceType.SERVICE_TYPE_TUNING),
-                "ChIJzfEJQkCjAhURl70lo2y4SxA"));
+                "ChIJzfEJQkCjAhURl70lo2y4SxA", "0847163335", "sampleservice3@gmail.com"));
         sampleRawResults.add(new SampleRawResult("Sample Service 4", null,
                 randFloat(5.0f, 0.5f), randInt(100, 1),
                 EnumSet.of(ServiceType.SERVICE_TYPE_AC_REPAIR_REFILL,
                         ServiceType.SERVICE_TYPE_TYRE_REPAIR),
-                "ChIJrbITsnBLHRURxOktiI37Yn4"));
+                "ChIJrbITsnBLHRURxOktiI37Yn4", "083794955", "sampleservice4@gmail.com"));
         sampleRawResults.add(new SampleRawResult("Sample Service 5", null,
                 randFloat(5.0f, 0.5f), randInt(100, 1),
-                EnumSet.of(ServiceType.SERVICE_TYPE_TYRE_REPAIR), "ChIJpxhWFYNAHRURmP31dRn87zA"));
+                EnumSet.of(ServiceType.SERVICE_TYPE_TYRE_REPAIR), "ChIJpxhWFYNAHRURmP31dRn87zA",
+                "0847122455", "sampleservice5@gmail.com"));
         sampleRawResults.add(new SampleRawResult("Sample Service 6", null,
                 randFloat(5.0f, 0.5f), randInt(100, 1),
                 EnumSet.of(ServiceType.SERVICE_TYPE_CAR_WASH, ServiceType.SERVICE_TYPE_TUNING),
-                "ChIJmckm3fVLHRUR0DtEhUiQGhA"));
+                "ChIJmckm3fVLHRUR0DtEhUiQGhA", "0847197555", "sampleservice7@gmail.com"));
         sampleRawResults.add(new SampleRawResult("Sample Service 7", null,
                 randFloat(5.0f, 0.5f), randInt(100, 1),
                 EnumSet.of(ServiceType.SERVICE_TYPE_AC_REPAIR_REFILL,
                         ServiceType.SERVICE_TYPE_CAR_WASH, ServiceType.SERVICE_TYPE_TUNING,
                         ServiceType.SERVICE_TYPE_TYRE_REPAIR),
-                "ChIJSRHA_51LHRUR15zBsFayP_U"));
+                "ChIJSRHA_51LHRUR15zBsFayP_U", "0847962155", "sampleservice7@gmail.com"));
 
         return sampleRawResults;
     }
@@ -214,8 +215,10 @@ public class ServerConnection {
         private String mPlaceId;
 
         public SampleRawResult(String name, Place address, float avgRating, int submittedRatings,
-                               EnumSet<ServiceType> availableServices, String placeId) {
-            super(name, address, avgRating, submittedRatings, availableServices, null);
+                               EnumSet<ServiceType> availableServices, String placeId,
+                               String phonenumber, String email) {
+            super(name, address, avgRating, submittedRatings, availableServices, null,
+                    phonenumber, email);
             mPlaceId = placeId;
         }
 
