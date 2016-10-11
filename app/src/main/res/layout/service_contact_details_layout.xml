@@ -28,7 +28,6 @@
         android:layout_toEndOf="@+id/dial_button"
         android:layout_alignTop="@id/dial_button"
         android:layout_alignBottom="@+id/dial_button"
-        android:text="@string/contact_details_phone_number"
         android:textSize="18sp"
         android:gravity="center_vertical"/>
 
@@ -53,7 +52,6 @@
         android:layout_toEndOf="@id/email_button"
         android:layout_alignBottom="@id/email_button"
         android:layout_alignTop="@id/email_button"
-        android:text="@string/contact_details_email"
         android:textSize="18sp"
         android:gravity="center_vertical"/>
 </RelativeLayout>
