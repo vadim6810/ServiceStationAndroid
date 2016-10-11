@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin">
+
+    <ImageButton
+        android:id="@+id/dial_button"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:background="@drawable/transparent_background_round_interactive"
+        android:src="@mipmap/ic_phone"
+        android:scaleType="fitXY" />
+
+    <TextView
+        android:id="@+id/phone_number_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/item_spacing"
+        android:layout_marginRight="@dimen/item_spacing"
+        android:layout_toRightOf="@+id/dial_button"
+        android:layout_toEndOf="@+id/dial_button"
+        android:layout_alignTop="@id/dial_button"
+        android:layout_alignBottom="@+id/dial_button"
+        android:text="@string/contact_details_phone_number"
+        android:textSize="18sp"
+        android:gravity="center_vertical"/>
+
+    <ImageButton
+        android:id="@+id/email_button"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_below="@+id/dial_button"
+        android:layout_marginTop="@dimen/item_spacing"
+        android:background="@drawable/transparent_background_round_interactive"
+        android:src="@mipmap/ic_mail"
+        android:scaleType="fitXY" />
+
+    <TextView
+        android:id="@+id/email_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/item_spacing"
+        android:layout_marginRight="@dimen/item_spacing"
+        android:layout_below="@id/dial_button"
+        android:layout_toRightOf="@id/email_button"
+        android:layout_toEndOf="@id/email_button"
+        android:layout_alignBottom="@id/email_button"
+        android:layout_alignTop="@id/email_button"
+        android:text="@string/contact_details_email"
+        android:textSize="18sp"
+        android:gravity="center_vertical"/>
+</RelativeLayout>
