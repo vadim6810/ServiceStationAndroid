@@ -8,10 +8,9 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyBprJNAvyZKYTTkvTmJOWU8fuETMOrzBcY"/>
+            android:value="AIzaSyBprJNAvyZKYTTkvTmJOWU8fuETMOrzBcY" />
 
         <activity android:name=".ClientMainActivity">
             <intent-filter>
@@ -20,6 +19,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".SignUpActivity"></activity>
     </application>
+
+    <uses-permission android:name="android.permission.INTERNET" />
 
 </manifest>
