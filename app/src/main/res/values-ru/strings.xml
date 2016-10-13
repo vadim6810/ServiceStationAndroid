@@ -22,4 +22,24 @@
     <string name="search_location_button_hint">Нажмите для поиска&#8230;</string>
     <string name="dismiss">Закрыть</string>
     <string name="service_details_available_services">Предоставляемые услуги: %s</string>
+    <string name="sign_up_title">Регистрация</string>
+    <string name="register_user_type_client">Клиент</string>
+    <string name="register_user_type_service_provider">Поставщик услуг</string>
+    <string name="register_user_type_client_caption">Поиск и запрос услугиץ</string>
+    <string name="register_user_type_service_provider_caption">Предложение услуг и управления службой.</string>
+    <string name="register_prompt">Кто вы?</string>
+    <string name="register_prompt_caption">Дайте нам знать, кто вы, чтобы обеспечить правильный опыт для вас.</string>
+    <string name="register_login_details_prompt">"Настройка регистрация "</string>
+    <string name="register_login_details_caption">Эта информация поможет вам подключиться к системе.</string>
+    <string name="next_button">Следующий</string>
+    <string name="previous_button">Предыдущий</string>
+    <string name="finish_button">Финиш</string>
+    <string name="hint_name">Имя</string>
+    <string name="hint_email">Эл. адрес:</string>
+    <string name="register_user_details_client_vehicle_make">Марка:</string>
+    <string name="register_user_details_client_vehicle_model">Модель:</string>
+    <string name="register_user_details_client_vehicle_year">Годы:</string>
+    <string name="register_user_details_client_vehicle_engine_displacement">Объем Двигателя:</string>
+    <string name="register_user_details_client_prompt">Настройка инфо автомобиля</string>
+    <string name="register_user_details_client_caption">Дайте нам знать больше о вашем автомобиле.\\nЭтот шаг не является обязательным, и вы можете закончить его позже.</string>
 </resources>

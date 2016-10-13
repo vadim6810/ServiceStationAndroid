@@ -22,4 +22,24 @@
     <string name="search_location_button_hint">הקש על-מנת לחפש&#8230;</string>
     <string name="dismiss">סגור</string>
     <string name="service_details_available_services">שירותים מוצעים: %s</string>
+    <string name="sign_up_title">הרשמה</string>
+    <string name="register_user_type_client">לקוח</string>
+    <string name="register_user_type_service_provider">ספק שירות</string>
+    <string name="register_user_type_client_caption">מצא ובקש שירותים.</string>
+    <string name="register_user_type_service_provider_caption">הצע שירותים ונהל את השירות שלך.</string>
+    <string name="register_prompt">מי אתה?</string>
+    <string name="register_prompt_caption">אמור לנו מי אתה על מנת לספק לך את החוויה המתאימה ביותר עבורך.</string>
+    <string name="register_login_details_prompt">הגדר פרטי התחברות</string>
+    <string name="register_login_details_caption">פרטים אלה ישמשו אותך לצורך התחברות למערכת.</string>
+    <string name="next_button">הבא</string>
+    <string name="previous_button">הקודם</string>
+    <string name="finish_button">סיים</string>
+    <string name="hint_name">שם:</string>
+    <string name="hint_email">דואר אלקטרוני:</string>
+    <string name="register_user_details_client_vehicle_year">שנה:</string>
+    <string name="register_user_details_client_vehicle_model">דגם:</string>
+    <string name="register_user_details_client_vehicle_make">יצרן:</string>
+    <string name="register_user_details_client_vehicle_engine_displacement">נפח מנוע:</string>
+    <string name="register_user_details_client_prompt">הגדר פרטי רכב</string>
+    <string name="register_user_details_client_caption">תן לנו לדעת יותר על הרכב שלך\\nצעד זה הינו אופציונלי ותוכל להשלים אותו בשלב מאוחר יותר.</string>
 </resources>

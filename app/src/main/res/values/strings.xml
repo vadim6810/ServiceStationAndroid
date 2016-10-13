@@ -22,4 +22,24 @@
     <string name="search_location_button_hint">Tap to search&#8230;</string>
     <string name="dismiss">Dismiss</string>
     <string name="service_details_available_services">Provided Services: %s</string>
+    <string name="sign_up_title">Sign Up</string>
+    <string name="register_user_type_client">Client</string>
+    <string name="register_user_type_service_provider">Service Provider</string>
+    <string name="register_user_type_client_caption">Find and request services.</string>
+    <string name="register_user_type_service_provider_caption">Offer services and manage your service.</string>
+    <string name="register_prompt">Who are you?</string>
+    <string name="register_prompt_caption">Let us know who you are to provide the right experience for you.</string>
+    <string name="register_login_details_prompt">Setup login</string>
+    <string name="register_login_details_caption">This info will be used to login to our services.</string>
+    <string name="previous_button">Previous</string>
+    <string name="next_button">Next</string>
+    <string name="finish_button">Finish</string>
+    <string name="hint_name">Name:</string>
+    <string name="hint_email">Email Address:</string>
+    <string name="register_user_details_client_prompt">Setup vehicle info</string>
+    <string name="register_user_details_client_caption">Let us know more about your vehicle.\nThis step is optional and you can complete it later.</string>
+    <string name="register_user_details_client_vehicle_make">Make:</string>
+    <string name="register_user_details_client_vehicle_model">Model:</string>
+    <string name="register_user_details_client_vehicle_year">Year:</string>
+    <string name="register_user_details_client_vehicle_engine_displacement">Engine Displacement:</string>
 </resources>
