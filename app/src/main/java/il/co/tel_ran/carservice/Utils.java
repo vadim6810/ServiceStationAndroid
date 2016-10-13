@@ -15,6 +15,8 @@ import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.location.places.AutocompleteFilter;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 
+import java.util.Locale;
+
 /**
  * Created by Max on 17/09/2016.
  */
@@ -137,6 +139,13 @@ public class Utils {
         }
         char c = string.charAt(0);
         return c >= 0x590 && c <= 0x6ff;
+    }
+
+    public static boolean isLocaleRTL(Locale locale) {
+        // Check if a specific locate is RTL.
+        final int directionality = Character.getDirectionality(locale.getDisplayName().charAt(0));
+        return directionality == Character.DIRECTIONALITY_RIGHT_TO_LEFT ||
+                directionality == Character.DIRECTIONALITY_RIGHT_TO_LEFT_ARABIC;
     }
 
     public static void setSpecificPadding(View view, Padding padding, int amount) {
