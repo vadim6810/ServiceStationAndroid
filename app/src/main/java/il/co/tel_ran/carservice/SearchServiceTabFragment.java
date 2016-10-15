@@ -56,6 +56,7 @@ public class SearchServiceTabFragment extends Fragment
     private static final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
 
     private ScrollView searchFieldsLayout;
+    private LinearLayout findServiceLayout;
     private Button expandFieldsButton;
 
     // Holds all programmatically created layouts to keep ChipView objects.
@@ -87,6 +88,7 @@ public class SearchServiceTabFragment extends Fragment
             mainLayout = inflater.inflate(R.layout.fragment_tab_search_service, container, false);
 
             searchFieldsLayout = (ScrollView) mainLayout.findViewById(R.id.find_service_expandable_layout);
+            findServiceLayout = (LinearLayout) mainLayout.findViewById(R.id.find_service_layout);
 
             expandFieldsButton = (Button) mainLayout.findViewById(R.id.expand_search_fields_button);
             expandFieldsButton.setOnClickListener(this);
@@ -118,7 +120,6 @@ public class SearchServiceTabFragment extends Fragment
         } else {
 
             if (((ClientMainActivity) getActivity()).isUserControlLayoutVisible()) {
-                View findServiceLayout = mainLayout.findViewById(R.id.find_service_layout);
                 int bottom = findServiceLayout.getPaddingBottom();
                 int configLayoutHeight = (int) getResources().getDimension(
                         R.dimen.snackbar_single_line_height);
@@ -177,7 +178,7 @@ public class SearchServiceTabFragment extends Fragment
                 }
 
                 for (LinearLayout layout : chipsContainerLayouts) {
-                    searchFieldsLayout.removeView(layout);
+                    findServiceLayout.removeView(layout);
                 }
                 chipsContainerLayouts.clear();
                 locations.clear();
@@ -311,7 +312,7 @@ public class SearchServiceTabFragment extends Fragment
                 layout.removeViewAt(index);
                 if (layout.getChildCount() == 0) {
                     chipsContainerLayouts.remove(layout);
-                    searchFieldsLayout.removeView(layout);
+                    findServiceLayout.removeView(layout);
                 } else {
                     rearrangePlaceChips(layout);
                 }
@@ -344,7 +345,7 @@ public class SearchServiceTabFragment extends Fragment
                 // If the next layout doesn't have any children left remove it.
                 if (nextLayout.getChildCount() == 0) {
                     chipsContainerLayouts.remove(nextLayout);
-                    searchFieldsLayout.removeView(nextLayout);
+                    findServiceLayout.removeView(nextLayout);
                 } else {
                     // Call this function once again for the next layout.
                     rearrangePlaceChips(nextLayout);
@@ -409,11 +410,11 @@ public class SearchServiceTabFragment extends Fragment
             // Check where to insert the new layout:
             // If there are no containers insert it right after the search button.
             // Otherwise insert it after the last container.
-            int insertIndex = searchFieldsLayout.indexOfChild(searchLocationButton);
+            int insertIndex = findServiceLayout.indexOfChild(searchLocationButton);
             if (lastContainer != null) {
-                insertIndex = searchFieldsLayout.indexOfChild(lastContainer);
+                insertIndex = findServiceLayout.indexOfChild(lastContainer);
             }
-            searchFieldsLayout.addView(containerLayout, ++insertIndex);
+            findServiceLayout.addView(containerLayout, ++insertIndex);
         } else {
             // If we don't need to create a new container layout add it to the current layout.
             lastContainer.addView(locationChip);
