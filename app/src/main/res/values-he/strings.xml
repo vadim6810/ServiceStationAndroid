@@ -44,4 +44,5 @@
     <string name="register_user_details_client_caption">תן לנו לדעת יותר על הרכב שלך\\nצעד זה הינו אופציונלי ותוכל להשלים אותו בשלב מאוחר יותר.</string>
     <string name="user_email_error_message">אנא הזן דואר אלקטרוני תקין</string>
     <string name="user_name_error_message">אנא הזן שם</string>
+    <string name="no_services">אין שירותים להציג.</string>
 </resources>

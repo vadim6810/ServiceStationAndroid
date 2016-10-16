@@ -166,6 +166,17 @@
         android:indeterminate="true"
         android:visibility="gone"/>
 
+    <TextView
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        android:id="@+id/no_services_text_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:visibility="visible"
+        android:text="@string/no_services"
+        android:textSize="24sp"
+        android:textColor="@color/colorSecondaryText"/>
+
     <android.support.v7.widget.RecyclerView
         android:id="@+id/search_results_recycler_view"
         android:layout_width="match_parent"

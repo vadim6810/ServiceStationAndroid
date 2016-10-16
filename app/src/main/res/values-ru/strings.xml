@@ -44,4 +44,5 @@
     <string name="register_user_details_client_caption">Дайте нам знать больше о вашем автомобиле.\\nЭтот шаг не является обязательным, и вы можете закончить его позже.</string>
     <string name="user_name_error_message">Пожалуйста, введите имя</string>
     <string name="user_email_error_message">Пожалуйста, введите действительный Эл. адрес</string>
+    <string name="no_services">Никакие услуги не показывать.</string>
 </resources>

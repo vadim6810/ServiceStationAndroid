@@ -75,6 +75,8 @@ public class SearchServiceTabFragment extends Fragment
 
     private ServiceDetailsDialog serviceDetailsDialog;
 
+    private TextView mNoServicesTextView;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -103,6 +105,8 @@ public class SearchServiceTabFragment extends Fragment
 
             searchLocationButton = (Button) mainLayout.findViewById(R.id.search_city_button);
             searchLocationButton.setOnClickListener(this);
+
+            mNoServicesTextView = (TextView) mainLayout.findViewById(R.id.no_services_text_view);
 
             for (int i = 0; i < servicesCheckBoxes.length; i++) {
                 servicesCheckBoxes[i] = (AppCompatCheckBox) mainLayout.findViewById(SERVICE_CHECKBOX_IDS[i]);
@@ -262,6 +266,8 @@ public class SearchServiceTabFragment extends Fragment
 
         adapter.removeAllItems();
 
+        mNoServicesTextView.setVisibility(View.GONE);
+
         resultsProgressBar.setVisibility(View.VISIBLE);
     }
 
@@ -269,10 +275,14 @@ public class SearchServiceTabFragment extends Fragment
     public void onServicesRetrieved(List<ServiceSearchResult> searchResults) {
         resultsProgressBar.setVisibility(View.GONE);
 
-        ServiceSearchResultAdapter adapter = (ServiceSearchResultAdapter) searchResultsRecyclerView
-                .getAdapter();
+        if (searchResults != null && !searchResults.isEmpty()) {
+            ServiceSearchResultAdapter adapter = (ServiceSearchResultAdapter) searchResultsRecyclerView
+                    .getAdapter();
 
-        adapter.addItems(searchResults);
+            adapter.addItems(searchResults);
+        } else {
+            mNoServicesTextView.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override
