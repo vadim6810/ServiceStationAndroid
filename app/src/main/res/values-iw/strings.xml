@@ -46,4 +46,7 @@
     <string name="user_name_error_message">אנא הזן שם</string>
     <string name="no_services">אין שירותים להציג.</string>
     <string name="service_contat_details_dialog_title">צור קשר</string>
+    <string name="submit_rating_dialog_title">הוסף ביקורת</string>
+    <string name="button_cancel">בטל</string>
+    <string name="button_submit">שלח</string>
 </resources>

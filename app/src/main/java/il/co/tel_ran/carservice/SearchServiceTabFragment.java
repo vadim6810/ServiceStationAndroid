@@ -43,7 +43,7 @@ public class SearchServiceTabFragment extends Fragment
     implements View.OnClickListener, ChipView.OnChipDeleteClickListener,
         ServerConnection.OnServicesRetrievedListener,
         ServiceSearchResultAdapter.ServiceSearchResultClickListener,
-        ServiceDetailsDialog.ServiceDetailsDialogListener {
+        ServiceDetailsDialog.ServiceDetailsDialogListener, ServiceSubmitRatingDialog.SubmitRatingDialogListener {
 
     private final static int[] SERVICE_CHECKBOX_IDS = {
             R.id.service_checkbox_car_wash,
@@ -255,7 +255,16 @@ public class SearchServiceTabFragment extends Fragment
             case ITEM_DISMISS:
                 dialogFragment.dismiss();
                 break;
+            case ITEM_LEAVE_RATING:
+                showSubmitRatingDialog(result);
+                break;
         }
+    }
+
+    @Override
+    public void onRatingSubmitted(float rating, ServiceSearchResult searchResult) {
+        // TODO: send new rating to back-end (update if exists, add if not)
+        // TODO: update the search result rating card (after back-end receives update)
     }
 
     @Override
@@ -451,5 +460,13 @@ public class SearchServiceTabFragment extends Fragment
                 searchResult.getPhonenumber(), searchResult.getEmail());
         Utils.showDialogFragment(getFragmentManager(), contactDetailsDialog,
                 "contact_details_dialog");
+    }
+
+    private void showSubmitRatingDialog(ServiceSearchResult result) {
+        // TODO: check if user has already submitted rating before, and use it as the current rating.
+        ServiceSubmitRatingDialog submitRatingDialog = ServiceSubmitRatingDialog.getInstance(0.0f,
+                this, result);
+        Utils.showDialogFragment(getFragmentManager(), submitRatingDialog,
+                "submit_rating_dialog");
     }
 }
