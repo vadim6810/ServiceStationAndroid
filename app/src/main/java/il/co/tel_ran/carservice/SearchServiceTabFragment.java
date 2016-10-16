@@ -108,13 +108,7 @@ public class SearchServiceTabFragment extends Fragment
                 servicesCheckBoxes[i] = (AppCompatCheckBox) mainLayout.findViewById(SERVICE_CHECKBOX_IDS[i]);
             }
 
-            searchResultsRecyclerView = (RecyclerView) mainLayout.findViewById(
-                    R.id.search_results_recycler_view);
-            LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
-            searchResultsRecyclerView.setLayoutManager(layoutManager);
-            ServiceSearchResultAdapter searchResultAdapter = new ServiceSearchResultAdapter(
-                    new ArrayList<ServiceSearchResult>(), getContext(), this);
-            searchResultsRecyclerView.setAdapter(searchResultAdapter);
+            setupResultsRecyclerView();
 
             resultsProgressBar = (ProgressBar) mainLayout.findViewById(R.id.search_results_progress_bar);
         } else {
@@ -419,6 +413,16 @@ public class SearchServiceTabFragment extends Fragment
             // If we don't need to create a new container layout add it to the current layout.
             lastContainer.addView(locationChip);
         }
+    }
+
+    private void setupResultsRecyclerView() {
+        searchResultsRecyclerView = (RecyclerView) mainLayout.findViewById(
+                R.id.search_results_recycler_view);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
+        searchResultsRecyclerView.setLayoutManager(layoutManager);
+        ServiceSearchResultAdapter searchResultAdapter = new ServiceSearchResultAdapter(
+                new ArrayList<ServiceSearchResult>(), getContext(), this);
+        searchResultsRecyclerView.setAdapter(searchResultAdapter);
     }
 
     private void showServiceDetailsDialog(ServiceSearchResult searchResult,
