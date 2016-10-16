@@ -1,4 +1,4 @@
-package il.co.tel_ran.carservice;
+package il.co.tel_ran.carservice.fragments;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
@@ -26,6 +26,11 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+
+import il.co.tel_ran.carservice.HttpHandler;
+import il.co.tel_ran.carservice.R;
+import il.co.tel_ran.carservice.Utils;
+import il.co.tel_ran.carservice.activities.SignUpActivity;
 
 /**
  * Created by Max on 12/10/2016.

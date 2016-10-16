@@ -1,4 +1,4 @@
-package il.co.tel_ran.carservice;
+package il.co.tel_ran.carservice.fragments;
 
 import android.content.Context;
 import android.content.Intent;
@@ -32,6 +32,18 @@ import com.hotmail.maximglukhov.chipview.ChipView;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import il.co.tel_ran.carservice.R;
+import il.co.tel_ran.carservice.ServerConnection;
+import il.co.tel_ran.carservice.ServiceSearchQuery;
+import il.co.tel_ran.carservice.ServiceSearchResult;
+import il.co.tel_ran.carservice.ServiceSearchResultAdapter;
+import il.co.tel_ran.carservice.ServiceType;
+import il.co.tel_ran.carservice.Utils;
+import il.co.tel_ran.carservice.activities.ClientMainActivity;
+import il.co.tel_ran.carservice.dialogs.ServiceContactDetailsDialog;
+import il.co.tel_ran.carservice.dialogs.ServiceDetailsDialog;
+import il.co.tel_ran.carservice.dialogs.ServiceSubmitRatingDialog;
 
 import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;

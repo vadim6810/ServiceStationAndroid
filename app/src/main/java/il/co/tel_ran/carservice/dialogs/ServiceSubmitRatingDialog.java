@@ -1,4 +1,4 @@
-package il.co.tel_ran.carservice;
+package il.co.tel_ran.carservice.dialogs;
 
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -8,6 +8,9 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.widget.RatingBar;
+
+import il.co.tel_ran.carservice.R;
+import il.co.tel_ran.carservice.ServiceSearchResult;
 
 /**
  * Created by Max on 16/10/2016.

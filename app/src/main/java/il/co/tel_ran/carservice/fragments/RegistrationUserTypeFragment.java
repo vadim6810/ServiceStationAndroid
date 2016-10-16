@@ -1,4 +1,4 @@
-package il.co.tel_ran.carservice;
+package il.co.tel_ran.carservice.fragments;
 
 import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
@@ -13,6 +13,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import il.co.tel_ran.carservice.R;
+import il.co.tel_ran.carservice.UserType;
+import il.co.tel_ran.carservice.Utils;
+import il.co.tel_ran.carservice.activities.SignUpActivity;
 
 /**
  * Created by Max on 12/10/2016.

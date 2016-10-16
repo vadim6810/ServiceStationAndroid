@@ -26,7 +26,7 @@ import java.util.Locale;
  */
 public class Utils {
 
-    enum Padding {
+    public enum Padding {
         LEFT,
         RIGHT,
         TOP,

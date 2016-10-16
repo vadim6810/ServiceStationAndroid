@@ -1,4 +1,4 @@
-package il.co.tel_ran.carservice;
+package il.co.tel_ran.carservice.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -17,6 +17,15 @@ import android.view.View;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.places.Places;
+
+import il.co.tel_ran.carservice.ClientActivityRetainedData;
+import il.co.tel_ran.carservice.R;
+import il.co.tel_ran.carservice.fragments.RecentServicesTabFragment;
+import il.co.tel_ran.carservice.fragments.RequestServiceTabFragment;
+import il.co.tel_ran.carservice.fragments.RetainedFragment;
+import il.co.tel_ran.carservice.fragments.SearchServiceTabFragment;
+import il.co.tel_ran.carservice.ServerConnection;
+import il.co.tel_ran.carservice.Utils;
 
 public class ClientMainActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
 

@@ -1,4 +1,4 @@
-package il.co.tel_ran.carservice;
+package il.co.tel_ran.carservice.dialogs;
 
 import android.app.Dialog;
 import android.content.Intent;
@@ -13,6 +13,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
+
+import il.co.tel_ran.carservice.R;
+import il.co.tel_ran.carservice.Utils;
 
 /**
  * Created by Max on 10/10/2016.

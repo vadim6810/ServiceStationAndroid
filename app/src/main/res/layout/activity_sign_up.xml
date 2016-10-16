@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="il.co.tel_ran.carservice.SignUpActivity">
+    tools:context="il.co.tel_ran.carservice.activities.SignUpActivity">
 
     <android.support.design.widget.AppBarLayout
         android:layout_height="wrap_content"
@@ -22,7 +22,7 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <view class="il.co.tel_ran.carservice.SignUpActivity$SignUpViewPager"
+    <view class="il.co.tel_ran.carservice.activities.SignUpActivity$SignUpViewPager"
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/registration_viewpager"
         android:layout_width="match_parent"

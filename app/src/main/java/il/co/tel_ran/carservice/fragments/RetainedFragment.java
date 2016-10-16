@@ -1,9 +1,11 @@
-package il.co.tel_ran.carservice;
+package il.co.tel_ran.carservice.fragments;
 
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+
+import il.co.tel_ran.carservice.RetainedData;
 
 /**
  * Keeps activity's data on configuration change.

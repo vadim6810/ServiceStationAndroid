@@ -1,4 +1,4 @@
-package il.co.tel_ran.carservice;
+package il.co.tel_ran.carservice.dialogs;
 
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -15,6 +15,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.Locale;
+
+import il.co.tel_ran.carservice.LoadPlacePhotoTask;
+import il.co.tel_ran.carservice.R;
+import il.co.tel_ran.carservice.ServiceSearchResult;
+import il.co.tel_ran.carservice.activities.ClientMainActivity;
 
 /**
  * Created by Max on 10/10/2016.

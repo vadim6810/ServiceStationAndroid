@@ -1,4 +1,4 @@
-package il.co.tel_ran.carservice;
+package il.co.tel_ran.carservice.activities;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -14,6 +14,12 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 
 import java.util.Locale;
+
+import il.co.tel_ran.carservice.R;
+import il.co.tel_ran.carservice.fragments.RegistrationLoginDetailsFragment;
+import il.co.tel_ran.carservice.fragments.RegistrationUserDetailsFragment;
+import il.co.tel_ran.carservice.fragments.RegistrationUserTypeFragment;
+import il.co.tel_ran.carservice.Utils;
 
 public class SignUpActivity extends AppCompatActivity implements ViewPager.OnPageChangeListener {
 

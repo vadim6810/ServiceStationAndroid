@@ -1,4 +1,4 @@
-package il.co.tel_ran.carservice;
+package il.co.tel_ran.carservice.fragments;
 
 import android.graphics.drawable.Drawable;
 import android.os.Build;
@@ -19,6 +19,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import java.util.regex.Pattern;
+
+import il.co.tel_ran.carservice.R;
+import il.co.tel_ran.carservice.activities.SignUpActivity;
 
 /**
  * Created by Max on 12/10/2016.
