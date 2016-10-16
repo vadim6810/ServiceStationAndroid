@@ -6,6 +6,7 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.AppCompatRatingBar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -144,34 +145,9 @@ public class ServiceDetailsDialog extends DialogFragment implements View.OnClick
                 Locale.getDefault(), "%.2f", mSearchResult.getAvgRating())
                 + " (" + Integer.toString(mSearchResult.getSubmittedRatings()) + ')');
 
-        // Rating stars ImageView IDs
-        final int[] ratingStarIds = {
-                R.id.rating_star_1,
-                R.id.rating_star_2,
-                R.id.rating_star_3,
-                R.id.rating_star_4,
-                R.id.rating_star_5,
-        };
-        final ImageView[] ratingStars = new ImageView[ratingStarIds.length];
-        for (int i = 0; i < ratingStarIds.length; i++) {
-            ratingStars[i] = (ImageView) layout.findViewById(ratingStarIds[i]);
-        /*
-        Set the source according to the difference between avg rating and index.
-        It is necessary to "fill" all stars up to the average rating (0.0f-5.0f).
-
-        As long as the difference in every iteration is bigger than 1, it's a full star.
-        If the difference is negative the star is empty.
-        If the difference is a fraction (>0 & <1) it's half a star.
-         */
-            float diff = mSearchResult.getAvgRating() - i;
-            if (diff >= 1) {
-                ratingStars[i].setImageResource(R.mipmap.ic_star_full);
-            } else if (diff <= 0) {
-                ratingStars[i].setImageResource(R.mipmap.ic_star_empty);
-            } else {
-                ratingStars[i].setImageResource(R.mipmap.ic_star_half);
-            }
-        }
+        final AppCompatRatingBar ratingBar = (AppCompatRatingBar) layout
+                .findViewById(R.id.service_rating_bar);
+        ratingBar.setRating(mSearchResult.getAvgRating());
 
         // Get photo for this Google Maps address to display.
         new LoadPlacePhotoTask(((ClientMainActivity) getActivity()).getGoogleApiClient(),
