@@ -42,4 +42,6 @@
     <string name="register_user_details_client_vehicle_model">Model:</string>
     <string name="register_user_details_client_vehicle_year">Year:</string>
     <string name="register_user_details_client_vehicle_engine_displacement">Engine Displacement:</string>
+    <string name="user_name_error_message">Please enter a name</string>
+    <string name="user_email_error_message">Please enter a valid email address</string>
 </resources>

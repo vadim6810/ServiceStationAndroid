@@ -4,26 +4,41 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
+
+import java.util.regex.Pattern;
 
 /**
  * Created by Max on 12/10/2016.
  */
 
-public class RegistrationLoginDetailsFragment extends Fragment implements View.OnClickListener {
+public class RegistrationLoginDetailsFragment extends Fragment implements View.OnClickListener, TextView.OnEditorActionListener {
 
     private EditText mNameEditText;
+    private TextInputLayout mNameInputLayout;
+
     private EditText mEmailEditText;
+    private TextInputLayout mEmailInputLayout;
+
     private Button mNextStepButton;
+    private boolean mIsNextStepButtonEnabled;
+
     private Button mPreviousStepButton;
+
+    private static final String EMAIL_PATTERN = "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@" + "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
+    private static Pattern mEmailPattern = Pattern.compile(EMAIL_PATTERN);
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -51,7 +66,11 @@ public class RegistrationLoginDetailsFragment extends Fragment implements View.O
         }
 
         mNameEditText = (EditText) mLayout.findViewById(R.id.user_name_edit_text);
+        mNameEditText.setOnEditorActionListener(this);
+        mNameInputLayout = (TextInputLayout) mLayout.findViewById(R.id.user_name_input_layout);
         mEmailEditText = (EditText) mLayout.findViewById(R.id.user_email_edit_text);
+        mEmailEditText.setOnEditorActionListener(this);
+        mEmailInputLayout = (TextInputLayout) mLayout.findViewById(R.id.user_email_input_layout);
 
         mNameEditText.addTextChangedListener(new TextWatcher() {
             @Override
@@ -67,6 +86,11 @@ public class RegistrationLoginDetailsFragment extends Fragment implements View.O
             @Override
             public void afterTextChanged(Editable s) {
                 checkNextStepEnabled();
+                if (!isNameValid()) {
+                    mNameInputLayout.setError(getString(R.string.user_name_error_message));
+                } else {
+                    mNameInputLayout.setError(null);
+                }
             }
         });
         mEmailEditText.addTextChangedListener(new TextWatcher() {
@@ -92,11 +116,16 @@ public class RegistrationLoginDetailsFragment extends Fragment implements View.O
     }
 
     private void checkNextStepEnabled() {
-        boolean isNameValid = !mNameEditText.getText().toString().isEmpty();
-        // TODO: Add regex check for email.
-        boolean isEmailValid = true;
+        // Make sure input name is not empty and e-mail address is valid.
+        mIsNextStepButtonEnabled = isEmailValid() && isNameValid();
+    }
 
-        mNextStepButton.setEnabled(isEmailValid && isNameValid);
+    private boolean isNameValid() {
+        return !mNameEditText.getText().toString().isEmpty();
+    }
+
+    private boolean isEmailValid() {
+        return mEmailPattern.matcher(mEmailEditText.getText().toString()).matches();
     }
 
     @Override
@@ -115,11 +144,41 @@ public class RegistrationLoginDetailsFragment extends Fragment implements View.O
                 }
                 break;
             case R.id.logininfo_next_step:
-                if (containerActivity != null) {
-                    // Advance one page.
-                    containerActivity.requestViewPagerPage(SignUpActivity.PAGE_USER_DETAILS);
+                if (mIsNextStepButtonEnabled) {
+                    mEmailInputLayout.setError(null);
+                    mNameInputLayout.setError(null);
+
+                    if (containerActivity != null) {
+                        // Advance one page.
+                        containerActivity.requestViewPagerPage(SignUpActivity.PAGE_USER_DETAILS);
+                    }
+                } else {
+                    if (!isNameValid()) {
+                        mNameInputLayout.setError(getString(R.string.user_name_error_message));
+                    }
+                    if (!isEmailValid()) {
+                        mEmailInputLayout.setError(getString(R.string.user_email_error_message));
+                    }
                 }
                 break;
         }
+    }
+
+    @Override
+    public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+        switch (v.getId()) {
+            case R.id.user_name_edit_text:
+                if (actionId == EditorInfo.IME_ACTION_NEXT && !isNameValid()) {
+                        mNameInputLayout.setError(getString(R.string.user_name_error_message));
+                    return true;
+                }
+                break;
+            case R.id.user_email_edit_text:
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    onClick(mNextStepButton);
+                }
+                return true;
+        }
+        return false;
     }
 }
