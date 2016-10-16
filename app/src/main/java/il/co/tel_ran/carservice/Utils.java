@@ -4,6 +4,10 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
@@ -181,5 +185,18 @@ public class Utils {
         TypedValue outValue = new TypedValue();
         context.getTheme().resolveAttribute(colorAttr, outValue, true);
         return outValue.data;
+    }
+
+    public static void showDialogFragment(FragmentManager fragmentManager,
+                                          DialogFragment dialogFragment, String tag) {
+        if (fragmentManager != null && dialogFragment != null) {
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            Fragment previousDialog = fragmentManager.findFragmentByTag(tag);
+            if (previousDialog != null) {
+                fragmentTransaction.remove(previousDialog);
+            }
+            fragmentTransaction.addToBackStack(null);
+            dialogFragment.show(fragmentTransaction, tag);
+        }
     }
 }

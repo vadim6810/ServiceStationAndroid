@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.AppCompatCheckBox;
 import android.support.v7.widget.AppCompatImageButton;
@@ -443,26 +442,14 @@ public class SearchServiceTabFragment extends Fragment
     }
 
     private void showServiceDetailsDialog() {
-        if (serviceDetailsDialog != null) {
-            FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-            Fragment previousDialog = getFragmentManager().findFragmentByTag("service_details_dialog");
-            if (previousDialog != null) {
-                fragmentTransaction.remove(previousDialog);
-            }
-            fragmentTransaction.addToBackStack(null);
-            serviceDetailsDialog.show(fragmentTransaction, "service_details_dialog");
-        }
+        Utils.showDialogFragment(getFragmentManager(), serviceDetailsDialog,
+                "service_details_dialog");
     }
 
     private void showContactDetailsDialog(ServiceSearchResult searchResult) {
         ServiceContactDetailsDialog contactDetailsDialog = ServiceContactDetailsDialog.getInstance(
                 searchResult.getPhonenumber(), searchResult.getEmail());
-        FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-        Fragment previousDialog = getFragmentManager().findFragmentByTag("contact_details_dialog");
-        if (previousDialog != null) {
-            fragmentTransaction.remove(previousDialog);
-        }
-        fragmentTransaction.addToBackStack(null);
-        contactDetailsDialog.show(fragmentTransaction, "contact_details_dialog");
+        Utils.showDialogFragment(getFragmentManager(), contactDetailsDialog,
+                "contact_details_dialog");
     }
 }
