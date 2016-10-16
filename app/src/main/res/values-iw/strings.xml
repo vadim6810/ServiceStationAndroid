@@ -45,4 +45,5 @@
     <string name="user_email_error_message">אנא הזן דואר אלקטרוני תקין</string>
     <string name="user_name_error_message">אנא הזן שם</string>
     <string name="no_services">אין שירותים להציג.</string>
+    <string name="service_contat_details_dialog_title">צור קשר</string>
 </resources>

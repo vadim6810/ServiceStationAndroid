@@ -1,9 +1,11 @@
 package il.co.tel_ran.carservice;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
@@ -33,10 +35,19 @@ public class ServiceContactDetailsDialog extends DialogFragment implements View.
         return contactDetailsDialog;
     }
 
+    @NonNull
+    @Override
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
+        Dialog dialog = super.onCreateDialog(savedInstanceState);
+        dialog.setTitle(getString(R.string.service_contat_details_dialog_title));
+        return dialog;
+    }
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
+        setStyle(DialogFragment.STYLE_NORMAL, R.style.TitledDialogFragment);
 
         Bundle args = getArguments();
         if (args != null && !args.isEmpty()) {

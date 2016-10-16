@@ -45,4 +45,5 @@
     <string name="user_name_error_message">Please enter a name</string>
     <string name="user_email_error_message">Please enter a valid email address</string>
     <string name="no_services">No services to show.</string>
+    <string name="service_contat_details_dialog_title">Contact</string>
 </resources>

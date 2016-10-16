@@ -45,4 +45,5 @@
     <string name="user_name_error_message">Пожалуйста, введите имя</string>
     <string name="user_email_error_message">Пожалуйста, введите действительный Эл. адрес</string>
     <string name="no_services">Никакие услуги не показывать.</string>
+    <string name="service_contat_details_dialog_title">Связь</string>
 </resources>
