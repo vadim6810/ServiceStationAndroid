@@ -77,10 +77,12 @@ public class ClientMainActivity extends AppCompatActivity implements GoogleApiCl
             dataFragment.setData(data);
         } else {
             ClientActivityRetainedData data = (ClientActivityRetainedData) dataFragment.getData();
-            mServerConnection = data.getServerConnection();
-            recentServicesTabFragment = data.getRecentServicesTabFragment();
-            searchServiceTabFragment = data.getSearchServiceTabFragment();
-            requestServiceTabFragment = data.getRequestServiceTabFragment();
+            if (data != null) {
+                mServerConnection = data.getServerConnection();
+                recentServicesTabFragment = data.getRecentServicesTabFragment();
+                searchServiceTabFragment = data.getSearchServiceTabFragment();
+                requestServiceTabFragment = data.getRequestServiceTabFragment();
+            }
         }
 
         setupGoogleApiClient();
