@@ -49,4 +49,8 @@
     <string name="submit_rating_dialog_title">Отправить Рейтинг</string>
     <string name="button_cancel">Отмена</string>
     <string name="button_submit">Отправить</string>
+    <string name="leave_message_dialog_title">Оставить Сообщение</string>
+    <string name="leave_message_hint">Оставьте короткое сообщение:</string>
+    <string name="leave_message_empty_error">Пожалуйста, введите сообщение</string>
+    <string name="leave_message_too_long">Сообщение не может быть больше чем %1$d буквы</string>
 </resources>

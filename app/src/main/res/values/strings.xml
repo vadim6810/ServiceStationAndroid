@@ -49,4 +49,8 @@
     <string name="submit_rating_dialog_title">Submit Rating</string>
     <string name="button_cancel">Cancel</string>
     <string name="button_submit">Submit</string>
+    <string name="leave_message_dialog_title">Leave a Message</string>
+    <string name="leave_message_hint">Leave a short message:</string>
+    <string name="leave_message_empty_error">Please enter a message</string>
+    <string name="leave_message_too_long">Message can\'t be longer than %1$d characters</string>
 </resources>

@@ -49,4 +49,8 @@
     <string name="submit_rating_dialog_title">הוסף ביקורת</string>
     <string name="button_cancel">בטל</string>
     <string name="button_submit">שלח</string>
+    <string name="leave_message_dialog_title">השאר הודעה</string>
+    <string name="leave_message_hint">השאר הודעה קצרה:</string>
+    <string name="leave_message_too_long">ההודעה לא לכלול יותר מ- %1$d תווים</string>
+    <string name="leave_message_empty_error">אנא הזן הודעה</string>
 </resources>

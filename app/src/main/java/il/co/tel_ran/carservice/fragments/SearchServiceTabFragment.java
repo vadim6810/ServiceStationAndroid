@@ -43,6 +43,7 @@ import il.co.tel_ran.carservice.Utils;
 import il.co.tel_ran.carservice.activities.ClientMainActivity;
 import il.co.tel_ran.carservice.dialogs.ServiceContactDetailsDialog;
 import il.co.tel_ran.carservice.dialogs.ServiceDetailsDialog;
+import il.co.tel_ran.carservice.dialogs.ServiceLeaveMessageDialog;
 import il.co.tel_ran.carservice.dialogs.ServiceSubmitRatingDialog;
 
 import static android.app.Activity.RESULT_CANCELED;
@@ -55,7 +56,7 @@ public class SearchServiceTabFragment extends Fragment
     implements View.OnClickListener, ChipView.OnChipDeleteClickListener,
         ServerConnection.OnServicesRetrievedListener,
         ServiceSearchResultAdapter.ServiceSearchResultClickListener,
-        ServiceDetailsDialog.ServiceDetailsDialogListener, ServiceSubmitRatingDialog.SubmitRatingDialogListener {
+        ServiceDetailsDialog.ServiceDetailsDialogListener, ServiceSubmitRatingDialog.SubmitRatingDialogListener, ServiceLeaveMessageDialog.LeaveMessageDialogListener {
 
     private final static int[] SERVICE_CHECKBOX_IDS = {
             R.id.service_checkbox_car_wash,
@@ -270,6 +271,9 @@ public class SearchServiceTabFragment extends Fragment
             case ITEM_LEAVE_RATING:
                 showSubmitRatingDialog(result);
                 break;
+            case ITEM_LEAVE_MESSAGE:
+                showLeaveMessageDialog(result);
+                break;
         }
     }
 
@@ -277,6 +281,11 @@ public class SearchServiceTabFragment extends Fragment
     public void onRatingSubmitted(float rating, ServiceSearchResult searchResult) {
         // TODO: send new rating to back-end (update if exists, add if not)
         // TODO: update the search result rating card (after back-end receives update)
+    }
+
+    @Override
+    public void onMessageSubmitted(CharSequence message, ServiceSearchResult searchResult) {
+        // TODO: send submitted message to back-end
     }
 
     @Override
@@ -480,5 +489,12 @@ public class SearchServiceTabFragment extends Fragment
                 this, result);
         Utils.showDialogFragment(getFragmentManager(), submitRatingDialog,
                 "submit_rating_dialog");
+    }
+
+    private void showLeaveMessageDialog(ServiceSearchResult result) {
+        ServiceLeaveMessageDialog submitRatingDialog = ServiceLeaveMessageDialog.getInstance(result,
+                this);
+        Utils.showDialogFragment(getFragmentManager(), submitRatingDialog,
+                "leave_message_dialog");
     }
 }
