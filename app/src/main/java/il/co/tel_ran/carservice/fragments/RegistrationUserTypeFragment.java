@@ -2,6 +2,7 @@ package il.co.tel_ran.carservice.fragments;
 
 import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
+import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -12,11 +13,13 @@ import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import il.co.tel_ran.carservice.R;
 import il.co.tel_ran.carservice.UserType;
 import il.co.tel_ran.carservice.Utils;
+import il.co.tel_ran.carservice.activities.SignInActivity;
 import il.co.tel_ran.carservice.activities.SignUpActivity;
 
 /**
@@ -58,6 +61,9 @@ public class RegistrationUserTypeFragment extends Fragment implements View.OnCli
         mServiceProviderOptionLayout.setOnClickListener(this);
         mProviderOptionTitleTextView = (TextView) layout.findViewById(R.id.provider_option_title_text_view);
         mProviderOptionCaptionTextView = (TextView) layout.findViewById(R.id.provider_option_caption_text);
+
+        Button navigateToSignInButton = (Button) layout.findViewById(R.id.navgiate_to_sign_in_button);
+        navigateToSignInButton.setOnClickListener(this);
 
         mNextStepFAB = (FloatingActionButton) layout.findViewById(R.id.next_step_fab);
         mNextStepFAB.setOnClickListener(this);
@@ -108,6 +114,12 @@ public class RegistrationUserTypeFragment extends Fragment implements View.OnCli
                 } catch (ClassCastException e) {
                     e.printStackTrace();
                 }
+                break;
+            case R.id.navgiate_to_sign_in_button:
+                Intent intent = new Intent(getContext(), SignInActivity.class);
+                // Use clear FLAG_ACTIVITY_CLEAR_TOP to ensure we don't get stack overflow.
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
                 break;
         }
     }

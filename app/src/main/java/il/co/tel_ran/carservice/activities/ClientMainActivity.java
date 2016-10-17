@@ -128,6 +128,8 @@ public class ClientMainActivity extends AppCompatActivity implements GoogleApiCl
     }
 
     public void showSignInForm(View view) {
+        Intent intent = new Intent(ClientMainActivity.this, SignInActivity.class);
+        startActivity(intent);
     }
 
     public GoogleApiClient getGoogleApiClient() {

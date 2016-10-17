@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="il.co.tel_ran.carservice.activities.SignInActivity"
+    android:orientation="vertical">
+
+    <android.support.design.widget.AppBarLayout
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent">
+
+        <include layout="@layout/toolbar"
+            android:id="@+id/actionBar" />
+
+    </android.support.design.widget.AppBarLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="@dimen/activity_horizontal_margin"
+        android:layout_marginRight="@dimen/activity_horizontal_margin"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:layout_marginBottom="@dimen/activity_vertical_margin"
+        android:orientation="vertical">
+        <TextView
+            android:text="@string/sign_in_prompt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.AppCompat.Display2"
+            android:textColor="@color/colorAccent"
+            android:gravity="center"/>
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/login_email_input_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/activity_horizontal_margin">
+
+            <EditText
+                android:id="@+id/login_email_edit_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textEmailAddress"
+                android:imeOptions="actionNext"
+                android:maxLines="1"
+                android:hint="@string/hint_email"/>
+        </android.support.design.widget.TextInputLayout>
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/login_password_input_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/item_spacing">
+
+            <EditText
+                android:id="@+id/login_password_edit_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:imeOptions="actionDone"
+                android:maxLines="1"
+                android:hint="@string/hint_password"
+                android:inputType="textPassword" />
+        </android.support.design.widget.TextInputLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:gravity="center">
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/login_fab"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_arrow_forward_white_24dp"
+                android:clickable="true"
+                android:visibility="visible"
+                android:onClick="signIn"/>
+        </LinearLayout>
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/button_sign_up_informative"
+            android:textAllCaps="false"
+            android:textColor="@color/colorAccent"
+            android:background="@drawable/transparent_background_interactive"
+            android:layout_gravity="bottom"
+            android:onClick="navigateToSignUp"/>
+    </LinearLayout>
+
+</LinearLayout>

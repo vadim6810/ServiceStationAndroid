@@ -53,4 +53,6 @@
     <string name="leave_message_hint">השאר הודעה קצרה:</string>
     <string name="leave_message_too_long">ההודעה לא לכלול יותר מ- %1$d תווים</string>
     <string name="leave_message_empty_error">אנא הזן הודעה</string>
+    <string name="sign_in_prompt">ברוכים הבאים</string>
+    <string name="hint_password">סיסמה:</string>
 </resources>

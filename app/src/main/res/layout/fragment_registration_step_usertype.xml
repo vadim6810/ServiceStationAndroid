@@ -94,6 +94,7 @@
     </LinearLayout>
 
     <Button
+        android:id="@+id/navgiate_to_sign_in_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/button_sign_in_informative"
