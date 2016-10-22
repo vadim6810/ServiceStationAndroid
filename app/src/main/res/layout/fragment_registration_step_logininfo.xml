@@ -73,8 +73,6 @@
             android:layout_gravity="start"
             android:gravity="start|center_vertical"
             android:text="@string/previous_button"
-            android:drawableLeft="@drawable/ic_navigate_before_accent_24dp"
-            android:drawableStart="@drawable/ic_navigate_before_accent_24dp"
             android:textColor="@color/colorAccent"
             android:background="@drawable/transparent_background_interactive"/>
         <Space
@@ -87,8 +85,6 @@
             android:layout_height="wrap_content"
             android:layout_gravity="end"
             android:gravity="end|center_vertical"
-            android:drawableRight="@drawable/ic_navigate_next_accent_24dp"
-            android:drawableEnd="@drawable/ic_navigate_next_accent_24dp"
             android:text="@string/next_button"
             android:textColor="@color/colorAccent"
             android:background="@drawable/transparent_background_interactive"/>

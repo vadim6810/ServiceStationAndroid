@@ -3,7 +3,6 @@ package il.co.tel_ran.carservice.fragments;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -82,13 +81,15 @@ public class RegistrationUserDetailsFragment extends Fragment implements View.On
         Button previousStep = (Button) layout.findViewById(R.id.userdetails_previous_step);
         previousStep.setOnClickListener(this);
 
-        // SDK > 21 supports autoMirrored attribute, this code is for backwards compatibility.
-        if (Build.VERSION.SDK_INT < 21) {
-            if (Utils.isLocaleRTL(Locale.getDefault())) {
-                // Only check for RTL languages since by default it's configured for LTR languages.
-                Drawable navigateRight = ContextCompat.getDrawable(getContext(), R.drawable.ic_navigate_next_accent_24dp);
-                previousStep.setCompoundDrawablesWithIntrinsicBounds(null, null, navigateRight, null);
-            }
+        // Arrow direction and placement relative to the button should be in the opposite direction.
+        // RTL - to the left
+        // LTR - to the right
+        if (Utils.isLocaleRTL(Locale.getDefault())) {
+            Drawable navigateRight = ContextCompat.getDrawable(getContext(), R.drawable.ic_navigate_next_accent_24dp);
+            previousStep.setCompoundDrawablesWithIntrinsicBounds(null, null, navigateRight, null);
+        } else {
+            Drawable navigateLeft = ContextCompat.getDrawable(getContext(), R.drawable.ic_navigate_before_accent_24dp);
+            previousStep.setCompoundDrawablesWithIntrinsicBounds(navigateLeft, null, null, null);
         }
 
         mVehicleDetailsLayout = layout.findViewById(R.id.vehicle_details_layout);

@@ -1,7 +1,6 @@
 package il.co.tel_ran.carservice.fragments;
 
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputLayout;
@@ -18,9 +17,11 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import java.util.Locale;
 import java.util.regex.Pattern;
 
 import il.co.tel_ran.carservice.R;
+import il.co.tel_ran.carservice.Utils;
 import il.co.tel_ran.carservice.activities.SignUpActivity;
 
 /**
@@ -57,15 +58,17 @@ public class RegistrationLoginDetailsFragment extends Fragment implements View.O
         mNextStepButton = (Button) mLayout.findViewById(R.id.logininfo_next_step);
         mPreviousStepButton = (Button) mLayout.findViewById(R.id.logininfo_previous_step);
 
-        // SDK > 21 supports autoMirrored attribute, this code is for backwards compatibility.
-        if (Build.VERSION.SDK_INT < 21) {
-            if (SignUpActivity.isRTL) {
-                // Only check for RTL languages since by default it's configured for LTR languages.
-                Drawable navigateLeft = ContextCompat.getDrawable(getContext(), R.drawable.ic_navigate_before_accent_24dp);
-                Drawable navigateRight = ContextCompat.getDrawable(getContext(), R.drawable.ic_navigate_next_accent_24dp);
-                mNextStepButton.setCompoundDrawablesWithIntrinsicBounds(navigateLeft, null, null, null);
-                mPreviousStepButton.setCompoundDrawablesWithIntrinsicBounds(null, null, navigateRight, null);
-            }
+        // Arrow direction and placement relative to the button should be in the opposite direction.
+        // RTL - to the left
+        // LTR - to the right
+        Drawable navigateLeft = ContextCompat.getDrawable(getContext(), R.drawable.ic_navigate_before_accent_24dp);
+        Drawable navigateRight = ContextCompat.getDrawable(getContext(), R.drawable.ic_navigate_next_accent_24dp);
+        if (Utils.isLocaleRTL(Locale.getDefault())) {
+            mPreviousStepButton.setCompoundDrawablesWithIntrinsicBounds(null, null, navigateRight, null);
+            mNextStepButton.setCompoundDrawablesWithIntrinsicBounds(navigateLeft, null, null, null);
+        } else {
+            mPreviousStepButton.setCompoundDrawablesWithIntrinsicBounds(navigateLeft, null, null, null);
+            mNextStepButton.setCompoundDrawablesWithIntrinsicBounds(null, null, navigateRight, null);
         }
 
         mNameEditText = (EditText) mLayout.findViewById(R.id.user_name_edit_text);
