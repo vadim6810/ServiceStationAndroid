@@ -39,8 +39,6 @@ public class RegistrationLoginDetailsFragment extends Fragment implements View.O
     private Button mNextStepButton;
     private boolean mIsNextStepButtonEnabled;
 
-    private Button mPreviousStepButton;
-
     private static final String EMAIL_PATTERN = "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@" + "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
     private static Pattern mEmailPattern = Pattern.compile(EMAIL_PATTERN);
 
@@ -56,7 +54,7 @@ public class RegistrationLoginDetailsFragment extends Fragment implements View.O
         View mLayout = inflater.inflate(R.layout.fragment_registration_step_logininfo, null);
 
         mNextStepButton = (Button) mLayout.findViewById(R.id.logininfo_next_step);
-        mPreviousStepButton = (Button) mLayout.findViewById(R.id.logininfo_previous_step);
+        Button previousStepButton = (Button) mLayout.findViewById(R.id.logininfo_previous_step);
 
         // Arrow direction and placement relative to the button should be in the opposite direction.
         // RTL - to the left
@@ -64,10 +62,10 @@ public class RegistrationLoginDetailsFragment extends Fragment implements View.O
         Drawable navigateLeft = ContextCompat.getDrawable(getContext(), R.drawable.ic_navigate_before_accent_24dp);
         Drawable navigateRight = ContextCompat.getDrawable(getContext(), R.drawable.ic_navigate_next_accent_24dp);
         if (Utils.isLocaleRTL(Locale.getDefault())) {
-            mPreviousStepButton.setCompoundDrawablesWithIntrinsicBounds(null, null, navigateRight, null);
+            previousStepButton.setCompoundDrawablesWithIntrinsicBounds(null, null, navigateRight, null);
             mNextStepButton.setCompoundDrawablesWithIntrinsicBounds(navigateLeft, null, null, null);
         } else {
-            mPreviousStepButton.setCompoundDrawablesWithIntrinsicBounds(navigateLeft, null, null, null);
+            previousStepButton.setCompoundDrawablesWithIntrinsicBounds(navigateLeft, null, null, null);
             mNextStepButton.setCompoundDrawablesWithIntrinsicBounds(null, null, navigateRight, null);
         }
 
@@ -117,7 +115,7 @@ public class RegistrationLoginDetailsFragment extends Fragment implements View.O
         });
 
         mNextStepButton.setOnClickListener(this);
-        mPreviousStepButton.setOnClickListener(this);
+        previousStepButton.setOnClickListener(this);
         return mLayout;
     }
 

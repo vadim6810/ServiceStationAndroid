@@ -67,23 +67,23 @@ public class SearchServiceTabFragment extends Fragment
 
     private static final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
 
-    private ScrollView searchFieldsLayout;
-    private LinearLayout findServiceLayout;
-    private Button expandFieldsButton;
+    private ScrollView mSearchFieldsLayout;
+    private LinearLayout mFindServiceLayout;
+    private Button mExpandFieldsButton;
 
     // Holds all programmatically created layouts to keep ChipView objects.
-    private List<LinearLayout> chipsContainerLayouts = new ArrayList<>();
-    // Holds all locations specified by the user (retrieved from Google Places API).
-    // Used to query locations with required services.
-    private List<Place> locations = new ArrayList<>();
-    private Button searchLocationButton;
+    private List<LinearLayout> mChipsContainerLayouts = new ArrayList<>();
+    // Holds all mLocations specified by the user (retrieved from Google Places API).
+    // Used to query mLocations with required services.
+    private List<Place> mLocations = new ArrayList<>();
+    private Button mSearchLocationButton;
 
-    private AppCompatCheckBox[] servicesCheckBoxes = new AppCompatCheckBox[SERVICE_CHECKBOX_IDS.length];
+    private AppCompatCheckBox[] mServicesCheckBoxes = new AppCompatCheckBox[SERVICE_CHECKBOX_IDS.length];
 
-    private RecyclerView searchResultsRecyclerView;
-    private ProgressBar resultsProgressBar;
+    private RecyclerView mSearchResultsRecyclerView;
+    private ProgressBar mResultsProgressBar;
 
-    private View mainLayout;
+    private View mMainLayout;
 
     private ServiceDetailsDialog serviceDetailsDialog;
 
@@ -98,54 +98,54 @@ public class SearchServiceTabFragment extends Fragment
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        if (mainLayout == null) {
-            mainLayout = inflater.inflate(R.layout.fragment_tab_search_service, container, false);
+        if (mMainLayout == null) {
+            mMainLayout = inflater.inflate(R.layout.fragment_tab_search_service, container, false);
 
-            searchFieldsLayout = (ScrollView) mainLayout.findViewById(R.id.find_service_expandable_layout);
-            findServiceLayout = (LinearLayout) mainLayout.findViewById(R.id.find_service_layout);
+            mSearchFieldsLayout = (ScrollView) mMainLayout.findViewById(R.id.find_service_expandable_layout);
+            mFindServiceLayout = (LinearLayout) mMainLayout.findViewById(R.id.find_service_layout);
 
-            expandFieldsButton = (Button) mainLayout.findViewById(R.id.expand_search_fields_button);
-            expandFieldsButton.setOnClickListener(this);
-            AppCompatImageButton collapseFieldsButton = (AppCompatImageButton) mainLayout.findViewById(R.id.collapse_search_fields_button);
+            mExpandFieldsButton = (Button) mMainLayout.findViewById(R.id.expand_search_fields_button);
+            mExpandFieldsButton.setOnClickListener(this);
+            AppCompatImageButton collapseFieldsButton = (AppCompatImageButton) mMainLayout.findViewById(R.id.collapse_search_fields_button);
             collapseFieldsButton.setOnClickListener(this);
 
-            Button findServicesButton = (Button) mainLayout.findViewById(R.id.find_services_button);
+            Button findServicesButton = (Button) mMainLayout.findViewById(R.id.find_services_button);
             findServicesButton.setOnClickListener(this);
 
-            Button clearFieldsButton = (Button) mainLayout.findViewById(R.id.clear_search_fields_button);
+            Button clearFieldsButton = (Button) mMainLayout.findViewById(R.id.clear_search_fields_button);
             clearFieldsButton.setOnClickListener(this);
 
-            searchLocationButton = (Button) mainLayout.findViewById(R.id.search_city_button);
-            searchLocationButton.setOnClickListener(this);
+            mSearchLocationButton = (Button) mMainLayout.findViewById(R.id.search_city_button);
+            mSearchLocationButton.setOnClickListener(this);
 
-            mNoServicesTextView = (TextView) mainLayout.findViewById(R.id.no_services_text_view);
+            mNoServicesTextView = (TextView) mMainLayout.findViewById(R.id.no_services_text_view);
 
-            for (int i = 0; i < servicesCheckBoxes.length; i++) {
-                servicesCheckBoxes[i] = (AppCompatCheckBox) mainLayout.findViewById(SERVICE_CHECKBOX_IDS[i]);
+            for (int i = 0; i < mServicesCheckBoxes.length; i++) {
+                mServicesCheckBoxes[i] = (AppCompatCheckBox) mMainLayout.findViewById(SERVICE_CHECKBOX_IDS[i]);
             }
 
             setupResultsRecyclerView();
 
-            resultsProgressBar = (ProgressBar) mainLayout.findViewById(R.id.search_results_progress_bar);
+            mResultsProgressBar = (ProgressBar) mMainLayout.findViewById(R.id.search_results_progress_bar);
         } else {
 
             if (((ClientMainActivity) getActivity()).isUserControlLayoutVisible()) {
-                int bottom = findServiceLayout.getPaddingBottom();
+                int bottom = mFindServiceLayout.getPaddingBottom();
                 int configLayoutHeight = (int) getResources().getDimension(
                         R.dimen.snackbar_single_line_height);
 
                 Configuration newConfig = getResources().getConfiguration();
                 if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                    Utils.setSpecificPadding(findServiceLayout, Utils.Padding.BOTTOM, bottom +
+                    Utils.setSpecificPadding(mFindServiceLayout, Utils.Padding.BOTTOM, bottom +
                             configLayoutHeight);
                 } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
-                    Utils.setSpecificPadding(findServiceLayout, Utils.Padding.BOTTOM, bottom -
+                    Utils.setSpecificPadding(mFindServiceLayout, Utils.Padding.BOTTOM, bottom -
                             configLayoutHeight);
                 }
             }
         }
 
-        return mainLayout;
+        return mMainLayout;
     }
 
     @Override
@@ -154,7 +154,7 @@ public class SearchServiceTabFragment extends Fragment
             case PLACE_AUTOCOMPLETE_REQUEST_CODE:
                 if (resultCode == RESULT_OK) {
                     Place place = PlaceAutocomplete.getPlace(getActivity(), data);
-                    if (!locations.contains(place)) {
+                    if (!mLocations.contains(place)) {
                         addPlaceChip(place);
                     }
                 } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
@@ -175,23 +175,23 @@ public class SearchServiceTabFragment extends Fragment
 
         switch (view.getId()) {
             case R.id.expand_search_fields_button:
-                Utils.collapseView(expandFieldsButton, EXPAND_COLLAPSE_DURATION);
-                Utils.expandView(searchFieldsLayout, EXPAND_COLLAPSE_DURATION);
+                Utils.collapseView(mExpandFieldsButton, EXPAND_COLLAPSE_DURATION);
+                Utils.expandView(mSearchFieldsLayout, EXPAND_COLLAPSE_DURATION);
                 break;
             case R.id.collapse_search_fields_button:
-                Utils.collapseView(searchFieldsLayout, EXPAND_COLLAPSE_DURATION);
-                Utils.expandView(expandFieldsButton, EXPAND_COLLAPSE_DURATION);
+                Utils.collapseView(mSearchFieldsLayout, EXPAND_COLLAPSE_DURATION);
+                Utils.expandView(mExpandFieldsButton, EXPAND_COLLAPSE_DURATION);
                 break;
             case R.id.clear_search_fields_button:
-                for (AppCompatCheckBox serviceCheckbox : servicesCheckBoxes) {
+                for (AppCompatCheckBox serviceCheckbox : mServicesCheckBoxes) {
                     serviceCheckbox.setChecked(false);
                 }
 
-                for (LinearLayout layout : chipsContainerLayouts) {
-                    findServiceLayout.removeView(layout);
+                for (LinearLayout layout : mChipsContainerLayouts) {
+                    mFindServiceLayout.removeView(layout);
                 }
-                chipsContainerLayouts.clear();
-                locations.clear();
+                mChipsContainerLayouts.clear();
+                mLocations.clear();
 
                 break;
             case R.id.search_city_button:
@@ -199,7 +199,7 @@ public class SearchServiceTabFragment extends Fragment
 
                 if (googleApiClient != null && googleApiClient.isConnected()) {
                     try {
-                        // Build a Place autocomplete activity to search locations.
+                        // Build a Place autocomplete activity to search mLocations.
                         Intent placeAutoCompleteIntent = Utils.buildPlaceAutoCompleteIntent(
                                 containerActivity);
                         startActivityForResult(placeAutoCompleteIntent,
@@ -211,14 +211,14 @@ public class SearchServiceTabFragment extends Fragment
                 }
                 break;
             case R.id.find_services_button:
-                Utils.collapseView(searchFieldsLayout, EXPAND_COLLAPSE_DURATION);
-                Utils.expandView(expandFieldsButton, EXPAND_COLLAPSE_DURATION);
+                Utils.collapseView(mSearchFieldsLayout, EXPAND_COLLAPSE_DURATION);
+                Utils.expandView(mExpandFieldsButton, EXPAND_COLLAPSE_DURATION);
 
-                ServiceSearchQuery searchQuery = new ServiceSearchQuery(locations);
+                ServiceSearchQuery searchQuery = new ServiceSearchQuery(mLocations);
                 for (int i = 0; i < SERVICE_CHECKBOX_IDS.length; i++) {
                     // This is a new created object with empty service types (all toggled off).
                     // Therefore only add the checked ones.
-                    if (!servicesCheckBoxes[i].isChecked())
+                    if (!mServicesCheckBoxes[i].isChecked())
                         continue;
 
                     switch (SERVICE_CHECKBOX_IDS[i]) {
@@ -290,22 +290,22 @@ public class SearchServiceTabFragment extends Fragment
 
     @Override
     public void onServicesRetrievingStarted() {
-        ServiceSearchResultAdapter adapter = (ServiceSearchResultAdapter) searchResultsRecyclerView
+        ServiceSearchResultAdapter adapter = (ServiceSearchResultAdapter) mSearchResultsRecyclerView
                 .getAdapter();
 
         adapter.removeAllItems();
 
         mNoServicesTextView.setVisibility(View.GONE);
 
-        resultsProgressBar.setVisibility(View.VISIBLE);
+        mResultsProgressBar.setVisibility(View.VISIBLE);
     }
 
     @Override
     public void onServicesRetrieved(List<ServiceSearchResult> searchResults) {
-        resultsProgressBar.setVisibility(View.GONE);
+        mResultsProgressBar.setVisibility(View.GONE);
 
         if (searchResults != null && !searchResults.isEmpty()) {
-            ServiceSearchResultAdapter adapter = (ServiceSearchResultAdapter) searchResultsRecyclerView
+            ServiceSearchResultAdapter adapter = (ServiceSearchResultAdapter) mSearchResultsRecyclerView
                     .getAdapter();
 
             adapter.addItems(searchResults);
@@ -319,8 +319,8 @@ public class SearchServiceTabFragment extends Fragment
         // TODO: Add check for user signed in.
 
         // Find the position in the adapter for this view.
-        int itemPos = searchResultsRecyclerView.getChildAdapterPosition(view);
-        ServiceSearchResultAdapter adapter = (ServiceSearchResultAdapter) searchResultsRecyclerView
+        int itemPos = mSearchResultsRecyclerView.getChildAdapterPosition(view);
+        ServiceSearchResultAdapter adapter = (ServiceSearchResultAdapter) mSearchResultsRecyclerView
                 .getAdapter();
         // Get the result object for this position.
         final ServiceSearchResult searchResult = adapter.getItem(itemPos);
@@ -336,16 +336,16 @@ public class SearchServiceTabFragment extends Fragment
 
     @Override
     public void onChipDelete(ChipView view) {
-        for (LinearLayout layout : chipsContainerLayouts) {
+        for (LinearLayout layout : mChipsContainerLayouts) {
             int index = layout.indexOfChild(view);
             if (index != -1) {
                 Place place = (Place) view.getTag(R.id.tag_chip_place);
-                locations.remove(place);
+                mLocations.remove(place);
 
                 layout.removeViewAt(index);
                 if (layout.getChildCount() == 0) {
-                    chipsContainerLayouts.remove(layout);
-                    findServiceLayout.removeView(layout);
+                    mChipsContainerLayouts.remove(layout);
+                    mFindServiceLayout.removeView(layout);
                 } else {
                     rearrangePlaceChips(layout);
                 }
@@ -364,11 +364,11 @@ public class SearchServiceTabFragment extends Fragment
      */
 
     private void rearrangePlaceChips(LinearLayout layout) {
-        int layoutIndex = chipsContainerLayouts.indexOf(layout);
+        int layoutIndex = mChipsContainerLayouts.indexOf(layout);
         // Check if this is NOT the last container (there's nothing left to rearrange).
-        if (layoutIndex < (chipsContainerLayouts.size() - 1)) {
+        if (layoutIndex < (mChipsContainerLayouts.size() - 1)) {
             int childrenWidth = Utils.measureChildrenWidth(layout);
-            LinearLayout nextLayout = chipsContainerLayouts.get(layoutIndex + 1);
+            LinearLayout nextLayout = mChipsContainerLayouts.get(layoutIndex + 1);
             ChipView nextChild = (ChipView) nextLayout.getChildAt(0);
             // Check if we got enough space to fit the next ChipView in the current layout.
             if (childrenWidth + nextChild.getMeasuredWidth() < layout.getMeasuredWidth()) {
@@ -377,8 +377,8 @@ public class SearchServiceTabFragment extends Fragment
 
                 // If the next layout doesn't have any children left remove it.
                 if (nextLayout.getChildCount() == 0) {
-                    chipsContainerLayouts.remove(nextLayout);
-                    findServiceLayout.removeView(nextLayout);
+                    mChipsContainerLayouts.remove(nextLayout);
+                    mFindServiceLayout.removeView(nextLayout);
                 } else {
                     // Call this function once again for the next layout.
                     rearrangePlaceChips(nextLayout);
@@ -388,7 +388,7 @@ public class SearchServiceTabFragment extends Fragment
     }
 
     private void addPlaceChip(Place place) {
-        locations.add(place);
+        mLocations.add(place);
 
         Context context = getContext();
 
@@ -410,11 +410,11 @@ public class SearchServiceTabFragment extends Fragment
         // If there are currently no containers.
         // If the width of the last container + width of ChipView is too much to fit on the screen.
         boolean isNewContainerRequired = false;
-        if (chipsContainerLayouts.isEmpty()) {
+        if (mChipsContainerLayouts.isEmpty()) {
             // Currently no containers, create a new one as the first container.
             isNewContainerRequired = true;
         } else {
-            lastContainer = chipsContainerLayouts.get(chipsContainerLayouts.size() - 1);
+            lastContainer = mChipsContainerLayouts.get(mChipsContainerLayouts.size() - 1);
 
             // Check if children's width is exceeding container layout width.
             // Make sure padding is NOT considered in the calculation.
@@ -438,16 +438,16 @@ public class SearchServiceTabFragment extends Fragment
             ViewCompat.setPaddingRelative(containerLayout, 0, 0, padding, 0);
 
             // Add the new container layout to ArrayList.
-            chipsContainerLayouts.add(containerLayout);
+            mChipsContainerLayouts.add(containerLayout);
 
             // Check where to insert the new layout:
             // If there are no containers insert it right after the search button.
             // Otherwise insert it after the last container.
-            int insertIndex = findServiceLayout.indexOfChild(searchLocationButton);
+            int insertIndex = mFindServiceLayout.indexOfChild(mSearchLocationButton);
             if (lastContainer != null) {
-                insertIndex = findServiceLayout.indexOfChild(lastContainer);
+                insertIndex = mFindServiceLayout.indexOfChild(lastContainer);
             }
-            findServiceLayout.addView(containerLayout, ++insertIndex);
+            mFindServiceLayout.addView(containerLayout, ++insertIndex);
         } else {
             // If we don't need to create a new container layout add it to the current layout.
             lastContainer.addView(locationChip);
@@ -455,13 +455,13 @@ public class SearchServiceTabFragment extends Fragment
     }
 
     private void setupResultsRecyclerView() {
-        searchResultsRecyclerView = (RecyclerView) mainLayout.findViewById(
+        mSearchResultsRecyclerView = (RecyclerView) mMainLayout.findViewById(
                 R.id.search_results_recycler_view);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
-        searchResultsRecyclerView.setLayoutManager(layoutManager);
+        mSearchResultsRecyclerView.setLayoutManager(layoutManager);
         ServiceSearchResultAdapter searchResultAdapter = new ServiceSearchResultAdapter(
                 new ArrayList<ServiceSearchResult>(), getContext(), this);
-        searchResultsRecyclerView.setAdapter(searchResultAdapter);
+        mSearchResultsRecyclerView.setAdapter(searchResultAdapter);
     }
 
     private void showServiceDetailsDialog(ServiceSearchResult searchResult,

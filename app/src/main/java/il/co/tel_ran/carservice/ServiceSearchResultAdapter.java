@@ -9,7 +9,6 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.EnumSet;
 import java.util.List;
 
 /**
@@ -19,10 +18,10 @@ import java.util.List;
 public class ServiceSearchResultAdapter
         extends RecyclerView.Adapter<ServiceSearchResultAdapter.ViewHolder> implements View.OnClickListener {
 
-    private final String serviceCarWashStr;
-    private final String serviceTuningStr;
-    private final String serviceACRepairRefillStr;
-    private final String serviceTyreRepairStr;
+    private final String mServiceCarWashStr;
+    private final String mServiceTuningStr;
+    private final String mServiceACRepairRefillStr;
+    private final String mServiceTyreRepairStr;
 
     private List<ServiceSearchResult> mSearchResults = new ArrayList<ServiceSearchResult>();
 
@@ -36,10 +35,10 @@ public class ServiceSearchResultAdapter
                                       ServiceSearchResultClickListener listener) {
         mSearchResults = searchResults;
 
-        serviceCarWashStr        = context.getString(R.string.required_service_car_wash);
-        serviceTuningStr         = context.getString(R.string.required_service_tuning);
-        serviceTyreRepairStr     = context.getString(R.string.required_service_tyre_repair);
-        serviceACRepairRefillStr = context.getString(R.string.required_service_air_cond_refill);
+        mServiceCarWashStr = context.getString(R.string.required_service_car_wash);
+        mServiceTuningStr = context.getString(R.string.required_service_tuning);
+        mServiceTyreRepairStr = context.getString(R.string.required_service_tyre_repair);
+        mServiceACRepairRefillStr = context.getString(R.string.required_service_air_cond_refill);
 
         mListener = listener;
     }
@@ -70,16 +69,16 @@ public class ServiceSearchResultAdapter
         for (ServiceType service : searchResult.getAvailableServices()) {
             switch (service) {
                 case SERVICE_TYPE_CAR_WASH:
-                    servicesText = servicesText + serviceCarWashStr;
+                    servicesText = servicesText + mServiceCarWashStr;
                     break;
                 case SERVICE_TYPE_TUNING:
-                    servicesText = servicesText + serviceTuningStr;
+                    servicesText = servicesText + mServiceTuningStr;
                     break;
                 case SERVICE_TYPE_TYRE_REPAIR:
-                    servicesText = servicesText + serviceTyreRepairStr;
+                    servicesText = servicesText + mServiceTyreRepairStr;
                     break;
                 case SERVICE_TYPE_AC_REPAIR_REFILL:
-                    servicesText = servicesText + serviceACRepairRefillStr;
+                    servicesText = servicesText + mServiceACRepairRefillStr;
                     break;
             }
 

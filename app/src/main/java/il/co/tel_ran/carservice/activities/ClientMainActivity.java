@@ -33,28 +33,25 @@ public class ClientMainActivity extends AppCompatActivity implements GoogleApiCl
 
     private ServerConnection mServerConnection;
 
-    private View userAccountControlLayout;
+    private View mUserAccountControlLayout;
 
     private static final int TAB_FRAGMENT_RECENT_SERVICES_INDEX = 0;
-    private RecentServicesTabFragment recentServicesTabFragment;
+    private RecentServicesTabFragment mRecentServicesTabFragment;
     private static final int TAB_FRAGMENT_SEARCH_SERVICES_INDEX = 1;
-    private SearchServiceTabFragment searchServiceTabFragment;
+    private SearchServiceTabFragment mSearchServiceTabFragment;
     private static final int TAB_FRAGMENT_REQUEST_SERVICES_INDEX = 2;
-    private RequestServiceTabFragment requestServiceTabFragment;
-
-    private RetainedFragment dataFragment;
-    private TabLayout tabLayout;
+    private RequestServiceTabFragment mRequestServiceTabFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_client_main);
 
-        userAccountControlLayout = findViewById(R.id.user_control_layout);
+        mUserAccountControlLayout = findViewById(R.id.user_control_layout);
 
         // find the retained fragment on activity restarts
         FragmentManager fm = getSupportFragmentManager();
-        dataFragment = (RetainedFragment) fm.findFragmentByTag(
+        RetainedFragment dataFragment = (RetainedFragment) fm.findFragmentByTag(
                 RetainedFragment.CLIENT_MAIN_ACTIVITY_RETAINED_FRAGMENT_TAG);
 
         // create the fragment and data the first time
@@ -71,17 +68,17 @@ public class ClientMainActivity extends AppCompatActivity implements GoogleApiCl
             createTabFragment(TAB_FRAGMENT_REQUEST_SERVICES_INDEX);
 
             ClientActivityRetainedData data = new ClientActivityRetainedData(mGoogleApiClient,
-                    mServerConnection, recentServicesTabFragment, searchServiceTabFragment,
-                    requestServiceTabFragment);
+                    mServerConnection, mRecentServicesTabFragment, mSearchServiceTabFragment,
+                    mRequestServiceTabFragment);
 
             dataFragment.setData(data);
         } else {
             ClientActivityRetainedData data = (ClientActivityRetainedData) dataFragment.getData();
             if (data != null) {
                 mServerConnection = data.getServerConnection();
-                recentServicesTabFragment = data.getRecentServicesTabFragment();
-                searchServiceTabFragment = data.getSearchServiceTabFragment();
-                requestServiceTabFragment = data.getRequestServiceTabFragment();
+                mRecentServicesTabFragment = data.getRecentServicesTabFragment();
+                mSearchServiceTabFragment = data.getSearchServiceTabFragment();
+                mRequestServiceTabFragment = data.getRequestServiceTabFragment();
             }
         }
 
@@ -141,7 +138,7 @@ public class ClientMainActivity extends AppCompatActivity implements GoogleApiCl
     }
 
     public boolean isUserControlLayoutVisible() {
-        return userAccountControlLayout.getVisibility() == View.VISIBLE;
+        return mUserAccountControlLayout.getVisibility() == View.VISIBLE;
     }
 
     private void setupGoogleApiClient() {
@@ -166,22 +163,22 @@ public class ClientMainActivity extends AppCompatActivity implements GoogleApiCl
         ViewPager tabsViewPager = (ViewPager) findViewById(R.id.tabs_viewpager);
         tabsViewPager.setAdapter(new TabsPagerAdapter(getSupportFragmentManager()));
 
-        if (userAccountControlLayout.getVisibility() == View.VISIBLE) {
+        if (mUserAccountControlLayout.getVisibility() == View.VISIBLE) {
             int paddingBottom = tabsViewPager.getPaddingBottom();
 
-            userAccountControlLayout.measure(View.MeasureSpec.UNSPECIFIED,
+            mUserAccountControlLayout.measure(View.MeasureSpec.UNSPECIFIED,
                     View.MeasureSpec.UNSPECIFIED);
 
             // Adding this much padding reduces the height of the ViewPager so there is
             // no interference between the ViewPager and the Sign In/Up layout.
-            int addedPadding = (int) (userAccountControlLayout.getMeasuredHeight()
+            int addedPadding = (int) (mUserAccountControlLayout.getMeasuredHeight()
                     + getResources().getDimension(R.dimen.activity_horizontal_margin));
 
             Utils.setSpecificPadding(tabsViewPager, Utils.Padding.BOTTOM,
                     paddingBottom + addedPadding);
         }
 
-        tabLayout = (TabLayout) findViewById(R.id.tab_layout);
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.tab_layout);
         tabLayout.setupWithViewPager(tabsViewPager);
     }
 
@@ -204,11 +201,11 @@ public class ClientMainActivity extends AppCompatActivity implements GoogleApiCl
             createTabFragment(position);
             switch (position) {
                 case 0:
-                    return recentServicesTabFragment;
+                    return mRecentServicesTabFragment;
                 case 1:
-                    return searchServiceTabFragment;
+                    return mSearchServiceTabFragment;
                 case 2:
-                    return requestServiceTabFragment;
+                    return mRequestServiceTabFragment;
             }
             return null;
         }
@@ -227,18 +224,18 @@ public class ClientMainActivity extends AppCompatActivity implements GoogleApiCl
     private boolean createTabFragment(int tabIndex) {
         switch (tabIndex) {
             case TAB_FRAGMENT_RECENT_SERVICES_INDEX:
-                if (recentServicesTabFragment == null) {
-                    recentServicesTabFragment = new RecentServicesTabFragment();
+                if (mRecentServicesTabFragment == null) {
+                    mRecentServicesTabFragment = new RecentServicesTabFragment();
                     return true;
                 }
             case TAB_FRAGMENT_SEARCH_SERVICES_INDEX:
-                if (searchServiceTabFragment == null) {
-                    searchServiceTabFragment = new SearchServiceTabFragment();
+                if (mSearchServiceTabFragment == null) {
+                    mSearchServiceTabFragment = new SearchServiceTabFragment();
                     return true;
                 }
             case TAB_FRAGMENT_REQUEST_SERVICES_INDEX:
-                if (requestServiceTabFragment == null) {
-                    requestServiceTabFragment = new RequestServiceTabFragment();
+                if (mRequestServiceTabFragment == null) {
+                    mRequestServiceTabFragment = new RequestServiceTabFragment();
                     return true;
                 }
         }

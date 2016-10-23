@@ -19,7 +19,7 @@ import java.util.Random;
 
 public class ServerConnection {
 
-    private FindServicesTask findServicesTask;
+    private FindServicesTask mFindServicesTask;
 
     public interface OnServicesRetrievedListener {
         void onServicesRetrievingStarted();
@@ -29,13 +29,13 @@ public class ServerConnection {
     public void findServices(ServiceSearchQuery searchQuery, GoogleApiClient googleApiClient,
                              OnServicesRetrievedListener listener) {
         cancelServiceSearchTask();
-        findServicesTask = new FindServicesTask(googleApiClient, listener);
-        findServicesTask.execute(searchQuery);
+        mFindServicesTask = new FindServicesTask(googleApiClient, listener);
+        mFindServicesTask.execute(searchQuery);
     }
 
     public void cancelServiceSearchTask() {
-        if (findServicesTask != null && findServicesTask.getStatus() == AsyncTask.Status.RUNNING)
-            findServicesTask.cancel(true);
+        if (mFindServicesTask != null && mFindServicesTask.getStatus() == AsyncTask.Status.RUNNING)
+            mFindServicesTask.cancel(true);
     }
 
     public void cancelAllTasks() {
