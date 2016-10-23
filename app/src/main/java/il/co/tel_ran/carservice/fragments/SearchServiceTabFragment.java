@@ -37,7 +37,7 @@ import il.co.tel_ran.carservice.R;
 import il.co.tel_ran.carservice.ServerConnection;
 import il.co.tel_ran.carservice.ServiceSearchQuery;
 import il.co.tel_ran.carservice.ServiceSearchResult;
-import il.co.tel_ran.carservice.ServiceSearchResultAdapter;
+import il.co.tel_ran.carservice.adapters.ServiceSearchResultAdapter;
 import il.co.tel_ran.carservice.ServiceType;
 import il.co.tel_ran.carservice.Utils;
 import il.co.tel_ran.carservice.activities.ClientMainActivity;
