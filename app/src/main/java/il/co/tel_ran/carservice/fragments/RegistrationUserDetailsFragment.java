@@ -2,7 +2,6 @@ package il.co.tel_ran.carservice.fragments;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -18,24 +17,23 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import il.co.tel_ran.carservice.HttpHandler;
 import il.co.tel_ran.carservice.R;
 import il.co.tel_ran.carservice.Utils;
 import il.co.tel_ran.carservice.activities.SignUpActivity;
+import il.co.tel_ran.carservice.VehicleAPI;
+import il.co.tel_ran.carservice.adapters.VehicleDataResultAdapter;
 
 /**
  * Created by Max on 12/10/2016.
  */
 
-public class RegistrationUserDetailsFragment extends Fragment implements View.OnClickListener, AdapterView.OnItemSelectedListener {
+public class RegistrationUserDetailsFragment extends Fragment
+        implements View.OnClickListener, AdapterView.OnItemSelectedListener,
+        VehicleAPI.OnVehicleDataRetrieveListener {
 
     private ProgressBar mVehicleApiDataProgressBar;
 
@@ -48,8 +46,7 @@ public class RegistrationUserDetailsFragment extends Fragment implements View.On
     private ProgressBar mVehicleModelProgressBar;
     private ProgressBar mEngineProgressBar;
 
-    private static final String JSON_VEHICLE_API_BASE_URL =  "http://casco.cmios.ru/api";
-    private static final String JSON_MAKE_API = "/cars/";
+    private VehicleAPI mVehicleAPI;
 
     private ArrayAdapter<Integer> mModelYearsAdapter;
 
@@ -67,6 +64,8 @@ public class RegistrationUserDetailsFragment extends Fragment implements View.On
         }
         mModelYearsAdapter = new ArrayAdapter<>(getContext(),
                 R.layout.support_simple_spinner_dropdown_item, modelYears);
+
+        mVehicleAPI = new VehicleAPI(this);
     }
 
     @Nullable
@@ -107,9 +106,9 @@ public class RegistrationUserDetailsFragment extends Fragment implements View.On
         mEngineSpinner.setOnItemSelectedListener(this);
         mEngineProgressBar = (ProgressBar) layout.findViewById(R.id.vehicle_engine_displacement_results_progress_bar);
 
-        // Load vehicle models from Vehicle API.
-        new GetVehicleAPIDataTask(VehicleAPIRequestType.REQUEST_MAKE).execute(
-                new VehicleAPIRequest(VehicleAPIRequestType.REQUEST_MAKE, JSON_VEHICLE_API_BASE_URL + JSON_MAKE_API));
+        // Load vehicle makes from Vehicle API.
+        mVehicleAPI.getVehicleData(new VehicleAPI.Request(VehicleAPI.RequestType.MAKE,
+                VehicleAPI.JSON_BASE_URL + VehicleAPI.JSON_MAKE_API));
         return layout;
     }
 
@@ -137,28 +136,28 @@ public class RegistrationUserDetailsFragment extends Fragment implements View.On
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         AppCompatSpinner spinner = null;
-        VehicleAPIRequestType requestType = null;
+        VehicleAPI.RequestType requestType = null;
         switch (parent.getId()) {
             case R.id.vehicle_make_spinner:
                 // Different vehicle make was selected.
                 spinner = mVehicleMakeSpinner;
-                requestType = VehicleAPIRequestType.REQUEST_MODEL;
+                requestType = VehicleAPI.RequestType.MODEL;
                 break;
             case R.id.vehicle_model_spinner:
                 // Different vehicle model was selected.
                 spinner = mVehicleModelSpinner;
-                requestType = VehicleAPIRequestType.REQUEST_MODIFICATION;
+                requestType = VehicleAPI.RequestType.MODIFICATION;
                 break;
         }
 
         if (requestType != null && spinner != null) {
             // Get additional data for next spinner.
-            ResultArrayAdapter adapter = (ResultArrayAdapter) spinner.getAdapter();
-            VehicleAPIResult result = adapter.getItem(position);
+            VehicleDataResultAdapter adapter = (VehicleDataResultAdapter) spinner.getAdapter();
+            VehicleAPI.Result result = adapter.getItem(position);
             if (result != null) {
-                VehicleAPIRequest request = new VehicleAPIRequest(requestType,
-                        JSON_VEHICLE_API_BASE_URL + result.getExtraURL());
-                new GetVehicleAPIDataTask(requestType).execute(request);
+                VehicleAPI.Request request = new VehicleAPI.Request(requestType,
+                        VehicleAPI.JSON_BASE_URL + result.getExtraURL());
+                mVehicleAPI.getVehicleData(request);
             }
         }
     }
@@ -168,298 +167,92 @@ public class RegistrationUserDetailsFragment extends Fragment implements View.On
 
     }
 
-    public class GetVehicleAPIDataTask extends AsyncTask<VehicleAPIRequest, Void, List<VehicleAPIResult>> {
+    @Override
+    public void onVehicleDataRetrievingStarted(VehicleAPI.RequestType requestType) {
+        switch (requestType) {
+            case MAKE:
+                // Set all spinners visibility to gone until they receive their results.
+                mVehicleMakeSpinner.setVisibility(View.GONE);
+                // The only visible view would be the Make Spinner progress bar.
+                mVehicleMakeProgressBar.setVisibility(View.VISIBLE);
 
-        private VehicleAPIRequestType requestType;
+                mVehicleModelSpinner.setVisibility(View.GONE);
+                mVehicleModelProgressBar.setVisibility(View.GONE);
+                mModelYearSpinner.setVisibility(View.GONE);
+                mEngineSpinner.setVisibility(View.GONE);
+                mEngineProgressBar.setVisibility(View.GONE);
+                break;
+            case MODEL:
+                // Set model, year and modification spinners visibility to gone.
+                mVehicleModelSpinner.setVisibility(View.GONE);
+                // Set the model progress bar to visible.
+                mVehicleModelProgressBar.setVisibility(View.VISIBLE);
+                mModelYearSpinner.setVisibility(View.GONE);
+                mEngineSpinner.setVisibility(View.GONE);
+                mEngineProgressBar.setVisibility(View.GONE);
+                break;
+            case MODIFICATION:
+                // Set the modification spinner visibility to gone.
+                mEngineSpinner.setVisibility(View.GONE);
+                // Set the modification progress bar to visible.
+                mEngineProgressBar.setVisibility(View.VISIBLE);
+                break;
+        }
+    }
 
-        public GetVehicleAPIDataTask(VehicleAPIRequestType type) {
-            requestType = type;
+    @Override
+    public void onVehicleDataRetrieved(VehicleAPI.RequestType requestType,
+                                       List<VehicleAPI.Result> results) {
+        VehicleDataResultAdapter adapter = null;
+
+        if (!results.isEmpty()) {
+            // Convert the results ArrayList to an Array because we use an instance of ArrayAdapter.
+            VehicleAPI.Result[] resultsArray = new VehicleAPI.Result[results.size()];
+            results.toArray(resultsArray);
+            // Apply the new results to an adapter.
+            adapter = new VehicleDataResultAdapter(getContext(),
+                    R.layout.support_simple_spinner_dropdown_item, resultsArray);
         }
 
-        @Override
-        protected List<VehicleAPIResult> doInBackground(VehicleAPIRequest... params) {
+        switch (requestType) {
+            case MAKE:
+                // Now that we received our results set the make spinner to visible again.
+                // Everything else (including progress bars) is still at gone.
+                // They will appear once they retrieve their individual results.
+                mVehicleMakeSpinner.setVisibility(View.VISIBLE);
+                mVehicleMakeProgressBar.setVisibility(View.GONE);
 
-            // First (and only) parameter is the request.
-            requestType = params[0].getRequestType();
+                mVehicleModelSpinner.setVisibility(View.GONE);
+                mVehicleModelProgressBar.setVisibility(View.GONE);
+                mEngineSpinner.setVisibility(View.GONE);
+                mEngineProgressBar.setVisibility(View.GONE);
 
-            List<VehicleAPIResult> vehicleAPIResults = new ArrayList<>();
-            try {
-                JSONArray jsonArray = null;
-                JSONObject jsonObject;
-                switch (requestType) {
-                    case REQUEST_MAKE:
-                        // Get JSON Array of vehicle makes.
-                        jsonArray = new JSONArray(parseURL(params[0].getURL()));
-                        break;
-                    case REQUEST_MODEL:
-                        // Get JSON Object which contains models array.
-                        jsonObject = new JSONObject(parseURL(params[0].getURL()));
-                        jsonArray = jsonObject.getJSONArray("models");
-                        break;
-                    case REQUEST_MODIFICATION:
-                        // Get JSON Object which contains modifications (engine dispalcement) array.
-                        jsonObject = new JSONObject(parseURL(params[0].getURL()));
-                        jsonArray = jsonObject.getJSONArray("modifications");
-                        break;
-                }
-
-                String extraURL = "";
-                for (int i = 0; i < jsonArray.length(); i++) {
-                    // Periodically check if the task was canceled.
-                    if (isCancelled())
-                        break;
-
-                    JSONObject object = jsonArray.getJSONObject(i);
-                    // Get "title" which is a string representation of the data we require (make/model/modification)
-                    String model = object.optString("title");
-                    // Modification request doesn't contain url.
-                    if (requestType != VehicleAPIRequestType.REQUEST_MODIFICATION)
-                        // Get "url" which is a url for additional data for this make/model.
-                        extraURL = object.getString("url");
-                    vehicleAPIResults.add(new VehicleAPIResult(extraURL, model));
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
-                // TODO: handle errors.
-            }
-
-            return vehicleAPIResults;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            switch (requestType) {
-                case REQUEST_MAKE:
-                    // Set all spinners visibility to gone until they receive their results.
-                    mVehicleMakeSpinner.setVisibility(View.GONE);
-                    // The only visible view would be the Make Spinner progress bar.
-                    mVehicleMakeProgressBar.setVisibility(View.VISIBLE);
-
-                    mVehicleModelSpinner.setVisibility(View.GONE);
-                    mVehicleModelProgressBar.setVisibility(View.GONE);
-                    mModelYearSpinner.setVisibility(View.GONE);
-                    mEngineSpinner.setVisibility(View.GONE);
-                    mEngineProgressBar.setVisibility(View.GONE);
-                    break;
-                case REQUEST_MODEL:
-                    // Set model, year and modification spinners visibility to gone.
-                    mVehicleModelSpinner.setVisibility(View.GONE);
-                    // Set the model progress bar to visible.
-                    mVehicleModelProgressBar.setVisibility(View.VISIBLE);
-                    mModelYearSpinner.setVisibility(View.GONE);
-                    mEngineSpinner.setVisibility(View.GONE);
-                    mEngineProgressBar.setVisibility(View.GONE);
-                    break;
-                case REQUEST_MODIFICATION:
-                    // Set the modification spinner visibility to gone.
-                    mEngineSpinner.setVisibility(View.GONE);
-                    // Set the modification progress bar to visible.
-                    mEngineProgressBar.setVisibility(View.VISIBLE);
-                    break;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(List<VehicleAPIResult> vehicleAPIResults) {
-            super.onPostExecute(vehicleAPIResults);
-            switch (requestType) {
-                case REQUEST_MAKE:
-                    // Now that we received our results set the make spinner to visible again.
-                    // Everything else (including progress bars) is still at gone.
-                    // They will appear once they retrieve their individual results.
-                    mVehicleMakeSpinner.setVisibility(View.VISIBLE);
-                    mVehicleMakeProgressBar.setVisibility(View.GONE);
-
-                    mVehicleModelSpinner.setVisibility(View.GONE);
-                    mVehicleModelProgressBar.setVisibility(View.GONE);
-                    mEngineSpinner.setVisibility(View.GONE);
-                    mEngineProgressBar.setVisibility(View.GONE);
-                    break;
-                case REQUEST_MODEL:
-                    // Set the spinner back to visible once we got the results.
-                    mVehicleModelSpinner.setVisibility(View.VISIBLE);
-                    mVehicleModelProgressBar.setVisibility(View.GONE);
-                    // Year spinner can be visible since it doesn't require any asynchronous work.
-                    mModelYearSpinner.setVisibility(View.VISIBLE);
-                    mEngineSpinner.setVisibility(View.GONE);
-                    mEngineProgressBar.setVisibility(View.GONE);
-                    break;
-                case REQUEST_MODIFICATION:
-                    // Set the modification spinner back to visible.
-                    mEngineSpinner.setVisibility(View.VISIBLE);
-                    mEngineProgressBar.setVisibility(View.GONE);
-                    break;
-            }
-
-            if (!vehicleAPIResults.isEmpty()) {
-                // Convert the results ArrayList to an Array because we use an instance of ArrayAdapter.
-                VehicleAPIResult[] resultsArray = new VehicleAPIResult[vehicleAPIResults.size()];
-                vehicleAPIResults.toArray(resultsArray);
-                // Apply the new results to an adapter.
-                ResultArrayAdapter adapter = new ResultArrayAdapter(getContext(),
-                        R.layout.support_simple_spinner_dropdown_item, resultsArray);
                 // Set the adapter to the requesting spinner.
-                switch (requestType) {
-                    case REQUEST_MAKE:
-                        mVehicleMakeSpinner.setAdapter(adapter);
-                        break;
-                    case REQUEST_MODEL:
-                        mVehicleModelSpinner.setAdapter(adapter);
-                        break;
-                    case REQUEST_MODIFICATION:
-                        mEngineSpinner.setAdapter(adapter);
-                        break;
-                }
-            }
-        }
+                if (adapter != null)
+                    mVehicleMakeSpinner.setAdapter(adapter);
+                break;
+            case MODEL:
+                // Set the spinner back to visible once we got the results.
+                mVehicleModelSpinner.setVisibility(View.VISIBLE);
+                mVehicleModelProgressBar.setVisibility(View.GONE);
+                // Year spinner can be visible since it doesn't require any asynchronous work.
+                mModelYearSpinner.setVisibility(View.VISIBLE);
+                mEngineSpinner.setVisibility(View.GONE);
+                mEngineProgressBar.setVisibility(View.GONE);
 
-        private String parseURL(String url) {
-            // Parse vehicle data api url to get a JSON input.
-            HttpHandler httpHandler = new HttpHandler();
-            return httpHandler.makeServiceCall(url);
-        }
-    }
+                // Set the adapter to the requesting spinner.
+                if (adapter != null)
+                    mVehicleModelSpinner.setAdapter(adapter);
+                break;
+            case MODIFICATION:
+                // Set the modification spinner back to visible.
+                mEngineSpinner.setVisibility(View.VISIBLE);
+                mEngineProgressBar.setVisibility(View.GONE);
 
-    // Vehicle data class, will be used when user finishes registration.
-    public static class VehicleData {
-        private String vehicleMake;
-        private String vehicleModel;
-        private String vehicleModifications;
-        private int vehicleYear;
-
-        public void setVehicleMake(String make) {
-            vehicleMake = make;
-        }
-
-        public String getVehicleMake() {
-            return vehicleMake;
-        }
-
-        public void setVehicleModel(String model) {
-            vehicleModel = model;
-        }
-
-        public String getVehicleModel() {
-            return vehicleModel;
-        }
-
-        public void setVehicleModifications(String modifications) {
-            vehicleModifications = modifications;
-        }
-
-        public String getVehicleModifications() {
-            return vehicleModifications;
-        }
-
-        public void setVehicleYear(int year) {
-            vehicleYear = year;
-        }
-
-        public int getVehicleYear() {
-            return vehicleYear;
-        }
-    }
-
-    private static class VehicleAPIResult {
-        private String mExtraURL;
-        private String mResult;
-
-        public VehicleAPIResult(String url, String result) {
-            mExtraURL    = url;
-            mResult      = result;
-        }
-
-        // Extra URL for additional information about this make/model.
-        public String getExtraURL() {
-            return mExtraURL;
-        }
-
-        // String describing the results (make name, model name or engine displacement).
-        public String getResult() {
-            return mResult;
-        }
-    }
-
-    private static class VehicleAPIRequest {
-        VehicleAPIRequestType mRequestType;
-        String mURL;
-
-        public VehicleAPIRequest(VehicleAPIRequestType requestType, String url) {
-            mRequestType = requestType;
-            mURL = url;
-        }
-
-        public VehicleAPIRequestType getRequestType() {
-            return mRequestType;
-        }
-
-        public String getURL() {
-            return mURL;
-        }
-    }
-
-    private enum VehicleAPIRequestType {
-        REQUEST_MAKE,
-        REQUEST_MODEL,
-        REQUEST_MODIFICATION
-    }
-
-    private class ResultArrayAdapter extends ArrayAdapter<VehicleAPIResult> {
-
-        private ArrayList<VehicleAPIResult> mResults;
-
-        public ResultArrayAdapter(Context context, int resource, VehicleAPIResult[] results) {
-            super(context, resource, results);
-
-            mResults = new ArrayList<>();
-
-            for (VehicleAPIResult result : results) {
-                mResults.add(result);
-            }
-        }
-
-        @Nullable
-        @Override
-        public VehicleAPIResult getItem(int position) {
-            return mResults.get(position);
-        }
-
-        @Override
-        public void add(VehicleAPIResult result) {
-            mResults.add(result);
-        }
-
-        @NonNull
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            View view = super.getView(position, convertView, parent);
-
-            // Set the spinner item text to the relevant result.
-            if (view instanceof TextView) {
-                TextView textView = (TextView) view;
-                textView.setText(mResults.get(position).getResult());
-            }
-
-            return view;
-        }
-
-        @Override
-        public View getDropDownView(int position, View convertView, ViewGroup parent) {
-            View view = super.getView(position, convertView, parent);
-
-            // Set the drop down item text to the relevant result.
-            if (view instanceof TextView) {
-                TextView textView = (TextView) view;
-                textView.setText(mResults.get(position).getResult());
-            }
-
-            return view;
-        }
-
-        @Override
-        public int getCount() {
-            return mResults.size();
+                // Set the adapter to the requesting spinner.
+                if (adapter != null)
+                    mEngineSpinner.setAdapter(adapter);
+                break;
         }
     }
 }
