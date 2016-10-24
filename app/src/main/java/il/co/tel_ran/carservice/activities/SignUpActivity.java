@@ -16,10 +16,10 @@ import android.view.MotionEvent;
 import java.util.Locale;
 
 import il.co.tel_ran.carservice.R;
-import il.co.tel_ran.carservice.fragments.RegistrationLoginDetailsFragment;
-import il.co.tel_ran.carservice.fragments.RegistrationUserDetailsFragment;
-import il.co.tel_ran.carservice.fragments.RegistrationUserTypeFragment;
 import il.co.tel_ran.carservice.Utils;
+import il.co.tel_ran.carservice.fragments.RegistrationLoginDetailsFragment;
+import il.co.tel_ran.carservice.fragments.RegistrationUserTypeFragment;
+import il.co.tel_ran.carservice.fragments.RegistrationVehicleDetailsFragment;
 
 public class SignUpActivity extends AppCompatActivity implements ViewPager.OnPageChangeListener {
 
@@ -169,7 +169,7 @@ public class SignUpActivity extends AppCompatActivity implements ViewPager.OnPag
                 case PAGE_LOGIN_DETAILS:
                     return new RegistrationLoginDetailsFragment();
                 case PAGE_USER_DETAILS:
-                    return new RegistrationUserDetailsFragment();
+                    return new RegistrationVehicleDetailsFragment();
             }
 
             return null;

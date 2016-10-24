@@ -31,7 +31,7 @@ import il.co.tel_ran.carservice.adapters.VehicleDataResultAdapter;
  * Created by Max on 12/10/2016.
  */
 
-public class RegistrationUserDetailsFragment extends Fragment
+public class RegistrationVehicleDetailsFragment extends Fragment
         implements View.OnClickListener, AdapterView.OnItemSelectedListener,
         VehicleAPI.OnVehicleDataRetrieveListener {
 
