@@ -71,7 +71,7 @@ public class RegistrationVehicleDetailsFragment extends Fragment
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View layout = inflater.inflate(R.layout.fragment_registration_step_userdetails, null);
+        View layout = inflater.inflate(R.layout.fragment_registration_step_vehicledetails, null);
 
         // Next step is finish.
         Button nextStep = (Button) layout.findViewById(R.id.userdetails_next_step);
