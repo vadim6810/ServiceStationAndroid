@@ -109,6 +109,8 @@ public class ClientMainActivity extends AppCompatActivity implements GoogleApiCl
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_item_profile:
+                Intent intent = new Intent(ClientMainActivity.this, ProfileActivity.class);
+                startActivity(intent);
                 break;
             case R.id.menu_item_about:
                 break;
