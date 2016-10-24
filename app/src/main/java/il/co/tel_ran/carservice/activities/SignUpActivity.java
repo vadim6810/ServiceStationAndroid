@@ -16,8 +16,11 @@ import android.view.MotionEvent;
 import java.util.Locale;
 
 import il.co.tel_ran.carservice.R;
+import il.co.tel_ran.carservice.UserType;
 import il.co.tel_ran.carservice.Utils;
 import il.co.tel_ran.carservice.fragments.RegistrationLoginDetailsFragment;
+import il.co.tel_ran.carservice.fragments.RegistrationServiceDetailsFragment;
+import il.co.tel_ran.carservice.fragments.RegistrationUserDetailsFragment;
 import il.co.tel_ran.carservice.fragments.RegistrationUserTypeFragment;
 import il.co.tel_ran.carservice.fragments.RegistrationVehicleDetailsFragment;
 
@@ -49,8 +52,10 @@ public class SignUpActivity extends AppCompatActivity implements ViewPager.OnPag
         mPager = (SignUpViewPager) findViewById(R.id.registration_viewpager);
         ScreenSlidePagerAdapter pagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
         mPager.setAdapter(pagerAdapter);
-        // This makes sure page fragments don't get unloaded when not visible.
-        mPager.setOffscreenPageLimit(NUM_PAGES - 1);
+        // Only load one additional page at start.
+        // This results in displaying only user type and login details pages, keeping
+        // user-type-specific details unloaded, until we choose one.
+        mPager.setOffscreenPageLimit(1);
         mPager.addOnPageChangeListener(this);
         // Set the page to user type selection page (RTL is handled by reversing the item)
         mPager.setCurrentItem(getReversedAdapterItem(PAGE_USER_TYPE), true);
@@ -114,11 +119,18 @@ public class SignUpActivity extends AppCompatActivity implements ViewPager.OnPag
 
     @Override
     public void onPageSelected(int position) {
-        // Disable back button to prevent confusion about the use of this button.
-        // The only page in which back button will be displayed is the initial setup page (user type)
+        int reversedPosition = getReversedAdapterItem(position);
+
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(getReversedAdapterItem(position) == PAGE_USER_TYPE);
+            // Disable back button to prevent confusion about the use of this button.
+            // The only page in which back button will be displayed is the initial setup page (user type)
+            actionBar.setDisplayHomeAsUpEnabled(reversedPosition == PAGE_USER_TYPE);
+        }
+
+        if (reversedPosition == PAGE_LOGIN_DETAILS) {
+            // This makes sure page fragments don't get unloaded when not visible.
+            mPager.setOffscreenPageLimit(NUM_PAGES - 1);
         }
     }
 
@@ -150,7 +162,10 @@ public class SignUpActivity extends AppCompatActivity implements ViewPager.OnPag
         }
     }
 
-    private static class ScreenSlidePagerAdapter extends FragmentStatePagerAdapter {
+    private static class ScreenSlidePagerAdapter extends FragmentStatePagerAdapter
+            implements RegistrationUserTypeFragment.UserTypeChangeListener {
+
+        private UserType mUserType = UserType.USER_CLIENT;
 
         public ScreenSlidePagerAdapter(FragmentManager fm) {
             super(fm);
@@ -165,19 +180,53 @@ public class SignUpActivity extends AppCompatActivity implements ViewPager.OnPag
             */
             switch (getReversedAdapterItem(position)) {
                 case PAGE_USER_TYPE:
-                    return new RegistrationUserTypeFragment();
+                    RegistrationUserTypeFragment userTypeFragment =
+                            new RegistrationUserTypeFragment();
+                    // Listen to user-type selections.
+                    userTypeFragment.setListener(this);
+                    return userTypeFragment;
                 case PAGE_LOGIN_DETAILS:
                     return new RegistrationLoginDetailsFragment();
                 case PAGE_USER_DETAILS:
-                    return new RegistrationVehicleDetailsFragment();
+                    // Load the user-type-specific details fragment according to user type.
+                    // This field changes every time the user selects a different type.
+                    switch (mUserType) {
+                        case USER_SERVICE_PROVIDER:
+                            return new RegistrationServiceDetailsFragment();
+                        default:
+                            return new RegistrationVehicleDetailsFragment();
+                    }
             }
-
             return null;
         }
 
         @Override
         public int getCount() {
             return NUM_PAGES;
+        }
+
+        @Override
+        public int getItemPosition(Object object) {
+            // getItemPosition will be called after notifyDataSetChanged, giving us an opportunity
+            // to make changes to fragments by returning POSITION_NONE.
+
+            // If the object is a vehicle-details fragment or service-details fragment (both inherit from the same base)
+            // then return POSITION_NONE, forcing the view pager to reload the fragment for that position.
+            if (object instanceof RegistrationUserDetailsFragment) {
+                return POSITION_NONE;
+            }
+
+            // Let super handle the rest of the cases.
+            return super.getItemPosition(object);
+        }
+
+        @Override
+        public void onUserTypeChange(UserType previousType, UserType newType) {
+            if (previousType != newType && newType != mUserType) {
+                // Reload fragment based on the updated user type.
+                mUserType = newType;
+                notifyDataSetChanged();
+            }
         }
     }
 

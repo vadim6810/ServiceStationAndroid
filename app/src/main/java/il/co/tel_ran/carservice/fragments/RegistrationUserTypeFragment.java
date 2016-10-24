@@ -26,7 +26,8 @@ import il.co.tel_ran.carservice.activities.SignUpActivity;
  * Created by Max on 12/10/2016.
  */
 
-public class RegistrationUserTypeFragment extends Fragment implements View.OnClickListener {
+public class RegistrationUserTypeFragment extends Fragment
+        implements View.OnClickListener {
 
     private UserType mUserType = UserType.NONE;
 
@@ -39,6 +40,12 @@ public class RegistrationUserTypeFragment extends Fragment implements View.OnCli
     private TextView mProviderOptionCaptionTextView;
 
     private FloatingActionButton mNextStepFAB;
+
+    private UserTypeChangeListener mListener;
+
+    public interface UserTypeChangeListener {
+        void onUserTypeChange(UserType previousType, UserType newType);
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -84,6 +91,10 @@ public class RegistrationUserTypeFragment extends Fragment implements View.OnCli
                 animateRegisterOptionsLayouts(mUserType, UserType.USER_CLIENT,
                         android.R.color.background_light,
                         Utils.getThemeAccentColor(getActivity()), 300);
+
+                if (mListener != null) {
+                    mListener.onUserTypeChange(mUserType, UserType.USER_CLIENT);
+                }
                 mUserType = UserType.USER_CLIENT;
 
                 // Show the FAB if it's hidden.
@@ -91,18 +102,27 @@ public class RegistrationUserTypeFragment extends Fragment implements View.OnCli
                 if (mNextStepFAB.getVisibility() != View.VISIBLE) {
                     mNextStepFAB.show();
                 }
+
                 break;
             case R.id.service_provider_option_layout:
                 // Animate background color and text color.
                 animateRegisterOptionsLayouts(mUserType, UserType.USER_SERVICE_PROVIDER,
                         android.R.color.background_light,
                         Utils.getThemeAccentColor(getActivity()), 300);
+
+                if (mListener != null) {
+                    mListener.onUserTypeChange(mUserType, UserType.USER_SERVICE_PROVIDER);
+                }
                 mUserType = UserType.USER_SERVICE_PROVIDER;
 
                 // Show the FAB if it's hidden.
                 // We keep it hidden to encourage the user to select a type, otherwise don't let the user proceed.
                 if (mNextStepFAB.getVisibility() != View.VISIBLE) {
                     mNextStepFAB.show();
+                }
+
+                if (mListener != null) {
+                    mUserType = UserType.USER_SERVICE_PROVIDER;
                 }
 
                 break;
@@ -122,6 +142,10 @@ public class RegistrationUserTypeFragment extends Fragment implements View.OnCli
                 startActivity(intent);
                 break;
         }
+    }
+
+    public void setListener(UserTypeChangeListener listener) {
+        mListener = listener;
     }
 
     private ValueAnimator animateRegisterOptionsLayouts(final UserType oldType,
