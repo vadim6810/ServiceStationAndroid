@@ -1,11 +1,8 @@
 package il.co.tel_ran.carservice.fragments;
 
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputLayout;
-import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
@@ -13,15 +10,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import java.util.Locale;
 import java.util.regex.Pattern;
 
 import il.co.tel_ran.carservice.R;
-import il.co.tel_ran.carservice.Utils;
 import il.co.tel_ran.carservice.activities.SignUpActivity;
 
 /**
