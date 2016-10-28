@@ -20,4 +20,9 @@ public class RegistrationServiceDetailsFragment extends RegistrationUserDetailsF
         View layout = inflater.inflate(R.layout.fragment_registration_step_servicedetails, null);
         return layout;
     }
+
+    @Override
+    public boolean isNextStepEnabled() {
+        return true;
+    }
 }

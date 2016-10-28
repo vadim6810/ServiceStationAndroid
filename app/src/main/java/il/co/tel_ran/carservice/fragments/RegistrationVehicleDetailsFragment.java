@@ -32,8 +32,7 @@ import il.co.tel_ran.carservice.adapters.VehicleDataResultAdapter;
  */
 
 public class RegistrationVehicleDetailsFragment extends RegistrationUserDetailsFragment
-        implements View.OnClickListener, AdapterView.OnItemSelectedListener,
-        VehicleAPI.OnVehicleDataRetrieveListener {
+        implements AdapterView.OnItemSelectedListener, VehicleAPI.OnVehicleDataRetrieveListener {
 
     private ProgressBar mVehicleApiDataProgressBar;
 
@@ -73,24 +72,6 @@ public class RegistrationVehicleDetailsFragment extends RegistrationUserDetailsF
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View layout = inflater.inflate(R.layout.fragment_registration_step_vehicledetails, null);
 
-        // Next step is finish.
-        Button nextStep = (Button) layout.findViewById(R.id.userdetails_next_step);
-        nextStep.setOnClickListener(this);
-
-        Button previousStep = (Button) layout.findViewById(R.id.userdetails_previous_step);
-        previousStep.setOnClickListener(this);
-
-        // Arrow direction and placement relative to the button should be in the opposite direction.
-        // RTL - to the left
-        // LTR - to the right
-        if (Utils.isLocaleRTL(Locale.getDefault())) {
-            Drawable navigateRight = ContextCompat.getDrawable(getContext(), R.drawable.ic_navigate_next_accent_24dp);
-            previousStep.setCompoundDrawablesWithIntrinsicBounds(null, null, navigateRight, null);
-        } else {
-            Drawable navigateLeft = ContextCompat.getDrawable(getContext(), R.drawable.ic_navigate_before_accent_24dp);
-            previousStep.setCompoundDrawablesWithIntrinsicBounds(navigateLeft, null, null, null);
-        }
-
         mVehicleDetailsLayout = layout.findViewById(R.id.vehicle_details_layout);
 
         mVehicleMakeSpinner = (AppCompatSpinner) layout.findViewById(R.id.vehicle_make_spinner);
@@ -110,27 +91,6 @@ public class RegistrationVehicleDetailsFragment extends RegistrationUserDetailsF
         mVehicleAPI.getVehicleData(new VehicleAPI.Request(VehicleAPI.RequestType.MAKE,
                 VehicleAPI.JSON_BASE_URL + VehicleAPI.JSON_MAKE_API));
         return layout;
-    }
-
-    @Override
-    public void onClick(View v) {
-        SignUpActivity containerActivity = null;
-        try {
-            containerActivity = (SignUpActivity) getActivity();
-        } catch (ClassCastException e) {
-            e.printStackTrace();
-        }
-        switch (v.getId()) {
-            case R.id.userdetails_next_step:
-                // Finish registration process.
-                break;
-            case R.id.userdetails_previous_step:
-                if (containerActivity != null) {
-                    // Go back one page.
-                    containerActivity.requestViewPagerPage(SignUpActivity.PAGE_LOGIN_DETAILS);
-                }
-                break;
-        }
     }
 
     @Override
@@ -254,5 +214,10 @@ public class RegistrationVehicleDetailsFragment extends RegistrationUserDetailsF
                     mEngineSpinner.setAdapter(adapter);
                 break;
         }
+    }
+
+    @Override
+    public boolean isNextStepEnabled() {
+        return true;
     }
 }

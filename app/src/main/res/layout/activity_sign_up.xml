@@ -26,6 +26,38 @@
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/registration_viewpager"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="0dp"
+        android:layout_weight="1"/>
+
+    <LinearLayout
+        android:id="@+id/page_navigation_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_gravity="bottom"
+        android:visibility="gone">
+        <Button
+            android:id="@+id/page_previous_step"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:gravity="start|center_vertical"
+            android:text="@string/previous_button"
+            android:textColor="@color/colorAccent"
+            android:background="@drawable/transparent_background_interactive"/>
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"/>
+        <Button
+            android:id="@+id/page_next_step"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:gravity="end|center_vertical"
+            android:text="@string/next_button"
+            android:textColor="@color/colorAccent"
+            android:background="@drawable/transparent_background_interactive"/>
+    </LinearLayout>
 
 </LinearLayout>

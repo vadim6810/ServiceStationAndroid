@@ -9,5 +9,5 @@ import android.support.v4.app.Fragment;
 /**
  * A base class for other types of user-type-specific fragment to inherit from.
  */
-public class RegistrationUserDetailsFragment extends Fragment {
+public abstract class RegistrationUserDetailsFragment extends RegistrationPageFragment {
 }

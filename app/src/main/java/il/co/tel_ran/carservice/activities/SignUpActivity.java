@@ -1,10 +1,12 @@
 package il.co.tel_ran.carservice.activities;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -12,6 +14,8 @@ import android.support.v7.widget.Toolbar;
 import android.util.AttributeSet;
 import android.view.MenuItem;
 import android.view.MotionEvent;
+import android.view.View;
+import android.widget.Button;
 
 import java.util.Locale;
 
@@ -19,12 +23,13 @@ import il.co.tel_ran.carservice.R;
 import il.co.tel_ran.carservice.UserType;
 import il.co.tel_ran.carservice.Utils;
 import il.co.tel_ran.carservice.fragments.RegistrationLoginDetailsFragment;
+import il.co.tel_ran.carservice.fragments.RegistrationPageFragment;
 import il.co.tel_ran.carservice.fragments.RegistrationServiceDetailsFragment;
 import il.co.tel_ran.carservice.fragments.RegistrationUserDetailsFragment;
 import il.co.tel_ran.carservice.fragments.RegistrationUserTypeFragment;
 import il.co.tel_ran.carservice.fragments.RegistrationVehicleDetailsFragment;
 
-public class SignUpActivity extends AppCompatActivity implements ViewPager.OnPageChangeListener {
+public class SignUpActivity extends AppCompatActivity implements ViewPager.OnPageChangeListener, View.OnClickListener {
 
     // Number of pages in ViewPager.
     // Each step has it's own page.
@@ -41,6 +46,11 @@ public class SignUpActivity extends AppCompatActivity implements ViewPager.OnPag
     public static boolean isRTL;
 
     private SignUpViewPager mPager;
+    private ScreenSlidePagerAdapter mPagerAdapter;
+
+    private View mNavigationLayout;
+    private Button mPreviousPageButton;
+    private Button mNextPageButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +59,7 @@ public class SignUpActivity extends AppCompatActivity implements ViewPager.OnPag
 
         isRTL = Utils.isLocaleRTL(Locale.getDefault());
 
+        setupPageNavigation();
         setupViewPager();
 
         setupActionBar();
@@ -99,21 +110,92 @@ public class SignUpActivity extends AppCompatActivity implements ViewPager.OnPag
         int reversedPosition = getReversedAdapterItem(position);
 
         ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            // Disable back button to prevent confusion about the use of this button.
-            // The only page in which back button will be displayed is the initial setup page (user type)
-            actionBar.setDisplayHomeAsUpEnabled(reversedPosition == PAGE_USER_TYPE);
-        }
 
-        if (reversedPosition == PAGE_LOGIN_DETAILS) {
-            // This makes sure page fragments don't get unloaded when not visible.
-            mPager.setOffscreenPageLimit(NUM_PAGES - 1);
+        switch (reversedPosition) {
+            case PAGE_USER_TYPE:
+                if (actionBar != null) {
+                    // Disable back button to prevent confusion about the use of this button.
+                    // The only page in which back button will be displayed is the initial setup page (user type)
+                    actionBar.setDisplayHomeAsUpEnabled(true);
+                }
+
+                mNavigationLayout.setVisibility(View.GONE);
+                break;
+            case PAGE_LOGIN_DETAILS:
+                if (actionBar != null) {
+                    actionBar.setDisplayHomeAsUpEnabled(false);
+                }
+
+                mNavigationLayout.setVisibility(View.VISIBLE);
+
+                if (mPager.getOffscreenPageLimit() != (NUM_PAGES - 1)) {
+                    mPager.setOffscreenPageLimit(NUM_PAGES - 1);
+                } else {
+                    mNextPageButton.setText(getString(R.string.next_button));
+                }
+
+                changeNavigationButtonDrawableVisibility(mNextPageButton, true);
+
+                break;
+            case PAGE_USER_DETAILS:
+                mNavigationLayout.setVisibility(View.VISIBLE);
+
+                // Update the button's text to "finish".
+                mNextPageButton.setText(getString(R.string.finish_button));
+
+                changeNavigationButtonDrawableVisibility(mNextPageButton, false);
+                break;
+            default:
+                break;
         }
     }
 
     @Override
     public void onPageScrollStateChanged(int state) {
 
+    }
+
+    /*
+     * View.OnClickListener
+     */
+
+    @Override
+    public void onClick(View v) {
+
+        switch (v.getId()) {
+            case R.id.page_previous_step:
+                requestPageChange(true);
+                break;
+            case R.id.page_next_step:
+                requestPageChange(false);
+                break;
+        }
+    }
+
+    // This is public so ViewPager's fragments can request page changes under their own terms
+    // (such as ime action buttons)
+    public void requestPageChange(boolean backwards) {
+        int currentItem = mPager.getCurrentItem();
+        int reversedCurrentItem = getReversedAdapterItem(currentItem);
+
+        try {
+            // Get the current page fragment.
+            RegistrationPageFragment pageFragment = (RegistrationPageFragment) mPagerAdapter
+                    .getItem(reversedCurrentItem);
+            if (!backwards) {
+                // If the user tries to go forward, check if the current fragment page is allowing it.
+                if (pageFragment.isNextStepEnabled()
+                        && reversedCurrentItem != PAGE_USER_DETAILS) {
+                    // Request the next page.
+                    requestViewPagerPage(currentItem + 1);
+                }
+            } else {
+                // Go backwards one page.
+                requestViewPagerPage(currentItem - 1);
+            }
+        } catch (ClassCastException e) {
+            e.printStackTrace();
+        }
     }
 
     public static class SignUpViewPager extends ViewPager {
@@ -143,6 +225,11 @@ public class SignUpActivity extends AppCompatActivity implements ViewPager.OnPag
             implements RegistrationUserTypeFragment.UserTypeChangeListener {
 
         private UserType mUserType = UserType.USER_CLIENT;
+        private boolean mIsUserTypeChanged = true;
+
+        private RegistrationUserTypeFragment mUserTypeFragment;
+        private RegistrationLoginDetailsFragment mLoginDetailsFragment;
+        private RegistrationUserDetailsFragment mUserDetailsFragment;
 
         public ScreenSlidePagerAdapter(FragmentManager fm) {
             super(fm);
@@ -157,22 +244,34 @@ public class SignUpActivity extends AppCompatActivity implements ViewPager.OnPag
             */
             switch (getReversedAdapterItem(position)) {
                 case PAGE_USER_TYPE:
-                    RegistrationUserTypeFragment userTypeFragment =
-                            new RegistrationUserTypeFragment();
-                    // Listen to user-type selections.
-                    userTypeFragment.setListener(this);
-                    return userTypeFragment;
+                    if (mUserTypeFragment == null) {
+                        mUserTypeFragment =
+                                new RegistrationUserTypeFragment();
+                        // Listen to user-type selections.
+                        mUserTypeFragment.setListener(this);
+                    }
+                    return mUserTypeFragment;
                 case PAGE_LOGIN_DETAILS:
-                    return new RegistrationLoginDetailsFragment();
+                    if (mLoginDetailsFragment == null) {
+                        mLoginDetailsFragment = new RegistrationLoginDetailsFragment();
+                    }
+                    return mLoginDetailsFragment;
                 case PAGE_USER_DETAILS:
                     // Load the user-type-specific details fragment according to user type.
                     // This field changes every time the user selects a different type.
-                    switch (mUserType) {
-                        case USER_SERVICE_PROVIDER:
-                            return new RegistrationServiceDetailsFragment();
-                        default:
-                            return new RegistrationVehicleDetailsFragment();
+                    if (mUserDetailsFragment == null || mIsUserTypeChanged) {
+                        switch (mUserType) {
+                            case USER_SERVICE_PROVIDER:
+                                mUserDetailsFragment = new RegistrationServiceDetailsFragment();
+                                break;
+                            default:
+                                mUserDetailsFragment = new RegistrationVehicleDetailsFragment();
+                                break;
+                        }
                     }
+                    mIsUserTypeChanged = false;
+
+                    return mUserDetailsFragment;
             }
             return null;
         }
@@ -202,6 +301,7 @@ public class SignUpActivity extends AppCompatActivity implements ViewPager.OnPag
             if (previousType != newType && newType != mUserType) {
                 // Reload fragment based on the updated user type.
                 mUserType = newType;
+                mIsUserTypeChanged = true;
                 notifyDataSetChanged();
             }
         }
@@ -217,6 +317,33 @@ public class SignUpActivity extends AppCompatActivity implements ViewPager.OnPag
         if (isRTL)
             return Math.abs(position - (NUM_PAGES - 1));
         return position;
+    }
+
+    private void setupPageNavigation() {
+        mNavigationLayout = findViewById(R.id.page_navigation_layout);
+        mPreviousPageButton = (Button) findViewById(R.id.page_previous_step);
+        mPreviousPageButton.setOnClickListener(this);
+        mNextPageButton = (Button) findViewById(R.id.page_next_step);
+        mNextPageButton.setOnClickListener(this);
+
+        // Arrow direction and placement relative to the button should be in the opposite direction.
+        // RTL - to the left
+        // LTR - to the right
+        Drawable navigateLeftIcon = ContextCompat.getDrawable(SignUpActivity.this,
+                R.drawable.ic_navigate_before_accent_24dp);
+        Drawable navigateRightIcon = ContextCompat.getDrawable(SignUpActivity.this,
+                R.drawable.ic_navigate_next_accent_24dp);
+        if (Utils.isLocaleRTL(Locale.getDefault())) {
+            mPreviousPageButton.setCompoundDrawablesWithIntrinsicBounds(
+                    null, null, navigateRightIcon, null);
+            mNextPageButton.setCompoundDrawablesWithIntrinsicBounds(
+                    navigateLeftIcon, null, null, null);
+        } else {
+            mPreviousPageButton.setCompoundDrawablesWithIntrinsicBounds(
+                    navigateLeftIcon, null, null, null);
+            mNextPageButton.setCompoundDrawablesWithIntrinsicBounds(
+                    null, null, navigateRightIcon, null);
+        }
     }
 
     private void setupActionBar() {
@@ -235,8 +362,8 @@ public class SignUpActivity extends AppCompatActivity implements ViewPager.OnPag
 
     private void setupViewPager() {
         mPager = (SignUpViewPager) findViewById(R.id.registration_viewpager);
-        ScreenSlidePagerAdapter pagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
-        mPager.setAdapter(pagerAdapter);
+        mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
+        mPager.setAdapter(mPagerAdapter);
         // Only load one additional page at start.
         // This results in displaying only user type and login details pages, keeping
         // user-type-specific details unloaded, until we choose one.
@@ -244,5 +371,25 @@ public class SignUpActivity extends AppCompatActivity implements ViewPager.OnPag
         mPager.addOnPageChangeListener(this);
         // Set the page to user type selection page (RTL is handled by reversing the item)
         mPager.setCurrentItem(getReversedAdapterItem(PAGE_USER_TYPE), true);
+    }
+
+    private void changeNavigationButtonDrawableVisibility(Button button, boolean visible) {
+        if (button != null) {
+            Drawable[] drawables = button.getCompoundDrawables();
+
+            // Look for the navigation icon (could be from the left if it's RTL or from the right if its LTR)
+            // The loop just jumps between index 0 (left) and index 2 (right)
+            for (int i = 0; i < 3; i += 2) {
+                Drawable navigationIcon = drawables[i];
+                if (navigationIcon != null) {
+                    // Hide the navigation icon for finish button.
+                    // Alpha controls the transparency, therefore 0 - invisible, 255 - visible.
+                    navigationIcon.setAlpha(visible ? 255 : 0);
+
+                    // If we found a non-null drawable it's the only navigation icon we require, don't look for anymore.
+                    break;
+                }
+            }
+        }
     }
 }
