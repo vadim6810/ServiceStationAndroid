@@ -56,4 +56,22 @@
     <string name="leave_message_too_long">Message can\'t be longer than %1$d characters</string>
     <string name="sign_in_prompt">Welcome</string>
     <string name="hint_password">Password:</string>
+    <string name="register_user_details_provider_prompt">Setup service info</string>
+    <string name="register_user_type_provider_caption">Add your service so costumers can discover it.</string>
+    <string name="address">Address</string>
+    <string name="phone_number">Phone Number</string>
+    <string name="active_time">Active Time</string>
+    <string name="set_opening_time">Set opening time</string>
+    <string name="set_closing_time">Set closing time</string>
+    <string name="service_name">Service Name</string>
+    <string name="services">Services</string>
+    <string name="vehicle_types">Vehicle Types</string>
+    <string name="vehicle_type_private">Private</string>
+    <string name="vehicle_type_truck">Truck</string>
+    <string name="vehicle_type_bus">Bus</string>
+    <string name="vehicle_type_motorcycle">Motorcycle</string>
+    <string name="director_phone_number">Director Phone Number</string>
+    <string name="photo">Photo</string>
+    <string name="browse_button">Tap to browse...</string>
+    <string name="director_name">Director Name</string>
 </resources>

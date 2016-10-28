@@ -4,7 +4,7 @@
     android:layout_height="match_parent">
 
     <TextView
-        android:text="Setup service info"
+        android:text="@string/register_user_details_provider_prompt"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textAppearance="@style/TextAppearance.AppCompat.Display2"
@@ -17,7 +17,7 @@
         android:layout_marginTop="@dimen/item_spacing"
         android:paddingBottom="@dimen/item_spacing"
         android:gravity="center"
-        android:text="Add your service so costumers can discover it."
+        android:text="@string/register_user_type_provider_caption"
         android:textSize="16sp"
         android:textAppearance="@style/TextAppearance.AppCompat.Caption" />
 
@@ -46,14 +46,14 @@
                     android:layout_height="wrap_content"
                     android:inputType="textPersonName"
                     android:imeOptions="actionNext"
-                    android:hint="Service Name"
+                    android:hint="@string/service_name"
                     android:maxLines="1"/>
             </android.support.design.widget.TextInputLayout>
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/item_spacing"
-                android:text="Address"
+                android:text="@string/address"
                 android:textSize="20sp"/>
             <Button
                 android:id="@+id/search_city_button"
@@ -81,14 +81,14 @@
                     android:layout_height="wrap_content"
                     android:inputType="phone"
                     android:imeOptions="actionNext"
-                    android:hint="Phone Number"
+                    android:hint="@string/phone_number"
                     android:maxLines="1"/>
             </android.support.design.widget.TextInputLayout>
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/item_spacing"
-                android:text="Active Time"
+                android:text="@string/active_time"
                 android:textSize="20sp"/>
             <LinearLayout
                 android:layout_width="match_parent"
@@ -102,7 +102,7 @@
                     android:layout_height="wrap_content"
                     android:background="@drawable/transparent_background_interactive"
                     android:gravity="center"
-                    android:text="Set opening hour"
+                    android:text="@string/set_opening_time"
                     android:textColor="?attr/colorAccent"
                     android:textAllCaps="false"
                     android:textSize="20sp"/>
@@ -113,31 +113,16 @@
                     android:layout_height="wrap_content"
                     android:background="@drawable/transparent_background_interactive"
                     android:gravity="center"
-                    android:text="Set closing hour"
+                    android:text="@string/set_closing_time"
                     android:textColor="?attr/colorAccent"
                     android:textAllCaps="false"
                     android:textSize="20sp"/>
             </LinearLayout>
-            <android.support.design.widget.TextInputLayout
-                android:id="@+id/service_email_input_layout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/item_spacing">
-
-                <EditText
-                    android:id="@+id/service_email_edit_text"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="textEmailAddress"
-                    android:imeOptions="actionNext"
-                    android:hint="Email Address"
-                    android:maxLines="1"/>
-            </android.support.design.widget.TextInputLayout>
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/item_spacing"
-                android:text="Services"
+                android:text="@string/services"
                 android:textSize="20sp"/>
             <LinearLayout
                 android:layout_width="match_parent"
@@ -175,7 +160,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/item_spacing"
-                android:text="Vehicle Types"
+                android:text="@string/vehicle_types"
                 android:textSize="20sp"/>
             <LinearLayout
                 android:layout_width="match_parent"
@@ -186,22 +171,22 @@
                     android:id="@+id/service_vehicle_type_private"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Private"/>
+                    android:text="@string/vehicle_type_private"/>
                 <android.support.v7.widget.AppCompatCheckBox
                     android:id="@+id/service_vehicle_type_truck"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Truck"/>
+                    android:text="@string/vehicle_type_truck"/>
                 <android.support.v7.widget.AppCompatCheckBox
                     android:id="@+id/service_vehicle_type_bus"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Bus"/>
+                    android:text="@string/vehicle_type_bus"/>
                 <android.support.v7.widget.AppCompatCheckBox
                     android:id="@+id/service_vehicle_type_motorcycles"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Motorcycle"/>
+                    android:text="@string/vehicle_type_motorcycle"/>
             </LinearLayout>
             <android.support.design.widget.TextInputLayout
                 android:id="@+id/director_name_input_layout"
@@ -215,7 +200,7 @@
                     android:layout_height="wrap_content"
                     android:inputType="textPersonName"
                     android:imeOptions="actionNext"
-                    android:hint="Director Name"
+                    android:hint="@string/director_name"
                     android:maxLines="1"/>
             </android.support.design.widget.TextInputLayout>
             <android.support.design.widget.TextInputLayout
@@ -230,14 +215,14 @@
                     android:layout_height="wrap_content"
                     android:inputType="phone"
                     android:imeOptions="actionNext"
-                    android:hint="Director Phone Number"
+                    android:hint="@string/director_phone_number"
                     android:maxLines="1"/>
             </android.support.design.widget.TextInputLayout>
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/item_spacing"
-                android:text="Photo"
+                android:text="@string/photo"
                 android:textSize="20sp"/>
             <Button
                 android:id="@+id/browse_photo_button"
@@ -247,7 +232,7 @@
                 android:background="@drawable/transparent_background_interactive"
                 android:drawablePadding="@dimen/item_spacing"
                 android:gravity="start|center_vertical"
-                android:text="Tap to browse..."
+                android:text="@string/browse_button"
                 android:textColor="@android:color/darker_gray"
                 android:textAllCaps="false"
                 android:textSize="20sp"/>

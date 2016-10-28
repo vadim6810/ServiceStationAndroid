@@ -55,4 +55,22 @@
     <string name="leave_message_empty_error">אנא הזן הודעה</string>
     <string name="sign_in_prompt">ברוכים הבאים</string>
     <string name="hint_password">סיסמה:</string>
+    <string name="register_user_details_provider_prompt">הגדר פרטי עסק</string>
+    <string name="register_user_type_provider_caption">הוסף את העסק שלך כדי שלוקחות יוכלו למצוא אותו.</string>
+    <string name="address">כתובת</string>
+    <string name="phone_number">מספר טלפון</string>
+    <string name="active_time">זמני פעילות</string>
+    <string name="set_opening_time">הגדר שעת פתיחה</string>
+    <string name="set_closing_time">הגדר שעת סגירה</string>
+    <string name="service_name">שם העסק</string>
+    <string name="services">הגדר שירותים</string>
+    <string name="vehicle_types">סוגי רכבים</string>
+    <string name="vehicle_type_private">פרטי</string>
+    <string name="vehicle_type_truck">משאית</string>
+    <string name="vehicle_type_bus">אוטובוס</string>
+    <string name="vehicle_type_motorcycle">אופנוע</string>
+    <string name="director_phone_number">מספר טלפון של מנהל</string>
+    <string name="photo">תמונה</string>
+    <string name="browse_button">הקש על מנל לעיין...</string>
+    <string name="director_name">שם המנהל</string>
 </resources>

@@ -55,4 +55,22 @@
     <string name="leave_message_too_long">Сообщение не может быть больше чем %1$d буквы</string>
     <string name="sign_in_prompt">Добро Пожаловать</string>
     <string name="hint_password">Пароль:</string>
+    <string name="register_user_details_provider_prompt">Настройка инфо автосервис</string>
+    <string name="register_user_type_provider_caption">Добавьте свой сервис, чтобы клиенты могли найти его.</string>
+    <string name="address">Адрес</string>
+    <string name="phone_number">Номер Телефона</string>
+    <string name="active_time">Активное Время</string>
+    <string name="set_opening_time">Время открытия</string>
+    <string name="set_closing_time">Время закрытия</string>
+    <string name="service_name">Название Автосервиса</string>
+    <string name="services">Услуги</string>
+    <string name="vehicle_types">Типы Машина</string>
+    <string name="vehicle_type_private">Личный</string>
+    <string name="vehicle_type_truck">Грузовик</string>
+    <string name="vehicle_type_bus">Автобус</string>
+    <string name="vehicle_type_motorcycle">Мотоцикл</string>
+    <string name="director_phone_number">Номер телефона директора</string>
+    <string name="photo">Фото</string>
+    <string name="browse_button">Нажмите для просмотра...</string>
+    <string name="director_name">Имя Директора</string>
 </resources>
