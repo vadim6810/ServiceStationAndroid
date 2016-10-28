@@ -184,10 +184,13 @@ public class SignUpActivity extends AppCompatActivity implements ViewPager.OnPag
                     .getItem(reversedCurrentItem);
             if (!backwards) {
                 // If the user tries to go forward, check if the current fragment page is allowing it.
-                if (pageFragment.isNextStepEnabled()
-                        && reversedCurrentItem != PAGE_USER_DETAILS) {
+                if (pageFragment.isNextStepEnabled()) {
                     // Request the next page.
                     requestViewPagerPage(currentItem + 1);
+
+                    if (reversedCurrentItem == PAGE_USER_DETAILS) {
+                        // Finish registration.
+                    }
                 }
             } else {
                 // Go backwards one page.

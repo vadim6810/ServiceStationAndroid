@@ -27,10 +27,9 @@ public class ServiceSearchResult {
         mAvgRating          = avgRating;
         mSubmittedRatings   = submittedRatings;
         mAvailableServices  = availableServices;
-        mPhonenumber = phoneNumber;
+        mPhonenumber        = phoneNumber;
         mEmail              = email;
-        // TODO: Uncomment this when using real results.
-        //mCityName           = Utils.parseCityNameFromAddress(location.getAddress());
+        mCityName           = cityName;
     }
 
     public String getName() {
@@ -63,14 +62,5 @@ public class ServiceSearchResult {
 
     public String getEmail() {
         return mEmail;
-    }
-
-    // TODO: Remove when using real results.
-    public void setLocation(Place place) {
-        mLocation = place;
-    }
-
-    public void setCityName(String cityName) {
-        mCityName = cityName;
     }
 }

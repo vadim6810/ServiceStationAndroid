@@ -24,11 +24,15 @@ public class HttpHandler {
     }
 
     public String makeServiceCall(String reqUrl) {
+        return makeServiceCall(reqUrl, "GET");
+    }
+
+    public String makeServiceCall(String reqUrl, String requestMethod) {
         String response = null;
         try {
             URL url = new URL(reqUrl);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("GET");
+            conn.setRequestMethod(requestMethod);
             // read the response
             InputStream in = new BufferedInputStream(conn.getInputStream());
             response = convertStreamToString(in);
@@ -40,6 +44,7 @@ public class HttpHandler {
             Log.e(TAG, "IOException: " + e.getMessage());
         } catch (Exception e) {
             Log.e(TAG, "Exception: " + e.getMessage());
+            Log.e(TAG, "exceptionType" + e.getClass().getCanonicalName());
         }
         return response;
     }

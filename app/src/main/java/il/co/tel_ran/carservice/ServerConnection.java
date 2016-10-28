@@ -8,6 +8,10 @@ import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.PlaceBuffer;
 import com.google.android.gms.location.places.Places;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
@@ -20,6 +24,8 @@ import java.util.Random;
 public class ServerConnection {
 
     private FindServicesTask mFindServicesTask;
+
+    private static final String SERVICES_URL = "https://api.myjson.com/bins/24ssq";
 
     public interface OnServicesRetrievedListener {
         void onServicesRetrievingStarted();
@@ -55,43 +61,56 @@ public class ServerConnection {
 
         @Override
         protected List<ServiceSearchResult> doInBackground(ServiceSearchQuery... params) {
+            HttpHandler httpHandler = new HttpHandler();
+            // Get JSON file from server
+            String jsonFile = httpHandler.makeServiceCall(SERVICES_URL);
 
-            // TODO: Remove when switching to real results.
-            List<SampleRawResult> sampleRawResults = getSampleRawResults();
+            List<ServiceSearchResult> searchResults = new ArrayList<>();
+            try {
+                JSONObject servicesJSONObject = new JSONObject(jsonFile);
+                JSONArray servicesJSONArray = servicesJSONObject.getJSONArray("services");
 
-            String[] placeIds = new String[sampleRawResults.size()];
-            for (int i = 0; i < sampleRawResults.size(); i ++) {
-                if (isCancelled())
-                    return new ArrayList<>();
+                if (servicesJSONArray != null) {
+                    for (int i = 0; i < servicesJSONArray.length(); i++) {
+                        // Periodically check if the task was canceled.
+                        if (isCancelled())
+                            break;
 
-                placeIds[i] = sampleRawResults.get(i).getPlaceId();
+                        JSONObject object = servicesJSONArray.getJSONObject(i);
+
+                        // Get service data.
+                        String name = object.getString("serviceName");
+                        float avgRating = (float) object.getDouble("avgRating");
+                        int submittedRating = object.getInt("subRating");
+                        int availableServices = object.getInt("availServices");
+                        String placeID = object.getString("addressPlaceId");
+                        String phoneNumber = object.getString("phoneNumber");
+                        String email = object.getString("email");
+
+                        // Convert ID to place
+                        PendingResult<PlaceBuffer> places_buffer = Places.GeoDataApi
+                                .getPlaceById(mGoogleApiClient, placeID);
+                        PlaceBuffer placeBuffer = places_buffer.await();
+                        // Object must be frozen if we want to use it after the buffer is released.
+                        Place place = placeBuffer.get(0).freeze();
+                        placeBuffer.release();
+
+                        // Parse the city name from given address (to hide information from non-registered users)
+                        String cityName = Utils.parseCityNameFromAddress(
+                                place.getAddress());
+
+                        ServiceSearchResult searchResult = new ServiceSearchResult(
+                                name, place, avgRating, submittedRating,
+                                ServiceType.decode(availableServices),
+                                cityName, phoneNumber, email);
+
+                        searchResults.add(searchResult);
+                    }
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
-
-            // Convert ID to place
-            PendingResult<PlaceBuffer> places_buffer = Places.GeoDataApi
-                    .getPlaceById(mGoogleApiClient, placeIds);
-            PlaceBuffer places = places_buffer.await();
-
-            if (isCancelled())
-                return new ArrayList<>();
-
-            List<ServiceSearchResult> results = new ArrayList<>();
-            results.addAll(sampleRawResults);
-
-            for (int i = 0; i < results.size(); i ++) {
-                if (isCancelled())
-                    return new ArrayList<>();
-
-                ServiceSearchResult searchResult = results.get(i);
-                // Place objects retrieved from place buffer must be frozen.
-                // Refer to: https://developers.google.com/places/android-api/buffers
-                searchResult.setLocation(places.get(i).freeze());
-                searchResult.setCityName(Utils.parseCityNameFromAddress(
-                        searchResult.getLocation().getAddress()));
-            }
-
-            places.release();
-            return filterServices(params[0], results);
+            return filterServices(params[0], searchResults);
         }
 
         @Override
