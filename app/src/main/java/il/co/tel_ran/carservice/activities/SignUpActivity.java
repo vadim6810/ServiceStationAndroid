@@ -49,16 +49,7 @@ public class SignUpActivity extends AppCompatActivity implements ViewPager.OnPag
 
         isRTL = Utils.isLocaleRTL(Locale.getDefault());
 
-        mPager = (SignUpViewPager) findViewById(R.id.registration_viewpager);
-        ScreenSlidePagerAdapter pagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
-        mPager.setAdapter(pagerAdapter);
-        // Only load one additional page at start.
-        // This results in displaying only user type and login details pages, keeping
-        // user-type-specific details unloaded, until we choose one.
-        mPager.setOffscreenPageLimit(1);
-        mPager.addOnPageChangeListener(this);
-        // Set the page to user type selection page (RTL is handled by reversing the item)
-        mPager.setCurrentItem(getReversedAdapterItem(PAGE_USER_TYPE), true);
+        setupViewPager();
 
         setupActionBar();
     }
@@ -96,20 +87,6 @@ public class SignUpActivity extends AppCompatActivity implements ViewPager.OnPag
         if (position >= 0 && position < NUM_PAGES) {
             // Reverse LTR to RTL position if required.
             mPager.setCurrentItem(getReversedAdapterItem(position), true);
-        }
-    }
-
-    private void setupActionBar() {
-        Toolbar toolbar = (Toolbar) findViewById(R.id.sign_up_toolbar);
-        setSupportActionBar(toolbar);
-
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            // Display the home key as back key.
-            actionBar.setHomeButtonEnabled(true);
-            actionBar.setDisplayHomeAsUpEnabled(true);
-            // Hide the title.
-            actionBar.setDisplayShowTitleEnabled(false);
         }
     }
 
@@ -240,5 +217,32 @@ public class SignUpActivity extends AppCompatActivity implements ViewPager.OnPag
         if (isRTL)
             return Math.abs(position - (NUM_PAGES - 1));
         return position;
+    }
+
+    private void setupActionBar() {
+        Toolbar toolbar = (Toolbar) findViewById(R.id.sign_up_toolbar);
+        setSupportActionBar(toolbar);
+
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            // Display the home key as back key.
+            actionBar.setHomeButtonEnabled(true);
+            actionBar.setDisplayHomeAsUpEnabled(true);
+            // Hide the title.
+            actionBar.setDisplayShowTitleEnabled(false);
+        }
+    }
+
+    private void setupViewPager() {
+        mPager = (SignUpViewPager) findViewById(R.id.registration_viewpager);
+        ScreenSlidePagerAdapter pagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
+        mPager.setAdapter(pagerAdapter);
+        // Only load one additional page at start.
+        // This results in displaying only user type and login details pages, keeping
+        // user-type-specific details unloaded, until we choose one.
+        mPager.setOffscreenPageLimit(1);
+        mPager.addOnPageChangeListener(this);
+        // Set the page to user type selection page (RTL is handled by reversing the item)
+        mPager.setCurrentItem(getReversedAdapterItem(PAGE_USER_TYPE), true);
     }
 }
