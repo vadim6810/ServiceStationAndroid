@@ -73,4 +73,6 @@
     <string name="photo">Фото</string>
     <string name="browse_button">Нажмите для просмотра...</string>
     <string name="director_name">Имя Директора</string>
+    <string name="open_time_not_set_message">Пожалуйста, установите время открытия первой</string>
+    <string name="open_time_earlier_equal_message">Время закрытия не может быть раньше, чем или равно времени открытия</string>
 </resources>

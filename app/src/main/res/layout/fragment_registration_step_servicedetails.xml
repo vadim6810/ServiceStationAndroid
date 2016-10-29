@@ -233,6 +233,12 @@
                 android:textColor="@android:color/darker_gray"
                 android:textAllCaps="false"
                 android:textSize="20sp"/>
+            <ImageView
+                android:id="@+id/service_photo"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:visibility="gone"
+                android:scaleType="fitXY"/>
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

@@ -74,4 +74,6 @@
     <string name="photo">Photo</string>
     <string name="browse_button">Tap to browse...</string>
     <string name="director_name">Director Name</string>
+    <string name="open_time_not_set_message">Please set opening time first</string>
+    <string name="open_time_earlier_equal_message">Closing time cannot be earlier than or equal to open time</string>
 </resources>

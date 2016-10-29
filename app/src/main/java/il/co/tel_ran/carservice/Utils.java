@@ -26,6 +26,16 @@ import java.util.Locale;
  */
 public class Utils {
 
+    public static final AutocompleteFilter PLACE_FILTER_CITY = new AutocompleteFilter.Builder()
+            .setCountry("IL")
+            .setTypeFilter(AutocompleteFilter.TYPE_FILTER_CITIES)
+            .build();
+
+    public static final AutocompleteFilter PLACE_FILTER_ADDRESS = new AutocompleteFilter.Builder()
+            .setCountry("IL")
+            .setTypeFilter(AutocompleteFilter.TYPE_FILTER_ADDRESS)
+            .build();
+
     public enum Padding {
         LEFT,
         RIGHT,
@@ -96,16 +106,13 @@ public class Utils {
         view.startAnimation(collapseAnimation);
     }
 
-    public static Intent buildPlaceAutoCompleteIntent(Activity activity)
+    public static Intent buildPlaceAutoCompleteIntent(Activity activity, AutocompleteFilter filter)
             throws GooglePlayServicesNotAvailableException, GooglePlayServicesRepairableException {
         // Use MODE_OVERLAY for a transparent background.
         // Filters will only allow cities in Israel to appear.
         return new PlaceAutocomplete.IntentBuilder(
                 PlaceAutocomplete.MODE_OVERLAY)
-                .setFilter(new AutocompleteFilter.Builder()
-                        .setCountry("IL")
-                        .setTypeFilter(AutocompleteFilter.TYPE_FILTER_CITIES)
-                        .build())
+                .setFilter(filter)
                 .build(activity);
     }
 

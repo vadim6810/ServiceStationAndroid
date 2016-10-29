@@ -73,4 +73,6 @@
     <string name="photo">תמונה</string>
     <string name="browse_button">הקש על מנל לעיין...</string>
     <string name="director_name">שם המנהל</string>
+    <string name="open_time_not_set_message">אנא הגדר שעת פתיחה</string>
+    <string name="open_time_earlier_equal_message">שעת הסגירה לא יכולה להיות מוקדמת או שווה לשעת הפתיחה</string>
 </resources>

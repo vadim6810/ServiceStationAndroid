@@ -57,12 +57,16 @@ public class SignUpActivity extends AppCompatActivity implements ViewPager.OnPag
     private Button mPreviousPageButton;
     private Button mNextPageButton;
 
+    private boolean mIsGoogleApiClientConnected;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
 
         isRTL = Utils.isLocaleRTL(Locale.getDefault());
+
+        mIsGoogleApiClientConnected = getIntent().getExtras().getBoolean("GAPI_CLIENT_CONNECTED");
 
         setupPageNavigation();
         setupViewPager();
@@ -230,6 +234,10 @@ public class SignUpActivity extends AppCompatActivity implements ViewPager.OnPag
         } catch (ClassCastException e) {
             e.printStackTrace();
         }
+    }
+
+    public boolean isGoogleApiClientConnected() {
+        return mIsGoogleApiClientConnected;
     }
 
     public static class SignUpViewPager extends ViewPager {

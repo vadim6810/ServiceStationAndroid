@@ -201,7 +201,7 @@ public class SearchServiceTabFragment extends Fragment
                     try {
                         // Build a Place autocomplete activity to search mLocations.
                         Intent placeAutoCompleteIntent = Utils.buildPlaceAutoCompleteIntent(
-                                containerActivity);
+                                containerActivity, Utils.PLACE_FILTER_CITY);
                         startActivityForResult(placeAutoCompleteIntent,
                                 PLACE_AUTOCOMPLETE_REQUEST_CODE);
                     } catch (GooglePlayServicesRepairableException
