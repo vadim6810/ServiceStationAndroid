@@ -41,6 +41,8 @@ public class RegistrationLoginDetailsFragment extends RegistrationPageFragment
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
+
+        mUser = new User();
     }
 
     @Nullable
@@ -68,7 +70,7 @@ public class RegistrationLoginDetailsFragment extends RegistrationPageFragment
 
             @Override
             public void afterTextChanged(Editable s) {
-                isEmailValid();
+                isNameValid();
 
                 mUser.setName(s.toString());
             }
