@@ -21,8 +21,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import il.co.tel_ran.carservice.ClientUser;
 import il.co.tel_ran.carservice.R;
 import il.co.tel_ran.carservice.Utils;
+import il.co.tel_ran.carservice.VehicleData;
 import il.co.tel_ran.carservice.activities.SignUpActivity;
 import il.co.tel_ran.carservice.VehicleAPI;
 import il.co.tel_ran.carservice.adapters.VehicleDataResultAdapter;
@@ -48,6 +50,8 @@ public class RegistrationVehicleDetailsFragment extends RegistrationUserDetailsF
     private VehicleAPI mVehicleAPI;
 
     private ArrayAdapter<Integer> mModelYearsAdapter;
+
+    private VehicleData mVehicleData;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -95,25 +99,45 @@ public class RegistrationVehicleDetailsFragment extends RegistrationUserDetailsF
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        AppCompatSpinner spinner = null;
-        VehicleAPI.RequestType requestType = null;
-        switch (parent.getId()) {
-            case R.id.vehicle_make_spinner:
-                // Different vehicle make was selected.
-                spinner = mVehicleMakeSpinner;
-                requestType = VehicleAPI.RequestType.MODEL;
-                break;
-            case R.id.vehicle_model_spinner:
-                // Different vehicle model was selected.
-                spinner = mVehicleModelSpinner;
-                requestType = VehicleAPI.RequestType.MODIFICATION;
-                break;
+        VehicleAPI.Result result = null;
+        if (parent != null) {
+            result = (VehicleAPI.Result) parent.getItemAtPosition(position);
         }
 
-        if (requestType != null && spinner != null) {
+        VehicleAPI.RequestType requestType = null;
+        if (parent != null) {
+            switch (parent.getId()) {
+                case R.id.vehicle_make_spinner:
+                    // Different vehicle make was selected.
+                    requestType = VehicleAPI.RequestType.MODEL;
+
+                    if (result != null) {
+                        mVehicleData.setVehicleMake(result.getResult());
+                    }
+                    break;
+                case R.id.vehicle_model_spinner:
+                    // Different vehicle model was selected.
+                    requestType = VehicleAPI.RequestType.MODIFICATION;
+
+                    if (result != null) {
+                        mVehicleData.setVehicleModel(result.getResult());
+                    }
+                    break;
+                case R.id.vehicle_year_spinner:
+                    if (result != null) {
+                        mVehicleData.setVehicleYear(Integer.parseInt(result.getResult()));
+                    }
+                    break;
+                case R.id.engine_displacement_spinner:
+                    if (result != null) {
+                        mVehicleData.setVehicleModifications(result.getResult());
+                    }
+                    break;
+            }
+        }
+
+        if (requestType != null) {
             // Get additional data for next spinner.
-            VehicleDataResultAdapter adapter = (VehicleDataResultAdapter) spinner.getAdapter();
-            VehicleAPI.Result result = adapter.getItem(position);
             if (result != null) {
                 VehicleAPI.Request request = new VehicleAPI.Request(requestType,
                         VehicleAPI.JSON_BASE_URL + result.getExtraURL());
@@ -219,5 +243,9 @@ public class RegistrationVehicleDetailsFragment extends RegistrationUserDetailsF
     @Override
     public boolean isNextStepEnabled() {
         return true;
+    }
+
+    public VehicleData getVehicleData() {
+        return mVehicleData;
     }
 }

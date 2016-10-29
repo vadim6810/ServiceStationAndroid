@@ -19,9 +19,14 @@ import android.widget.Button;
 
 import java.util.Locale;
 
+import il.co.tel_ran.carservice.ClientUser;
+import il.co.tel_ran.carservice.HttpHandler;
+import il.co.tel_ran.carservice.ProviderUser;
 import il.co.tel_ran.carservice.R;
+import il.co.tel_ran.carservice.User;
 import il.co.tel_ran.carservice.UserType;
 import il.co.tel_ran.carservice.Utils;
+import il.co.tel_ran.carservice.VehicleData;
 import il.co.tel_ran.carservice.fragments.RegistrationLoginDetailsFragment;
 import il.co.tel_ran.carservice.fragments.RegistrationPageFragment;
 import il.co.tel_ran.carservice.fragments.RegistrationServiceDetailsFragment;
@@ -188,8 +193,34 @@ public class SignUpActivity extends AppCompatActivity implements ViewPager.OnPag
                     // Request the next page.
                     requestViewPagerPage(currentItem + 1);
 
+                    // Finish registration.
                     if (reversedCurrentItem == PAGE_USER_DETAILS) {
-                        // Finish registration.
+                        RegistrationLoginDetailsFragment loginDetailsFragment =
+                                (RegistrationLoginDetailsFragment) mPagerAdapter.getItem(
+                                        PAGE_LOGIN_DETAILS);
+
+                        // Get login details, they are stored in a User object.
+                        User loginDetails = loginDetailsFragment.getUser();
+
+                        // New created user.
+                        User newUser;
+
+                        UserType userType = mPagerAdapter.getUserType();
+                        switch (userType) {
+                            case USER_CLIENT:
+                                RegistrationVehicleDetailsFragment vehicleDetailsFragment
+                                        = (RegistrationVehicleDetailsFragment) pageFragment;
+                                VehicleData data = vehicleDetailsFragment.getVehicleData();
+                                newUser = new ClientUser(loginDetails);
+                                ((ClientUser) newUser).setVehicleData(data);
+                                break;
+                            case USER_SERVICE_PROVIDER:
+                                RegistrationServiceDetailsFragment serviceDetailsFragment
+                                        = (RegistrationServiceDetailsFragment) pageFragment;
+                                newUser = new ProviderUser(loginDetails);
+                                // TODO: add service details for this user.
+                                break;
+                        }
                     }
                 }
             } else {
@@ -307,6 +338,10 @@ public class SignUpActivity extends AppCompatActivity implements ViewPager.OnPag
                 mIsUserTypeChanged = true;
                 notifyDataSetChanged();
             }
+        }
+
+        public UserType getUserType() {
+            return mUserType;
         }
     }
 

@@ -16,6 +16,7 @@ import android.widget.TextView;
 import java.util.regex.Pattern;
 
 import il.co.tel_ran.carservice.R;
+import il.co.tel_ran.carservice.User;
 import il.co.tel_ran.carservice.activities.SignUpActivity;
 
 /**
@@ -33,6 +34,8 @@ public class RegistrationLoginDetailsFragment extends RegistrationPageFragment
 
     private static final String EMAIL_PATTERN = "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@" + "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
     private static Pattern mEmailPattern = Pattern.compile(EMAIL_PATTERN);
+
+    private User mUser;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -65,7 +68,26 @@ public class RegistrationLoginDetailsFragment extends RegistrationPageFragment
 
             @Override
             public void afterTextChanged(Editable s) {
-                isNameValid();
+                isEmailValid();
+
+                mUser.setName(s.toString());
+            }
+        });
+
+        mEmailEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                mUser.setEmail(s.toString());
             }
         });
         return mLayout;
@@ -100,6 +122,10 @@ public class RegistrationLoginDetailsFragment extends RegistrationPageFragment
         boolean isEmailValid = isEmailValid();
 
         return isNameValid && isEmailValid;
+    }
+
+    public User getUser() {
+        return mUser;
     }
 
     private boolean isNameValid() {
