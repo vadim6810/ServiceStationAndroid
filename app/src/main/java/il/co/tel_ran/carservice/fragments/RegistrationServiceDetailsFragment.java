@@ -3,15 +3,10 @@ package il.co.tel_ran.carservice.fragments;
 import android.app.Activity;
 import android.app.TimePickerDialog;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.media.Image;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.support.annotation.IntegerRes;
 import android.support.annotation.Nullable;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -54,6 +49,7 @@ public class RegistrationServiceDetailsFragment extends RegistrationUserDetailsF
 
     private Button mBrowsePhotoButton;
     private ImageView mServicePhotoImageView;
+    private Button mRemovePhotoButton;
 
     @Nullable
     @Override
@@ -71,6 +67,8 @@ public class RegistrationServiceDetailsFragment extends RegistrationUserDetailsF
 
         mBrowsePhotoButton = (Button) layout.findViewById(R.id.browse_photo_button);
         mBrowsePhotoButton.setOnClickListener(this);
+        mRemovePhotoButton = (Button) layout.findViewById(R.id.remove_photo_button);
+        mRemovePhotoButton.setOnClickListener(this);
 
         mServicePhotoImageView = (ImageView) layout.findViewById(R.id.service_photo);
         return layout;
@@ -115,11 +113,16 @@ public class RegistrationServiceDetailsFragment extends RegistrationUserDetailsF
                 }
                 break;
             case R.id.browse_photo_button:
-                Intent browseGalleryIntent = new Intent();
+                Intent browseGalleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                 browseGalleryIntent.setType("image/*");
-                browseGalleryIntent.setAction(Intent.ACTION_GET_CONTENT);
-                startActivityForResult(Intent.createChooser(browseGalleryIntent, "Select Picture"),
-                        SELECT_PHOTO_FROM_GALLERY_REQUEST_CODE);
+                startActivityForResult(browseGalleryIntent, SELECT_PHOTO_FROM_GALLERY_REQUEST_CODE);
+                break;
+            case R.id.remove_photo_button:
+                // Release the image resource to avoid unnecessary memory usage.
+                mServicePhotoImageView.setImageBitmap(null);
+                // Hide the image and button.
+                mServicePhotoImageView.setVisibility(View.GONE);
+                mRemovePhotoButton.setVisibility(View.GONE);
                 break;
         }
     }
@@ -149,12 +152,12 @@ public class RegistrationServiceDetailsFragment extends RegistrationUserDetailsF
                 if (resultCode == RESULT_OK) {
                     final Bundle extras = data.getExtras();
                     if (extras != null) {
-                        // Get image
-                        Bitmap servicePhoto = extras.getParcelable("data");
-//                        mServicePhotoImageView.setImageBitmap(
-//                                Bitmap.createScaledBitmap(servicePhoto, 100, 100, false));
-                        mServicePhotoImageView.setImageBitmap(servicePhoto);
+                        // Set the selected image.
+                        mServicePhotoImageView.setImageURI(data.getData());
+                        // Show the image
                         mServicePhotoImageView.setVisibility(View.VISIBLE);
+                        // Show remove button to clear the image.
+                        mRemovePhotoButton.setVisibility(View.VISIBLE);
                     }
                 } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
                     // TODO: Handle error

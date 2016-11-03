@@ -239,6 +239,16 @@
                 android:layout_height="100dp"
                 android:visibility="gone"
                 android:scaleType="fitXY"/>
+            <Button
+                android:id="@+id/remove_photo_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingTop="@dimen/item_spacing"
+                android:visibility="gone"
+                android:background="@drawable/transparent_background_interactive"
+                android:textColor="?attr/colorAccent"
+                android:text="@string/remove"
+                android:textAllCaps="false"/>
         </LinearLayout>
     </ScrollView>
 </LinearLayout>
