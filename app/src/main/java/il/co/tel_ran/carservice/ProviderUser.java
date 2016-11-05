@@ -14,4 +14,20 @@ public class ProviderUser extends User {
         setName(user.getName());
         setEmail(user.getEmail());
     }
+
+    @Override
+    public boolean equals(User otherUser) {
+        boolean isSuperEquals = super.equals(otherUser);
+
+        if (!isSuperEquals)
+            return false;
+
+        if (!(otherUser instanceof ProviderUser)) {
+            return false;
+        }
+
+        // TODO: Add other checks.
+
+        return true;
+    }
 }

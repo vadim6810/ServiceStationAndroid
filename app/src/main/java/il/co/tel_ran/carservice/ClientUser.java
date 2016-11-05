@@ -20,6 +20,12 @@ public class ClientUser extends User {
         setEmail(user.getEmail());
     }
 
+    public ClientUser(ClientUser user) {
+        this((User) user);
+
+        setVehicleData(user.getVehicleData());
+    }
+
     public ClientUser(VehicleData vehicleData) {
         setVehicleData(vehicleData);
     }
@@ -49,5 +55,23 @@ public class ClientUser extends User {
         }
 
         return  data;
+    }
+
+    @Override
+    public boolean equals(User otherUser) {
+        boolean isSuperEquals = super.equals(otherUser);
+
+        if (!isSuperEquals)
+            return false;
+
+        if (!(otherUser instanceof ClientUser)) {
+            return false;
+        }
+
+        VehicleData otherVehicleData = ((ClientUser) otherUser).getVehicleData();
+        if (!mVehicleData.equals(otherVehicleData))
+            return false;
+
+        return true;
     }
 }

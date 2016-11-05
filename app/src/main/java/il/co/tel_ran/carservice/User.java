@@ -3,17 +3,24 @@ package il.co.tel_ran.carservice;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.Serializable;
+
 /**
  * Created by maxim on 10/28/2016.
  */
 
-public class User implements Persisted {
+public class User implements Persisted, Serializable {
 
     protected String mName;
     protected String mEmail;
 
     public User() {
 
+    }
+
+    public User(User copyUser) {
+        setName(copyUser.getName());
+        setEmail(copyUser.getEmail());
     }
 
     public User(String name, String email) {
@@ -49,5 +56,15 @@ public class User implements Persisted {
         }
 
         return data;
+    }
+
+    public boolean equals(User otherUser) {
+        if (!mName.equals(otherUser.getName()))
+            return false;
+
+        if (!mEmail.equals(otherUser.getEmail()))
+            return false;
+
+        return true;
     }
 }
