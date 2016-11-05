@@ -51,7 +51,7 @@ public class RegistrationVehicleDetailsFragment extends RegistrationUserDetailsF
 
     private ArrayAdapter<Integer> mModelYearsAdapter;
 
-    private VehicleData mVehicleData;
+    private VehicleData mVehicleData = new VehicleData();
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -100,9 +100,6 @@ public class RegistrationVehicleDetailsFragment extends RegistrationUserDetailsF
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         VehicleAPI.Result result = null;
-        if (parent != null) {
-            result = (VehicleAPI.Result) parent.getItemAtPosition(position);
-        }
 
         VehicleAPI.RequestType requestType = null;
         if (parent != null) {
@@ -111,6 +108,7 @@ public class RegistrationVehicleDetailsFragment extends RegistrationUserDetailsF
                     // Different vehicle make was selected.
                     requestType = VehicleAPI.RequestType.MODEL;
 
+                    result = (VehicleAPI.Result) parent.getItemAtPosition(position);
                     if (result != null) {
                         mVehicleData.setVehicleMake(result.getResult());
                     }
@@ -119,6 +117,7 @@ public class RegistrationVehicleDetailsFragment extends RegistrationUserDetailsF
                     // Different vehicle model was selected.
                     requestType = VehicleAPI.RequestType.MODIFICATION;
 
+                    result = (VehicleAPI.Result) parent.getItemAtPosition(position);
                     if (result != null) {
                         mVehicleData.setVehicleModel(result.getResult());
                     }
@@ -129,6 +128,7 @@ public class RegistrationVehicleDetailsFragment extends RegistrationUserDetailsF
                     }
                     break;
                 case R.id.engine_displacement_spinner:
+                    result = (VehicleAPI.Result) parent.getItemAtPosition(position);
                     if (result != null) {
                         mVehicleData.setVehicleModifications(result.getResult());
                     }
