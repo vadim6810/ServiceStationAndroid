@@ -87,7 +87,7 @@
     <string name="change_password_button">Изменить Пароль</string>
     <string name="vehicle_details">Автомобильные Детали</string>
     <string name="update">Обновить</string>
-    <string name="hint_password_current">Теперешний Пароль:</string>
+    <string name="hint_password_current">Действуюший Пароль:</string>
     <string name="hint_password_new">Новый Пароль:</string>
     <string name="hint_password_confirm">Аутентификация Пароля:</string>
 </resources>
