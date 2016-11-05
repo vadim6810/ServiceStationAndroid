@@ -123,9 +123,7 @@ public class RegistrationVehicleDetailsFragment extends RegistrationUserDetailsF
                     }
                     break;
                 case R.id.vehicle_year_spinner:
-                    if (result != null) {
-                        mVehicleData.setVehicleYear(Integer.parseInt(result.getResult()));
-                    }
+                    mVehicleData.setVehicleYear((Integer) parent.getItemAtPosition(position));
                     break;
                 case R.id.engine_displacement_spinner:
                     result = (VehicleAPI.Result) parent.getItemAtPosition(position);
