@@ -41,4 +41,25 @@ public class VehicleData {
     public int getVehicleYear() {
         return mVehicleYear;
     }
+
+    public boolean equals(VehicleData otherVehicleData) {
+        if (!mVehicleMake.equals(otherVehicleData.getVehicleMake()))
+            return false;
+
+        if (!mVehicleModel.equals(otherVehicleData.getVehicleModel()))
+            return false;
+
+        if (!mVehicleModifications.equals(otherVehicleData.getVehicleModifications()))
+            return false;
+
+        if (mVehicleYear != otherVehicleData.getVehicleYear())
+            return false;
+
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return mVehicleMake + ' ' + mVehicleModel + ' ' + Integer.toString(mVehicleYear) + ' ' + mVehicleModifications;
+    }
 }
