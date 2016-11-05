@@ -47,11 +47,34 @@ public class RegistrationVehicleDetailsFragment extends RegistrationUserDetailsF
     private ProgressBar mVehicleModelProgressBar;
     private ProgressBar mEngineProgressBar;
 
+    private TextView mPromptTextView;
+    private TextView mCaptionTextView;
+
     private VehicleAPI mVehicleAPI;
 
     private ArrayAdapter<Integer> mModelYearsAdapter;
 
     private VehicleData mVehicleData = new VehicleData();
+
+    private boolean mIsSpinnerUserAction = true;
+
+    private boolean mIsDialog;
+
+    // This is intened for use only when using this fragment as a dialog.
+    public static RegistrationVehicleDetailsFragment getInstance(VehicleData vehicleData) {
+        RegistrationVehicleDetailsFragment registrationVehicleDetailsFragment
+                = new RegistrationVehicleDetailsFragment();
+
+        Bundle args = new Bundle();
+        args.putString("make", vehicleData.getVehicleMake());
+        args.putString("model", vehicleData.getVehicleModel());
+        args.putInt("year", vehicleData.getVehicleYear());
+        args.putString("modifications", vehicleData.getVehicleModifications());
+        args.putBoolean("as_dialog", true);
+        registrationVehicleDetailsFragment.setArguments(args);
+
+        return registrationVehicleDetailsFragment;
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -69,6 +92,16 @@ public class RegistrationVehicleDetailsFragment extends RegistrationUserDetailsF
                 R.layout.support_simple_spinner_dropdown_item, modelYears);
 
         mVehicleAPI = new VehicleAPI(this);
+
+        Bundle extras = getArguments();
+        if (extras != null && !extras.isEmpty()) {
+            mVehicleData.setVehicleMake(extras.getString("make"));
+            mVehicleData.setVehicleModel(extras.getString("model"));
+            mVehicleData.setVehicleYear(extras.getInt("year"));
+            mVehicleData.setVehicleModifications(extras.getString("modifications"));
+
+            mIsDialog = extras.getBoolean("as_dialog");
+        }
     }
 
     @Nullable
@@ -77,6 +110,16 @@ public class RegistrationVehicleDetailsFragment extends RegistrationUserDetailsF
         View layout = inflater.inflate(R.layout.fragment_registration_step_vehicledetails, null);
 
         mVehicleDetailsLayout = layout.findViewById(R.id.vehicle_details_layout);
+
+        mPromptTextView = (TextView) layout.findViewById(
+                R.id.vehicle_details_setup_prompt_text_view);
+        mCaptionTextView = (TextView) layout.findViewById(
+                R.id.vehicle_details_setup_caption_text_view);
+
+        if (mIsDialog) {
+            // Setting the caption text to invisible to keep padding and size.
+            mCaptionTextView.setVisibility(View.INVISIBLE);
+        }
 
         mVehicleMakeSpinner = (AppCompatSpinner) layout.findViewById(R.id.vehicle_make_spinner);
         mVehicleMakeSpinner.setOnItemSelectedListener(this);

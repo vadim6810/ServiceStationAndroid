@@ -1,18 +1,132 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/activity_profile"
+    tools:context="il.co.tel_ran.carservice.activities.ProfileActivity"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context="il.co.tel_ran.carservice.activities.ProfileActivity">
-
-    <android.support.design.widget.AppBarLayout
+    android:layout_height="match_parent">
+    <LinearLayout
+        android:id="@+id/activity_profile"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:descendantFocusability="beforeDescendants"
+        android:focusableInTouchMode="true">
 
-        <include layout="@layout/toolbar"
-            android:id="@+id/action_bar" />
+        <android.support.design.widget.AppBarLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-    </android.support.design.widget.AppBarLayout>
+            <include layout="@layout/toolbar"
+                android:id="@+id/action_bar" />
 
-</LinearLayout>
+        </android.support.design.widget.AppBarLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin"
+            android:layout_marginRight="@dimen/activity_horizontal_margin"
+            android:layout_marginTop="@dimen/activity_vertical_margin"
+            android:layout_marginBottom="@dimen/activity_vertical_margin">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/profile_section_background"
+                android:orientation="vertical"
+                android:paddingLeft="@dimen/item_spacing"
+                android:paddingRight="@dimen/item_spacing"
+                android:paddingTop="@dimen/item_spacing"
+                android:paddingBottom="@dimen/item_spacing">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/item_spacing"
+                    android:text="@string/general"
+                    android:textSize="20sp"/>
+                <android.support.design.widget.TextInputLayout
+                    android:id="@+id/user_name_input_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/activity_horizontal_margin">
+
+                    <EditText
+                        android:id="@+id/user_name_edit_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/custom_edit_text_background"
+                        android:textColor="@drawable/custom_edit_text_color"
+                        android:inputType="textPersonName"
+                        android:imeOptions="actionNext"
+                        android:maxLines="1"
+                        android:hint="@string/hint_name"
+                        android:enabled="false"/>
+                </android.support.design.widget.TextInputLayout>
+
+                <android.support.design.widget.TextInputLayout
+                    android:id="@+id/user_email_input_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/item_spacing">
+
+                    <EditText
+                        android:id="@+id/user_email_edit_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/custom_edit_text_background"
+                        android:textColor="@drawable/custom_edit_text_color"
+                        android:imeOptions="actionDone"
+                        android:maxLines="1"
+                        android:hint="@string/hint_email"
+                        android:inputType="textEmailAddress"
+                        android:enabled="false"/>
+                </android.support.design.widget.TextInputLayout>
+
+                <Button
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/item_spacing"
+                    android:background="@drawable/transparent_background_interactive"
+                    android:text="@string/change_password_button"
+                    android:textColor="?attr/colorAccent"
+                    android:textAllCaps="false"
+                    android:onClick="changePassword"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/vehicle_info_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/profile_section_background"
+                android:orientation="vertical"
+                android:layout_marginTop="@dimen/activity_horizontal_margin"
+                android:paddingLeft="@dimen/item_spacing"
+                android:paddingRight="@dimen/item_spacing"
+                android:paddingBottom="@dimen/item_spacing">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/item_spacing"
+                    android:text="@string/vehicle_details"
+                    android:textSize="20sp"/>
+                <TextView
+                    android:id="@+id/vehicle_details_text_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/item_spacing"
+                    android:textColor="@color/colorPrimaryText"
+                    android:textSize="16sp"/>
+                <Button
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/item_spacing"
+                    android:background="@drawable/transparent_background_interactive"
+                    android:text="@string/update"
+                    android:textColor="?attr/colorAccent"
+                    android:textAllCaps="false"
+                    android:onClick="updateVehicleDetails"/>
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

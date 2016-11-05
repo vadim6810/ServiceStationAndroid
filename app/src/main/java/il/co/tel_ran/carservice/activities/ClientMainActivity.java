@@ -22,6 +22,7 @@ import com.google.android.gms.location.places.Places;
 
 import il.co.tel_ran.carservice.ClientActivityRetainedData;
 import il.co.tel_ran.carservice.R;
+import il.co.tel_ran.carservice.UserType;
 import il.co.tel_ran.carservice.fragments.RecentServicesTabFragment;
 import il.co.tel_ran.carservice.fragments.RequestServiceTabFragment;
 import il.co.tel_ran.carservice.fragments.RetainedFragment;
@@ -111,7 +112,10 @@ public class ClientMainActivity extends AppCompatActivity implements GoogleApiCl
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_item_profile:
+                // TODO: Add check for user signed-in
                 Intent intent = new Intent(ClientMainActivity.this, ProfileActivity.class);
+                // Since we are in ClientMainActivity the user type is a client.
+                intent.putExtra("user_type", UserType.USER_CLIENT);
                 startActivity(intent);
                 break;
             case R.id.menu_item_about:

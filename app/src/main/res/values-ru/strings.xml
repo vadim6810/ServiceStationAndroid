@@ -76,4 +76,18 @@
     <string name="open_time_not_set_message">Пожалуйста, установите время открытия первой</string>
     <string name="open_time_earlier_equal_message">Время закрытия не может быть раньше, чем или равно времени открытия</string>
     <string name="remove">Удалить</string>
+    <string name="profile_activity_title">Управление пользователями</string>
+    <string name="done">Готово</string>
+    <string name="edit">Редактировать</string>
+    <string name="editing_enabled_messeage">Редактирование включена</string>
+    <string name="discarding_changes_message">Отбросив изменения</string>
+    <string name="saving_changes_message">Изменения сохранены</string>
+    <string name="undo">Уничтожать сделанное</string>
+    <string name="general">Генеральная</string>
+    <string name="change_password_button">Изменить Пароль</string>
+    <string name="vehicle_details">Автомобильные Детали</string>
+    <string name="update">Обновить</string>
+    <string name="hint_password_current">Теперешний Пароль:</string>
+    <string name="hint_password_new">Новый Пароль:</string>
+    <string name="hint_password_confirm">Аутентификация Пароля:</string>
 </resources>

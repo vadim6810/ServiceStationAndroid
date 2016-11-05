@@ -77,4 +77,18 @@
     <string name="open_time_not_set_message">Please set opening time first</string>
     <string name="open_time_earlier_equal_message">Closing time cannot be earlier than or equal to open time</string>
     <string name="remove">Remove</string>
+    <string name="profile_activity_title">Manage Profile</string>
+    <string name="done">Done</string>
+    <string name="edit">Edit</string>
+    <string name="editing_enabled_messeage">Editing enabled</string>
+    <string name="discarding_changes_message">Discarding changes.</string>
+    <string name="saving_changes_message">Changes saved.</string>
+    <string name="undo">UNDO</string>
+    <string name="general">General</string>
+    <string name="change_password_button">Change Password</string>
+    <string name="vehicle_details">Vehicle Details</string>
+    <string name="update">Update</string>
+    <string name="hint_password_current">Current Password:</string>
+    <string name="hint_password_new">New Password:</string>
+    <string name="hint_password_confirm">Confirm Password:</string>
 </resources>

@@ -76,4 +76,18 @@
     <string name="open_time_not_set_message">אנא הגדר שעת פתיחה</string>
     <string name="open_time_earlier_equal_message">שעת הסגירה לא יכולה להיות מוקדמת או שווה לשעת הפתיחה</string>
     <string name="remove">הסר</string>
+    <string name="profile_activity_title">ניהול משתמש</string>
+    <string name="done">סיים</string>
+    <string name="edit">ערוך</string>
+    <string name="editing_enabled_messeage">עריכה מאופשרת</string>
+    <string name="discarding_changes_message">השינויים לא נשמרו.</string>
+    <string name="saving_changes_message">השינויים נשמרו.</string>
+    <string name="undo">שחזר</string>
+    <string name="general">כללי</string>
+    <string name="change_password_button">שנה סיסמה</string>
+    <string name="vehicle_details">פרטי רכב</string>
+    <string name="update">עדכן</string>
+    <string name="hint_password_current">סיסמה נוכחית:</string>
+    <string name="hint_password_new">סיסמה חדשה:</string>
+    <string name="hint_password_confirm">אימות סיסמה:</string>
 </resources>
