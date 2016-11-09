@@ -15,6 +15,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -56,9 +57,8 @@ public class RegistrationVehicleDetailsFragment extends RegistrationUserDetailsF
 
     private VehicleData mVehicleData = new VehicleData();
 
-    private boolean mIsSpinnerUserAction = true;
-
     private boolean mIsDialog;
+    private boolean mIsUserDataLoaded;
 
     // This is intened for use only when using this fragment as a dialog.
     public static RegistrationVehicleDetailsFragment getInstance(VehicleData vehicleData) {
@@ -116,11 +116,6 @@ public class RegistrationVehicleDetailsFragment extends RegistrationUserDetailsF
         mCaptionTextView = (TextView) layout.findViewById(
                 R.id.vehicle_details_setup_caption_text_view);
 
-        if (mIsDialog) {
-            // Setting the caption text to invisible to keep padding and size.
-            mCaptionTextView.setVisibility(View.INVISIBLE);
-        }
-
         mVehicleMakeSpinner = (AppCompatSpinner) layout.findViewById(R.id.vehicle_make_spinner);
         mVehicleMakeSpinner.setOnItemSelectedListener(this);
         mVehicleMakeProgressBar = (ProgressBar) layout.findViewById(R.id.vehicle_make_results_progress_bar);
@@ -133,6 +128,21 @@ public class RegistrationVehicleDetailsFragment extends RegistrationUserDetailsF
         mEngineSpinner = (AppCompatSpinner) layout.findViewById(R.id.engine_displacement_spinner);
         mEngineSpinner.setOnItemSelectedListener(this);
         mEngineProgressBar = (ProgressBar) layout.findViewById(R.id.vehicle_engine_displacement_results_progress_bar);
+
+        if (mIsDialog) {
+            // Hide the caption when displaying dialog. This ensures only the title shows.
+            mCaptionTextView.setVisibility(View.GONE);
+
+            // Check if we have any vehicle data.
+            // Vehicle make is the very basic for vehicle data, without other information is irrelevant.
+            if (mVehicleData != null && !mVehicleData.getVehicleMake().isEmpty()) {
+                mIsUserDataLoaded = false;
+                // Disable spinners until user data is loaded.
+                toggleSpinners(false);
+            } else {
+                mIsUserDataLoaded = true;
+            }
+        }
 
         // Load vehicle makes from Vehicle API.
         mVehicleAPI.getVehicleData(new VehicleAPI.Request(VehicleAPI.RequestType.MAKE,
@@ -239,8 +249,13 @@ public class RegistrationVehicleDetailsFragment extends RegistrationUserDetailsF
                     R.layout.support_simple_spinner_dropdown_item, resultsArray);
         }
 
+        String userVehicleData = null;
+        Spinner updatedSpinner = null;
+
         switch (requestType) {
             case MAKE:
+                updatedSpinner = mVehicleMakeSpinner;
+
                 // Now that we received our results set the make spinner to visible again.
                 // Everything else (including progress bars) is still at gone.
                 // They will appear once they retrieve their individual results.
@@ -255,8 +270,15 @@ public class RegistrationVehicleDetailsFragment extends RegistrationUserDetailsF
                 // Set the adapter to the requesting spinner.
                 if (adapter != null)
                     mVehicleMakeSpinner.setAdapter(adapter);
+
+                if (!mIsUserDataLoaded && mVehicleData != null) {
+                    userVehicleData = mVehicleData.getVehicleMake();
+                }
+
                 break;
             case MODEL:
+                updatedSpinner = mVehicleModelSpinner;
+
                 // Set the spinner back to visible once we got the results.
                 mVehicleModelSpinner.setVisibility(View.VISIBLE);
                 mVehicleModelProgressBar.setVisibility(View.GONE);
@@ -268,8 +290,20 @@ public class RegistrationVehicleDetailsFragment extends RegistrationUserDetailsF
                 // Set the adapter to the requesting spinner.
                 if (adapter != null)
                     mVehicleModelSpinner.setAdapter(adapter);
+
+                if (!mIsUserDataLoaded && mVehicleData != null) {
+                    userVehicleData = mVehicleData.getVehicleModel();
+
+                    int modelYear = mVehicleData.getVehicleYear();
+                    if (modelYear != -1) {
+                        mModelYearSpinner.setSelection(mModelYearsAdapter
+                                .getPosition(modelYear));
+                    }
+                }
                 break;
             case MODIFICATION:
+                updatedSpinner = mEngineSpinner;
+
                 // Set the modification spinner back to visible.
                 mEngineSpinner.setVisibility(View.VISIBLE);
                 mEngineProgressBar.setVisibility(View.GONE);
@@ -277,7 +311,32 @@ public class RegistrationVehicleDetailsFragment extends RegistrationUserDetailsF
                 // Set the adapter to the requesting spinner.
                 if (adapter != null)
                     mEngineSpinner.setAdapter(adapter);
+
+                if (!mIsUserDataLoaded && mVehicleData != null) {
+                    userVehicleData = mVehicleData.getVehicleModifications();
+                }
+
+                // All user data is loaded at this point anyway.
+                mIsUserDataLoaded = true;
+                toggleSpinners(true);
                 break;
+        }
+
+        if (userVehicleData != null && adapter != null) {
+            // Get the position for this result (make/model/modification)
+            int position = adapter.getPosition(userVehicleData);
+            if (position != -1) {
+                // Select the spinner (automatically starts the tasks as it calls spinner selection)
+                updatedSpinner.setSelection(position);
+            } else {
+                // If there's any error on the way enable all spinners.
+                mIsUserDataLoaded = true;
+                toggleSpinners(true);
+            }
+        } else {
+            // If there's any error on the way enable all spinners.
+            mIsUserDataLoaded = true;
+            toggleSpinners(true);
         }
     }
 
@@ -288,5 +347,12 @@ public class RegistrationVehicleDetailsFragment extends RegistrationUserDetailsF
 
     public VehicleData getVehicleData() {
         return mVehicleData;
+    }
+
+    private void toggleSpinners(boolean toggle) {
+        mVehicleMakeSpinner.setEnabled(toggle);
+        mVehicleModelSpinner.setEnabled(toggle);
+        mModelYearSpinner.setEnabled(toggle);
+        mEngineSpinner.setEnabled(toggle);
     }
 }
