@@ -72,4 +72,20 @@ public class VehicleDataResultAdapter extends ArrayAdapter<VehicleAPI.Result> {
     public int getCount() {
         return mResults.size();
     }
+
+    @Override
+    public int getPosition(VehicleAPI.Result item) {
+        return  mResults.indexOf(item);
+    }
+
+    public int getPosition(String result) {
+        if (result != null && !result.isEmpty()) {
+            for (int i = 0; i < mResults.size(); i++) {
+                if (mResults.get(i).getResult().equals(result))
+                    return i;
+            }
+        }
+
+        return -1;
+    }
 }
