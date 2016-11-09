@@ -8,7 +8,7 @@ public class VehicleData {
     private String mVehicleMake;
     private String mVehicleModel;
     private String mVehicleModifications;
-    private int mVehicleYear;
+    private int mVehicleYear = -1;
 
     public void setVehicleMake(String make) {
         mVehicleMake = make;
