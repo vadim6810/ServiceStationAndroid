@@ -90,4 +90,5 @@
     <string name="hint_password_current">סיסמה נוכחית:</string>
     <string name="hint_password_new">סיסמה חדשה:</string>
     <string name="hint_password_confirm">אימות סיסמה:</string>
+    <string name="enable_editing_required_message">אנא אפשר עריכה.</string>
 </resources>

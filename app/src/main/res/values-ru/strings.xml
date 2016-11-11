@@ -90,4 +90,5 @@
     <string name="hint_password_current">Действуюший Пароль:</string>
     <string name="hint_password_new">Новый Пароль:</string>
     <string name="hint_password_confirm">Аутентификация Пароля:</string>
+    <string name="enable_editing_required_message">Пожалуйста, включите редактирование.s</string>
 </resources>

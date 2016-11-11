@@ -1,5 +1,6 @@
 package il.co.tel_ran.carservice.activities;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
@@ -7,7 +8,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -23,7 +26,7 @@ import il.co.tel_ran.carservice.dialogs.ChangePasswordDialog;
 import il.co.tel_ran.carservice.fragments.RegistrationVehicleDetailsFragment;
 
 public class ProfileActivity extends AppCompatActivity
-    implements View.OnClickListener{
+    implements View.OnClickListener, View.OnTouchListener {
 
     private UserType mUserType = UserType.USER_CLIENT;
 
@@ -83,6 +86,26 @@ public class ProfileActivity extends AppCompatActivity
     }
 
     @Override
+    public boolean onTouch(View v, MotionEvent event) {
+        switch (v.getId()) {
+            case R.id.user_name_edit_text:
+                // FALLTHROUGH
+            case R.id.user_email_edit_text:
+                if (!mIsEditing) {
+                    if (event.getAction() == MotionEvent.ACTION_UP) {
+                        Toast
+                                .makeText(ProfileActivity.this, getString(
+                                        R.string.enable_editing_required_message), Toast.LENGTH_SHORT)
+                                .show();
+                    }
+                    return true;
+                }
+                break;
+        }
+        return false;
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
@@ -101,7 +124,9 @@ public class ProfileActivity extends AppCompatActivity
         mLayout = findViewById(R.id.activity_profile);
 
         mNameEditText = (EditText) findViewById(R.id.user_name_edit_text);
+        mNameEditText.setOnTouchListener(this);
         mEmailAddressEditText = (EditText) findViewById(R.id.user_email_edit_text);
+        mEmailAddressEditText.setOnTouchListener(this);
 
         mVehicleDetailsLayout = findViewById(R.id.vehicle_details_layout);
         mVehicleDetailsTextView = (TextView) findViewById(R.id.vehicle_details_text_view);
@@ -150,26 +175,30 @@ public class ProfileActivity extends AppCompatActivity
 
         if (toggle) {
             Toast.makeText(ProfileActivity.this, getString(R.string.editing_enabled_messeage), Toast.LENGTH_SHORT).show();
+
             if (editProfileMenuItem != null) {
                 editProfileMenuItem.setIcon(R.drawable.ic_check_white_24dp);
                 editProfileMenuItem.setTitle(getString(R.string.done));
+            }
 
-                // Make sure the user can't undo changes while editing.
-                if (mChangesSnackbar.isShownOrQueued()) {
-                    mChangesSnackbar.dismiss();
-                }
+            // Make sure the user can't undo changes while editing.
+            if (mChangesSnackbar.isShownOrQueued()) {
+                mChangesSnackbar.dismiss();
             }
         } else {
+            mLayout.requestFocus();
+
+            // Force the keyboard to hide to ensure no changes are made when editing is disabled.
+            InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(mLayout.getWindowToken(), 0);
+
             if (editProfileMenuItem != null) {
                 editProfileMenuItem.setIcon(R.drawable.ic_edit_white_24dp);
                 editProfileMenuItem.setTitle(getString(R.string.edit));
-
-                finishEditing();
             }
-        }
 
-        mNameEditText.setEnabled(toggle);
-        mEmailAddressEditText.setEnabled(toggle);
+            finishEditing();
+        }
     }
 
     private void finishEditing() {
