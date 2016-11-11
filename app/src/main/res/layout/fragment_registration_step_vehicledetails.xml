@@ -111,6 +111,16 @@
                     style="@style/Base.Widget.AppCompat.Spinner.Underlined">
                 </android.support.v7.widget.AppCompatSpinner>
             </LinearLayout>
+            <Button
+                android:id="@+id/update_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/item_spacing"
+                android:background="@drawable/transparent_background_interactive"
+                android:text="@string/update"
+                android:textColor="?attr/colorAccent"
+                android:textAllCaps="false"
+                android:visibility="gone"/>
 
         </LinearLayout>
 

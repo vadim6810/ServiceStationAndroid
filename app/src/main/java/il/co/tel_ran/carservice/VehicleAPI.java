@@ -49,6 +49,24 @@ public class VehicleAPI {
         newTask.execute(request);
     }
 
+    public List<GetVehicleDataTask> getRunningTasks() {
+        List<GetVehicleDataTask> runningTasks = new ArrayList<>();
+
+        for (GetVehicleDataTask task : mTasksMap.values()) {
+            if (task.getStatus() == AsyncTask.Status.RUNNING)
+                runningTasks.add(task);
+        }
+
+        return runningTasks;
+    }
+
+    public void cancelRunningTasks() {
+        for (GetVehicleDataTask task : mTasksMap.values()) {
+            if (task.getStatus() == AsyncTask.Status.RUNNING)
+                task.cancel(true);
+        }
+    }
+
     public interface OnVehicleDataRetrieveListener {
         void onVehicleDataRetrievingStarted(RequestType requestType);
         void onVehicleDataRetrieved(RequestType requestType, List<Result> results);

@@ -91,4 +91,5 @@
     <string name="hint_password_new">סיסמה חדשה:</string>
     <string name="hint_password_confirm">אימות סיסמה:</string>
     <string name="enable_editing_required_message">אנא אפשר עריכה.</string>
+    <string name="data_still_loading_message">טוען מידע, אנא המתן.</string>
 </resources>

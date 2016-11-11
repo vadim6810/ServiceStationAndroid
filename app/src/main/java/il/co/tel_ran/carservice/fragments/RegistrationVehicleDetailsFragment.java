@@ -1,11 +1,13 @@
 package il.co.tel_ran.carservice.fragments;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.AppCompatSpinner;
 import android.view.LayoutInflater;
@@ -17,6 +19,7 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +29,7 @@ import il.co.tel_ran.carservice.ClientUser;
 import il.co.tel_ran.carservice.R;
 import il.co.tel_ran.carservice.Utils;
 import il.co.tel_ran.carservice.VehicleData;
+import il.co.tel_ran.carservice.activities.ProfileActivity;
 import il.co.tel_ran.carservice.activities.SignUpActivity;
 import il.co.tel_ran.carservice.VehicleAPI;
 import il.co.tel_ran.carservice.adapters.VehicleDataResultAdapter;
@@ -35,7 +39,8 @@ import il.co.tel_ran.carservice.adapters.VehicleDataResultAdapter;
  */
 
 public class RegistrationVehicleDetailsFragment extends RegistrationUserDetailsFragment
-        implements AdapterView.OnItemSelectedListener, VehicleAPI.OnVehicleDataRetrieveListener {
+        implements AdapterView.OnItemSelectedListener, VehicleAPI.OnVehicleDataRetrieveListener,
+        View.OnClickListener {
 
     private AppCompatSpinner mVehicleMakeSpinner;
     private AppCompatSpinner mVehicleModelSpinner;
@@ -53,6 +58,8 @@ public class RegistrationVehicleDetailsFragment extends RegistrationUserDetailsF
 
     private boolean mIsDialog;
     private boolean mIsUserDataLoaded;
+
+    private Button mUpdateDetailsButton;
 
     // This is intened for use only when using this fragment as a dialog.
     public static RegistrationVehicleDetailsFragment getInstance(VehicleData vehicleData) {
@@ -98,12 +105,21 @@ public class RegistrationVehicleDetailsFragment extends RegistrationUserDetailsF
         }
     }
 
+    @Override
+    public void onDismiss(DialogInterface dialog) {
+        super.onDismiss(dialog);
+
+        if (mVehicleAPI != null) {
+            mVehicleAPI.cancelRunningTasks();
+        }
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View layout = inflater.inflate(R.layout.fragment_registration_step_vehicledetails, null);
 
-        TextView captionTextView = (TextView) layout.findViewById(
+        TextView mCaptionTextView = (TextView) layout.findViewById(
                 R.id.vehicle_details_setup_caption_text_view);
 
         mVehicleMakeSpinner = (AppCompatSpinner) layout.findViewById(R.id.vehicle_make_spinner);
@@ -119,9 +135,15 @@ public class RegistrationVehicleDetailsFragment extends RegistrationUserDetailsF
         mEngineSpinner.setOnItemSelectedListener(this);
         mEngineProgressBar = (ProgressBar) layout.findViewById(R.id.vehicle_engine_displacement_results_progress_bar);
 
+        mUpdateDetailsButton = (Button) layout.findViewById(R.id.update_button);
+
         if (mIsDialog) {
             // Hide the caption when displaying dialog. This ensures only the title shows.
-            captionTextView.setVisibility(View.GONE);
+            mCaptionTextView.setVisibility(View.GONE);
+
+            // Show the update button for dialog layout.
+            mUpdateDetailsButton.setVisibility(View.VISIBLE);
+            mUpdateDetailsButton.setOnClickListener(this);
 
             // Check if we have any vehicle data.
             // Vehicle make is the very basic for vehicle data, without other information is irrelevant.
@@ -132,6 +154,8 @@ public class RegistrationVehicleDetailsFragment extends RegistrationUserDetailsF
             } else {
                 mIsUserDataLoaded = true;
             }
+        } else {
+            mUpdateDetailsButton = null;
         }
 
         // Load vehicle makes from Vehicle API.
@@ -340,6 +364,39 @@ public class RegistrationVehicleDetailsFragment extends RegistrationUserDetailsF
 
     public VehicleData getVehicleData() {
         return mVehicleData;
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.update_button:
+                FragmentActivity containerActivity = getActivity();
+                if (containerActivity != null) {
+                    try {
+                        if (mVehicleAPI != null) {
+                            List<VehicleAPI.GetVehicleDataTask> tasks = mVehicleAPI
+                                    .getRunningTasks();
+
+                            // Make sure user is not trying to update while we have running tasks.
+                            if (tasks.isEmpty()) {
+                                ProfileActivity profileActivity = (ProfileActivity) containerActivity;
+                                // Pass the new information to profile activity.
+                                profileActivity.updateVehicleDetails(getVehicleData());
+                                // Dismiss the dialog
+                                dismiss();
+                            } else {
+                                Toast.makeText(containerActivity,
+                                        getString(R.string.data_still_loading_message),
+                                        Toast.LENGTH_SHORT)
+                                        .show();
+                            }
+                        }
+                    } catch (ClassCastException e) {
+                        e.printStackTrace();
+                    }
+                }
+                break;
+        }
     }
 
     private void toggleSpinners(boolean toggle) {

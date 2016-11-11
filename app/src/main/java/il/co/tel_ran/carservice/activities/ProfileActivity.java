@@ -105,6 +105,13 @@ public class ProfileActivity extends AppCompatActivity
         return false;
     }
 
+    public void updateVehicleDetails(VehicleData newVehicleData) {
+        if (newVehicleData != null && mUserType == UserType.USER_CLIENT) {
+            ((ClientUser) mUser).setVehicleData(newVehicleData);
+            updateFields();
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
