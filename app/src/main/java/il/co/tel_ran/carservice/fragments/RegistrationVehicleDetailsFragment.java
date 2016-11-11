@@ -37,9 +37,6 @@ import il.co.tel_ran.carservice.adapters.VehicleDataResultAdapter;
 public class RegistrationVehicleDetailsFragment extends RegistrationUserDetailsFragment
         implements AdapterView.OnItemSelectedListener, VehicleAPI.OnVehicleDataRetrieveListener {
 
-    private ProgressBar mVehicleApiDataProgressBar;
-
-    private View mVehicleDetailsLayout;
     private AppCompatSpinner mVehicleMakeSpinner;
     private AppCompatSpinner mVehicleModelSpinner;
     private AppCompatSpinner mEngineSpinner;
@@ -47,9 +44,6 @@ public class RegistrationVehicleDetailsFragment extends RegistrationUserDetailsF
     private ProgressBar mVehicleMakeProgressBar;
     private ProgressBar mVehicleModelProgressBar;
     private ProgressBar mEngineProgressBar;
-
-    private TextView mPromptTextView;
-    private TextView mCaptionTextView;
 
     private VehicleAPI mVehicleAPI;
 
@@ -109,11 +103,7 @@ public class RegistrationVehicleDetailsFragment extends RegistrationUserDetailsF
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View layout = inflater.inflate(R.layout.fragment_registration_step_vehicledetails, null);
 
-        mVehicleDetailsLayout = layout.findViewById(R.id.vehicle_details_layout);
-
-        mPromptTextView = (TextView) layout.findViewById(
-                R.id.vehicle_details_setup_prompt_text_view);
-        mCaptionTextView = (TextView) layout.findViewById(
+        TextView captionTextView = (TextView) layout.findViewById(
                 R.id.vehicle_details_setup_caption_text_view);
 
         mVehicleMakeSpinner = (AppCompatSpinner) layout.findViewById(R.id.vehicle_make_spinner);
@@ -131,7 +121,7 @@ public class RegistrationVehicleDetailsFragment extends RegistrationUserDetailsF
 
         if (mIsDialog) {
             // Hide the caption when displaying dialog. This ensures only the title shows.
-            mCaptionTextView.setVisibility(View.GONE);
+            captionTextView.setVisibility(View.GONE);
 
             // Check if we have any vehicle data.
             // Vehicle make is the very basic for vehicle data, without other information is irrelevant.
