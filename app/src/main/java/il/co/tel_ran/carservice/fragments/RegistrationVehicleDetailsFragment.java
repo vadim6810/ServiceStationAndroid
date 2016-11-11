@@ -271,6 +271,7 @@ public class RegistrationVehicleDetailsFragment extends RegistrationUserDetailsF
                 if (adapter != null)
                     mVehicleMakeSpinner.setAdapter(adapter);
 
+                // Check if loading user's data is still required.
                 if (!mIsUserDataLoaded && mVehicleData != null) {
                     userVehicleData = mVehicleData.getVehicleMake();
                 }
@@ -291,6 +292,7 @@ public class RegistrationVehicleDetailsFragment extends RegistrationUserDetailsF
                 if (adapter != null)
                     mVehicleModelSpinner.setAdapter(adapter);
 
+                // Check if loading user's data is still required.
                 if (!mIsUserDataLoaded && mVehicleData != null) {
                     userVehicleData = mVehicleData.getVehicleModel();
 
@@ -312,6 +314,7 @@ public class RegistrationVehicleDetailsFragment extends RegistrationUserDetailsF
                 if (adapter != null)
                     mEngineSpinner.setAdapter(adapter);
 
+                // Check if loading user's data is still required.
                 if (!mIsUserDataLoaded && mVehicleData != null) {
                     userVehicleData = mVehicleData.getVehicleModifications();
                 }
