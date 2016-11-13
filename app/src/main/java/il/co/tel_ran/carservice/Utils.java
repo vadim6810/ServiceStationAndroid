@@ -33,7 +33,8 @@ public class Utils {
 
     public static final AutocompleteFilter PLACE_FILTER_ADDRESS = new AutocompleteFilter.Builder()
             .setCountry("IL")
-            .setTypeFilter(AutocompleteFilter.TYPE_FILTER_ADDRESS)
+            .setTypeFilter(AutocompleteFilter.TYPE_FILTER_ADDRESS
+                    | AutocompleteFilter.TYPE_FILTER_CITIES)
             .build();
 
     public enum Padding {
