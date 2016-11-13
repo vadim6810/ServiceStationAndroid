@@ -18,6 +18,7 @@ import java.util.Locale;
 
 import il.co.tel_ran.carservice.LoadPlacePhotoTask;
 import il.co.tel_ran.carservice.R;
+import il.co.tel_ran.carservice.ServiceStation;
 import il.co.tel_ran.carservice.ServiceSearchResult;
 import il.co.tel_ran.carservice.activities.ClientMainActivity;
 
@@ -118,6 +119,8 @@ public class ServiceDetailsDialog extends DialogFragment implements View.OnClick
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View layout = inflater.inflate(R.layout.service_details_card_layout, null);
 
+        ServiceStation serviceStation = mSearchResult.getSerivce();
+
         // ImageView for service's photo (based on Google Maps address).
         final ImageView placeImageView = (ImageView) layout
                 .findViewById(R.id.service_details_photo);
@@ -128,12 +131,12 @@ public class ServiceDetailsDialog extends DialogFragment implements View.OnClick
         // Set service's name
         final TextView serviceNameTextView = (TextView) layout
                 .findViewById(R.id.service_details_name);
-        serviceNameTextView.setText(mSearchResult.getName());
+        serviceNameTextView.setText(serviceStation.getName());
 
         // Set service's address (from Google Maps).
         final TextView serviceAddressTextView = (TextView) layout
                 .findViewById(R.id.service_details_address);
-        serviceAddressTextView.setText(mSearchResult.getLocation().getAddress());
+        serviceAddressTextView.setText(serviceStation.getLocation().getAddress());
 
         // Get the text from the search result view (from the adapter).
         // This is done because the EnumSet<ServiceType> types were already parsed to string.
@@ -147,12 +150,12 @@ public class ServiceDetailsDialog extends DialogFragment implements View.OnClick
         final TextView ratingSubmitTextView = (TextView) layout
                 .findViewById(R.id.rating_submit_count);
         ratingSubmitTextView.setText(String.format(
-                Locale.getDefault(), "%.2f", mSearchResult.getAvgRating())
-                + " (" + Integer.toString(mSearchResult.getSubmittedRatings()) + ')');
+                Locale.getDefault(), "%.2f", serviceStation.getAvgRating())
+                + " (" + Integer.toString(serviceStation.getSubmittedRatings()) + ')');
 
         final AppCompatRatingBar ratingBar = (AppCompatRatingBar) layout
                 .findViewById(R.id.service_rating_bar);
-        ratingBar.setRating(mSearchResult.getAvgRating());
+        ratingBar.setRating(serviceStation.getAvgRating());
 
         // Get photo for this Google Maps address to display.
         new LoadPlacePhotoTask(((ClientMainActivity) getActivity()).getGoogleApiClient(),
@@ -166,7 +169,7 @@ public class ServiceDetailsDialog extends DialogFragment implements View.OnClick
 
                 }
             }
-        }.execute(mSearchResult.getLocation().getId());
+        }.execute(serviceStation.getLocation().getId());
 
         final FloatingActionButton openMapFAB = (FloatingActionButton) layout
                 .findViewById(R.id.open_map_fab);

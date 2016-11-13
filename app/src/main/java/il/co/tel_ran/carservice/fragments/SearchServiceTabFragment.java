@@ -35,6 +35,7 @@ import java.util.List;
 
 import il.co.tel_ran.carservice.R;
 import il.co.tel_ran.carservice.ServerConnection;
+import il.co.tel_ran.carservice.ServiceStation;
 import il.co.tel_ran.carservice.ServiceSearchQuery;
 import il.co.tel_ran.carservice.ServiceSearchResult;
 import il.co.tel_ran.carservice.adapters.ServiceSearchResultAdapter;
@@ -257,7 +258,7 @@ public class SearchServiceTabFragment extends Fragment
             case ITEM_FAB:
                 // Open Google Maps with navigation directions.
                 Uri gmmIntentUri = Uri.parse(
-                        "google.navigation:q=" + result.getLocation().getAddress());
+                        "google.navigation:q=" + result.getSerivce().getLocation().getAddress());
                 Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
                 mapIntent.setPackage("com.google.android.apps.maps");
                 startActivity(mapIntent);
@@ -477,8 +478,9 @@ public class SearchServiceTabFragment extends Fragment
     }
 
     private void showContactDetailsDialog(ServiceSearchResult searchResult) {
+        ServiceStation serviceStation = searchResult.getSerivce();
         ServiceContactDetailsDialog contactDetailsDialog = ServiceContactDetailsDialog.getInstance(
-                searchResult.getPhonenumber(), searchResult.getEmail());
+                serviceStation.getPhonenumber(), serviceStation.getEmail());
         Utils.showDialogFragment(getFragmentManager(), contactDetailsDialog,
                 "contact_details_dialog");
     }

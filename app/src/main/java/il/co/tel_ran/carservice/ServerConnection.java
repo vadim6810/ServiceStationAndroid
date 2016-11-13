@@ -13,9 +13,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.List;
-import java.util.Random;
 
 /**
  * Created by maxim on 9/29/2016.
@@ -25,7 +23,7 @@ public class ServerConnection {
 
     private FindServicesTask mFindServicesTask;
 
-    private static final String SERVICES_URL = "https://api.myjson.com/bins/24ssq";
+    private static final String SERVICES_URL = "https://api.myjson.com/bins/2dkp8";
 
     public interface OnServicesRetrievedListener {
         void onServicesRetrievingStarted();
@@ -99,10 +97,10 @@ public class ServerConnection {
                         String cityName = Utils.parseCityNameFromAddress(
                                 place.getAddress());
 
-                        ServiceSearchResult searchResult = new ServiceSearchResult(
-                                name, place, avgRating, submittedRating,
+                        ServiceStation resultServiceStation = new ServiceStation(name, place, avgRating, submittedRating,
                                 ServiceType.decode(availableServices),
                                 cityName, phoneNumber, email);
+                        ServiceSearchResult searchResult = new ServiceSearchResult(resultServiceStation);
 
                         searchResults.add(searchResult);
                     }
@@ -137,6 +135,7 @@ public class ServerConnection {
         List<ServiceSearchResult> filteredResults = new ArrayList<>();
 
         for (ServiceSearchResult searchResult : searchResults) {
+            ServiceStation serviceStation = searchResult.getSerivce();
             boolean containsService = false;
 
             if (searchQuery.getAvailableServices().isEmpty()) {
@@ -144,7 +143,7 @@ public class ServerConnection {
                 containsService = true;
             } else {
                 for (ServiceType type : searchQuery.getAvailableServices()) {
-                    if (searchResult.getAvailableServices().contains(type)) {
+                    if (serviceStation.getAvailableServices().contains(type)) {
                         containsService = true;
                         break;
                     }
@@ -162,7 +161,7 @@ public class ServerConnection {
             } else {
                 for (Place location : searchQuery.getLocations()) {
                     // Comparison is done by city because that's how the user filters it.
-                    if (searchResult.getCityName().equals(location.getName())) {
+                    if (serviceStation.getCityName().equals(location.getName())) {
                         containsLocation = true;
                         break;
                     }
@@ -178,37 +177,37 @@ public class ServerConnection {
         return filteredResults;
     }
 
-    // TODO: Remove when switching to real results.
+    /*// TODO: Remove when switching to real results.
     private List<SampleRawResult> getSampleRawResults() {
         List<SampleRawResult> sampleRawResults = new ArrayList<>();
 
-        sampleRawResults.add(new SampleRawResult("Sample Service 1", null,
+        sampleRawResults.add(new SampleRawResult("Sample ServiceStation 1", null,
                 randFloat(5.0f, 0.5f), randInt(100, 1),
                 EnumSet.of(ServiceType.SERVICE_TYPE_TUNING, ServiceType.SERVICE_TYPE_TYRE_REPAIR),
                 "ChIJ73TZ6KRMHRURfT9T61-w7QY", "0847164955", "sampleservice1@gmail.com"));
-        sampleRawResults.add(new SampleRawResult("Sample Service 2", null,
+        sampleRawResults.add(new SampleRawResult("Sample ServiceStation 2", null,
                 randFloat(5.0f, 0.5f), randInt(100, 1),
                 EnumSet.of(ServiceType.SERVICE_TYPE_TYRE_REPAIR),
                 "ChIJnSco919LHRURg2ZruWtsDmg", "0847648955", "sampleservice2@gmail.com"));
-        sampleRawResults.add(new SampleRawResult("Sample Service 3", null,
+        sampleRawResults.add(new SampleRawResult("Sample ServiceStation 3", null,
                 randFloat(5.0f, 0.5f), randInt(100, 1),
                 EnumSet.of(ServiceType.SERVICE_TYPE_AC_REPAIR_REFILL,
                         ServiceType.SERVICE_TYPE_TUNING),
                 "ChIJzfEJQkCjAhURl70lo2y4SxA", "0847163335", "sampleservice3@gmail.com"));
-        sampleRawResults.add(new SampleRawResult("Sample Service 4", null,
+        sampleRawResults.add(new SampleRawResult("Sample ServiceStation 4", null,
                 randFloat(5.0f, 0.5f), randInt(100, 1),
                 EnumSet.of(ServiceType.SERVICE_TYPE_AC_REPAIR_REFILL,
                         ServiceType.SERVICE_TYPE_TYRE_REPAIR),
                 "ChIJrbITsnBLHRURxOktiI37Yn4", "083794955", "sampleservice4@gmail.com"));
-        sampleRawResults.add(new SampleRawResult("Sample Service 5", null,
+        sampleRawResults.add(new SampleRawResult("Sample ServiceStation 5", null,
                 randFloat(5.0f, 0.5f), randInt(100, 1),
                 EnumSet.of(ServiceType.SERVICE_TYPE_TYRE_REPAIR), "ChIJpxhWFYNAHRURmP31dRn87zA",
                 "0847122455", "sampleservice5@gmail.com"));
-        sampleRawResults.add(new SampleRawResult("Sample Service 6", null,
+        sampleRawResults.add(new SampleRawResult("Sample ServiceStation 6", null,
                 randFloat(5.0f, 0.5f), randInt(100, 1),
                 EnumSet.of(ServiceType.SERVICE_TYPE_CAR_WASH, ServiceType.SERVICE_TYPE_TUNING),
                 "ChIJmckm3fVLHRUR0DtEhUiQGhA", "0847197555", "sampleservice7@gmail.com"));
-        sampleRawResults.add(new SampleRawResult("Sample Service 7", null,
+        sampleRawResults.add(new SampleRawResult("Sample ServiceStation 7", null,
                 randFloat(5.0f, 0.5f), randInt(100, 1),
                 EnumSet.of(ServiceType.SERVICE_TYPE_AC_REPAIR_REFILL,
                         ServiceType.SERVICE_TYPE_CAR_WASH, ServiceType.SERVICE_TYPE_TUNING,
@@ -244,5 +243,5 @@ public class ServerConnection {
         public String getPlaceId() {
             return mPlaceId;
         }
-    }
+    }*/
 }

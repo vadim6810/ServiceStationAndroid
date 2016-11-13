@@ -12,6 +12,7 @@ import java.util.Collection;
 import java.util.List;
 
 import il.co.tel_ran.carservice.R;
+import il.co.tel_ran.carservice.ServiceStation;
 import il.co.tel_ran.carservice.ServiceSearchResult;
 import il.co.tel_ran.carservice.ServiceType;
 
@@ -67,11 +68,12 @@ public class ServiceSearchResultAdapter
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         ServiceSearchResult searchResult = mSearchResults.get(position);
+        ServiceStation serviceStation = searchResult.getSerivce();
 
         String servicesText = "";
         int count = 0;
-        for (ServiceType service : searchResult.getAvailableServices()) {
-            switch (service) {
+        for (ServiceType serviceType : serviceStation.getAvailableServices()) {
+            switch (serviceType) {
                 case SERVICE_TYPE_CAR_WASH:
                     servicesText = servicesText + mServiceCarWashStr;
                     break;
@@ -86,14 +88,14 @@ public class ServiceSearchResultAdapter
                     break;
             }
 
-            // Add a separating comma as long as this is not the last service.
-            if ((count++ + 1) < searchResult.getAvailableServices().size())
+            // Add a separating comma as long as this is not the last serviceStation.
+            if ((count++ + 1) < serviceStation.getAvailableServices().size())
                 servicesText = servicesText + ", ";
         }
 
-        holder.serviceNameTextView.setText(searchResult.getName());
+        holder.serviceNameTextView.setText(serviceStation.getName());
         holder.availableServicesTextView.setText(servicesText);
-        holder.locationTextView.setText(searchResult.getCityName());
+        holder.locationTextView.setText(serviceStation.getCityName());
     }
 
     @Override
