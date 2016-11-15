@@ -1,6 +1,8 @@
 package il.co.tel_ran.carservice.dialogs;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -20,13 +22,17 @@ import il.co.tel_ran.carservice.LoadPlacePhotoTask;
 import il.co.tel_ran.carservice.R;
 import il.co.tel_ran.carservice.ServiceStation;
 import il.co.tel_ran.carservice.ServiceSearchResult;
+import il.co.tel_ran.carservice.Utils;
 import il.co.tel_ran.carservice.activities.ClientMainActivity;
 
 /**
  * Created by Max on 10/10/2016.
  */
 
-public class ServiceDetailsDialog extends DialogFragment implements View.OnClickListener {
+public class ServiceDetailsDialog extends DialogFragment implements View.OnClickListener,
+        ServiceSubmitRatingDialog.SubmitRatingDialogListener,
+        ServiceLeaveMessageDialog.LeaveMessageDialogListener
+{
 
     private ServiceSearchResult mSearchResult;
     private CharSequence mServicesText;
@@ -68,22 +74,34 @@ public class ServiceDetailsDialog extends DialogFragment implements View.OnClick
 
     @Override
     public void onClick(View v) {
+        boolean dismiss = false;
+
         ITEM_TYPE itemType = null;
         switch (v.getId()) {
             case R.id.open_map_fab:
                 itemType = ITEM_TYPE.ITEM_FAB;
+                // Open Google Maps with navigation directions.
+                Uri gmmIntentUri = Uri.parse(
+                        "google.navigation:q=" + mSearchResult.getSerivce().getLocation().getAddress());
+                Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+                mapIntent.setPackage("com.google.android.apps.maps");
+                startActivity(mapIntent);
                 break;
             case R.id.contact_details_image_view:
                 itemType = ITEM_TYPE.ITEM_CONTACT_DETAILS;
+                showContactDetailsDialog();
                 break;
             case R.id.leave_message_image_view:
                 itemType = ITEM_TYPE.ITEM_LEAVE_MESSAGE;
+                showLeaveMessageDialog();
                 break;
             case R.id.leave_rating_image_view:
                 itemType = ITEM_TYPE.ITEM_LEAVE_RATING;
+                showSubmitRatingDialog();
                 break;
             case R.id.dismiss_service_details:
                 itemType = ITEM_TYPE.ITEM_DISMISS;
+                dismiss = true;
                 break;
         }
 
@@ -101,6 +119,9 @@ public class ServiceDetailsDialog extends DialogFragment implements View.OnClick
         } catch (ClassCastException e) {
             e.printStackTrace();
         }
+
+        if (dismiss)
+            dismiss();
     }
 
     @Override
@@ -206,5 +227,39 @@ public class ServiceDetailsDialog extends DialogFragment implements View.OnClick
             getDialog().setDismissMessage(null);
         }
         super.onDestroyView();
+    }
+
+    @Override
+    public void onRatingSubmitted(float rating, ServiceSearchResult searchResult) {
+        // TODO: send new rating to back-end (update if exists, add if not)
+        // TODO: update the search result rating card (after back-end receives update)
+    }
+
+    @Override
+    public void onMessageSubmitted(CharSequence message, ServiceSearchResult searchResult) {
+        // TODO: send submitted message to back-end
+    }
+
+    private void showContactDetailsDialog() {
+        ServiceStation serviceStation = mSearchResult.getSerivce();
+        ServiceContactDetailsDialog contactDetailsDialog = ServiceContactDetailsDialog.getInstance(
+                serviceStation.getPhonenumber(), serviceStation.getEmail());
+        Utils.showDialogFragment(getFragmentManager(), contactDetailsDialog,
+                "contact_details_dialog");
+    }
+
+    private void showSubmitRatingDialog() {
+        // TODO: check if user has already submitted rating before, and use it as the current rating.
+        ServiceSubmitRatingDialog submitRatingDialog = ServiceSubmitRatingDialog.getInstance(0.0f,
+                this, mSearchResult);
+        Utils.showDialogFragment(getFragmentManager(), submitRatingDialog,
+                "submit_rating_dialog");
+    }
+
+    private void showLeaveMessageDialog() {
+        ServiceLeaveMessageDialog submitRatingDialog = ServiceLeaveMessageDialog.getInstance(mSearchResult,
+                this);
+        Utils.showDialogFragment(getFragmentManager(), submitRatingDialog,
+                "leave_message_dialog");
     }
 }

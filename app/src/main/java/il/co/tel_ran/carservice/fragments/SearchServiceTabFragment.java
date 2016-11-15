@@ -57,7 +57,7 @@ public class SearchServiceTabFragment extends Fragment
     implements View.OnClickListener, ChipView.OnChipDeleteClickListener,
         ServerConnection.OnServicesRetrievedListener,
         ServiceSearchResultAdapter.ServiceSearchResultClickListener,
-        ServiceDetailsDialog.ServiceDetailsDialogListener, ServiceSubmitRatingDialog.SubmitRatingDialogListener, ServiceLeaveMessageDialog.LeaveMessageDialogListener {
+        ServiceDetailsDialog.ServiceDetailsDialogListener {
 
     private final static int[] SERVICE_CHECKBOX_IDS = {
             R.id.service_checkbox_car_wash,
@@ -254,39 +254,6 @@ public class SearchServiceTabFragment extends Fragment
     @Override
     public void onItemClick(DialogFragment dialogFragment, ServiceDetailsDialog.ITEM_TYPE itemType,
                             ServiceSearchResult result, View view) {
-        switch (itemType) {
-            case ITEM_FAB:
-                // Open Google Maps with navigation directions.
-                Uri gmmIntentUri = Uri.parse(
-                        "google.navigation:q=" + result.getSerivce().getLocation().getAddress());
-                Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
-                mapIntent.setPackage("com.google.android.apps.maps");
-                startActivity(mapIntent);
-                break;
-            case ITEM_CONTACT_DETAILS:
-                showContactDetailsDialog(result);
-                break;
-            case ITEM_DISMISS:
-                dialogFragment.dismiss();
-                break;
-            case ITEM_LEAVE_RATING:
-                showSubmitRatingDialog(result);
-                break;
-            case ITEM_LEAVE_MESSAGE:
-                showLeaveMessageDialog(result);
-                break;
-        }
-    }
-
-    @Override
-    public void onRatingSubmitted(float rating, ServiceSearchResult searchResult) {
-        // TODO: send new rating to back-end (update if exists, add if not)
-        // TODO: update the search result rating card (after back-end receives update)
-    }
-
-    @Override
-    public void onMessageSubmitted(CharSequence message, ServiceSearchResult searchResult) {
-        // TODO: send submitted message to back-end
     }
 
     @Override
@@ -475,28 +442,5 @@ public class SearchServiceTabFragment extends Fragment
     private void showServiceDetailsDialog() {
         Utils.showDialogFragment(getFragmentManager(), serviceDetailsDialog,
                 "service_details_dialog");
-    }
-
-    private void showContactDetailsDialog(ServiceSearchResult searchResult) {
-        ServiceStation serviceStation = searchResult.getSerivce();
-        ServiceContactDetailsDialog contactDetailsDialog = ServiceContactDetailsDialog.getInstance(
-                serviceStation.getPhonenumber(), serviceStation.getEmail());
-        Utils.showDialogFragment(getFragmentManager(), contactDetailsDialog,
-                "contact_details_dialog");
-    }
-
-    private void showSubmitRatingDialog(ServiceSearchResult result) {
-        // TODO: check if user has already submitted rating before, and use it as the current rating.
-        ServiceSubmitRatingDialog submitRatingDialog = ServiceSubmitRatingDialog.getInstance(0.0f,
-                this, result);
-        Utils.showDialogFragment(getFragmentManager(), submitRatingDialog,
-                "submit_rating_dialog");
-    }
-
-    private void showLeaveMessageDialog(ServiceSearchResult result) {
-        ServiceLeaveMessageDialog submitRatingDialog = ServiceLeaveMessageDialog.getInstance(result,
-                this);
-        Utils.showDialogFragment(getFragmentManager(), submitRatingDialog,
-                "leave_message_dialog");
     }
 }
