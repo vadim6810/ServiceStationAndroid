@@ -23,7 +23,7 @@ public class ServerConnection {
 
     private FindServicesTask mFindServicesTask;
 
-    private static final String SERVICES_URL = "https://api.myjson.com/bins/2dkp8";
+    private static final String SERVICES_URL = "https://api.myjson.com/bins/2545c";
 
     public interface OnServicesRetrievedListener {
         void onServicesRetrievingStarted();
