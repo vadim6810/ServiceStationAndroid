@@ -92,4 +92,12 @@
     <string name="hint_password_confirm">Аутентификация Пароля:</string>
     <string name="enable_editing_required_message">Пожалуйста, включите редактирование.s</string>
     <string name="data_still_loading_message">Данные по-прежнему загружается, пожалуйста подождите.</string>
+    <string name="post_tender_activity_title">Запрос на Обслуживание</string>
+    <string name="post_request">Послать</string>
+    <string name="failed_location_search">Мы не смогли найти свое текущее местоположение.</string>
+    <string name="location_permission_denied">Место службы необходимы, чтобы получить ваше текущее местоположение.</string>
+    <string name="enable">Разрешать</string>
+    <string name="active_tender_request_title">Текущий Тендер Запрос</string>
+    <string name="tender_request_message">Запрашивающая %1$s для %2$s.</string>
+    <string name="tender_reply_title">Ответить От: %1$s</string>
 </resources>

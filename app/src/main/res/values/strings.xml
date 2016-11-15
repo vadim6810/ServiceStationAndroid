@@ -93,4 +93,12 @@
     <string name="hint_password_confirm">Confirm Password:</string>
     <string name="enable_editing_required_message">Please enable editing.</string>
     <string name="data_still_loading_message">Data still loading, please wait.</string>
+    <string name="post_tender_activity_title">Post Service Request</string>
+    <string name="post_request">Post Request</string>
+    <string name="failed_location_search">Couldn\'t acquire your current location.</string>
+    <string name="location_permission_denied">Location services are required to get your current location.</string>
+    <string name="enable">Enable</string>
+    <string name="active_tender_request_title">Current Tender Request</string>
+    <string name="tender_request_message">Requesting %1$s for %2$s.</string>
+    <string name="tender_reply_title">Reply From: %1$s</string>
 </resources>

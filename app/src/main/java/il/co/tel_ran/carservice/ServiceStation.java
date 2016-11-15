@@ -19,6 +19,8 @@ public class ServiceStation {
     private String mPhonenumber;
     private String mEmail;
 
+    private long mID; // Service ID number
+
     public ServiceStation(String name, Place location, float avgRating, int submittedRatings,
                           EnumSet<ServiceType> availableServices, String cityName,
                           String phoneNumber, String email) {
@@ -62,5 +64,13 @@ public class ServiceStation {
 
     public String getEmail() {
         return mEmail;
+    }
+
+    public void setID(long id) {
+        mID = id;
+    }
+
+    public long getID() {
+        return mID;
     }
 }

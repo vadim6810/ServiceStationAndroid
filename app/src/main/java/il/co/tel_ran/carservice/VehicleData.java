@@ -1,10 +1,12 @@
 package il.co.tel_ran.carservice;
 
+import java.io.Serializable;
+
 /**
  * Created by maxim on 10/23/2016.
  */
 
-public class VehicleData {
+public class VehicleData implements Serializable {
     private String mVehicleMake;
     private String mVehicleModel;
     private String mVehicleModifications;

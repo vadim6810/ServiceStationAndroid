@@ -92,4 +92,12 @@
     <string name="hint_password_confirm">אימות סיסמה:</string>
     <string name="enable_editing_required_message">אנא אפשר עריכה.</string>
     <string name="data_still_loading_message">טוען מידע, אנא המתן.</string>
+    <string name="post_tender_activity_title">פרסם בקשת שירות</string>
+    <string name="post_request">פרסם בקשה</string>
+    <string name="failed_location_search">לא הצלחנו למצוא את מיקומך הנוכחי.</string>
+    <string name="location_permission_denied">שירותי מיקום דרושים על מנת לקבל את מיקומך הנוכחי.</string>
+    <string name="enable">אפשר</string>
+    <string name="active_tender_request_title">בקשת שירות נוכחית</string>
+    <string name="tender_request_message">מבקש %1$s עבור %2$s.</string>
+    <string name="tender_reply_title">מענה מ: %1$s</string>
 </resources>

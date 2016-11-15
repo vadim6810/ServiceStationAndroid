@@ -3,6 +3,7 @@ package il.co.tel_ran.carservice.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -19,16 +20,21 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.places.Places;
 
 import il.co.tel_ran.carservice.ClientActivityRetainedData;
+import il.co.tel_ran.carservice.ClientUser;
 import il.co.tel_ran.carservice.R;
+import il.co.tel_ran.carservice.ServerConnection;
+import il.co.tel_ran.carservice.TenderRequest;
 import il.co.tel_ran.carservice.UserType;
+import il.co.tel_ran.carservice.Utils;
+import il.co.tel_ran.carservice.VehicleData;
 import il.co.tel_ran.carservice.fragments.RecentServicesTabFragment;
 import il.co.tel_ran.carservice.fragments.RequestServiceTabFragment;
 import il.co.tel_ran.carservice.fragments.RetainedFragment;
 import il.co.tel_ran.carservice.fragments.SearchServiceTabFragment;
-import il.co.tel_ran.carservice.ServerConnection;
-import il.co.tel_ran.carservice.Utils;
 
 public class ClientMainActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
+
+    public static final int REQUEST_CODE_POST_TENDER = 1;
 
     private GoogleApiClient mGoogleApiClient;
 
@@ -43,57 +49,8 @@ public class ClientMainActivity extends AppCompatActivity implements GoogleApiCl
     private static final int TAB_FRAGMENT_REQUEST_SERVICES_INDEX = 2;
     private RequestServiceTabFragment mRequestServiceTabFragment;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_client_main);
-
-        mUserAccountControlLayout = findViewById(R.id.user_control_layout);
-
-        // find the retained fragment on activity restarts
-        FragmentManager fm = getSupportFragmentManager();
-        RetainedFragment dataFragment = (RetainedFragment) fm.findFragmentByTag(
-                RetainedFragment.CLIENT_MAIN_ACTIVITY_RETAINED_FRAGMENT_TAG);
-
-        // create the fragment and data the first time
-        if (dataFragment == null) {
-            // add the fragment
-            dataFragment = new RetainedFragment();
-            fm.beginTransaction().add(dataFragment,
-                    RetainedFragment.CLIENT_MAIN_ACTIVITY_RETAINED_FRAGMENT_TAG).commit();
-
-            // Initialize data
-            setupServerConnection();
-            createTabFragment(TAB_FRAGMENT_RECENT_SERVICES_INDEX);
-            createTabFragment(TAB_FRAGMENT_SEARCH_SERVICES_INDEX);
-            createTabFragment(TAB_FRAGMENT_REQUEST_SERVICES_INDEX);
-
-            ClientActivityRetainedData data = new ClientActivityRetainedData(mGoogleApiClient,
-                    mServerConnection, mRecentServicesTabFragment, mSearchServiceTabFragment,
-                    mRequestServiceTabFragment);
-
-            dataFragment.setData(data);
-        } else {
-            ClientActivityRetainedData data = (ClientActivityRetainedData) dataFragment.getData();
-            if (data != null) {
-                mServerConnection = data.getServerConnection();
-                mRecentServicesTabFragment = data.getRecentServicesTabFragment();
-                mSearchServiceTabFragment = data.getSearchServiceTabFragment();
-                mRequestServiceTabFragment = data.getRequestServiceTabFragment();
-            }
-        }
-
-        setupGoogleApiClient();
-
-        setupActionBar();
-        setupTabLayout();
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        mServerConnection.cancelAllTasks();
-    }
+    private Toolbar mToolbar;
+    private int mToolbarScrollFlags;
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
@@ -148,6 +105,77 @@ public class ClientMainActivity extends AppCompatActivity implements GoogleApiCl
         return mUserAccountControlLayout.getVisibility() == View.VISIBLE;
     }
 
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_client_main);
+
+        mUserAccountControlLayout = findViewById(R.id.user_control_layout);
+
+        // find the retained fragment on activity restarts
+        FragmentManager fm = getSupportFragmentManager();
+        RetainedFragment dataFragment = (RetainedFragment) fm.findFragmentByTag(
+                RetainedFragment.CLIENT_MAIN_ACTIVITY_RETAINED_FRAGMENT_TAG);
+
+        // create the fragment and data the first time
+        if (dataFragment == null) {
+            // add the fragment
+            dataFragment = new RetainedFragment();
+            fm.beginTransaction().add(dataFragment,
+                    RetainedFragment.CLIENT_MAIN_ACTIVITY_RETAINED_FRAGMENT_TAG).commit();
+
+            // Initialize data
+            setupServerConnection();
+            createTabFragment(TAB_FRAGMENT_RECENT_SERVICES_INDEX);
+            createTabFragment(TAB_FRAGMENT_SEARCH_SERVICES_INDEX);
+            createTabFragment(TAB_FRAGMENT_REQUEST_SERVICES_INDEX);
+
+            ClientActivityRetainedData data = new ClientActivityRetainedData(mGoogleApiClient,
+                    mServerConnection, mRecentServicesTabFragment, mSearchServiceTabFragment,
+                    mRequestServiceTabFragment);
+
+            dataFragment.setData(data);
+        } else {
+            ClientActivityRetainedData data = (ClientActivityRetainedData) dataFragment.getData();
+            if (data != null) {
+                mServerConnection = data.getServerConnection();
+                mRecentServicesTabFragment = data.getRecentServicesTabFragment();
+                mSearchServiceTabFragment = data.getSearchServiceTabFragment();
+                mRequestServiceTabFragment = data.getRequestServiceTabFragment();
+            }
+        }
+
+        setupGoogleApiClient();
+
+        setupActionBar();
+        setupTabLayout();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (mServerConnection != null) {
+            mServerConnection.cancelAllTasks();
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case REQUEST_CODE_POST_TENDER:
+                if (resultCode == RESULT_OK) {
+                    if (mRequestServiceTabFragment != null) {
+                        // Get data from PostTenderActivity
+                        TenderRequest tenderRequest = (TenderRequest) data
+                                .getSerializableExtra("tender_request");
+                        mRequestServiceTabFragment.onTenderRequestUpdate(tenderRequest);
+                    }
+                }
+                break;
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
     private void setupGoogleApiClient() {
         mGoogleApiClient = new GoogleApiClient
                 .Builder(this)
@@ -162,8 +190,11 @@ public class ClientMainActivity extends AppCompatActivity implements GoogleApiCl
     }
 
     private void setupActionBar() {
-        Toolbar actionBar = (Toolbar) findViewById(R.id.actionBar);
-        setSupportActionBar(actionBar);
+        mToolbar = (Toolbar) findViewById(R.id.actionBar);
+        mToolbarScrollFlags = ((AppBarLayout.LayoutParams) mToolbar.getLayoutParams())
+                .getScrollFlags();
+
+        setSupportActionBar(mToolbar);
     }
 
     private void setupTabLayout() {
@@ -185,8 +216,29 @@ public class ClientMainActivity extends AppCompatActivity implements GoogleApiCl
                     paddingBottom + addedPadding);
         }
 
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.tab_layout);
+        final TabLayout tabLayout = (TabLayout) findViewById(R.id.tab_layout);
         tabLayout.setupWithViewPager(tabsViewPager);
+        tabLayout.addOnTabSelectedListener(
+                new TabLayout.ViewPagerOnTabSelectedListener(tabsViewPager) {
+                    @Override
+                    public void onTabSelected(TabLayout.Tab tab) {
+                        super.onTabSelected(tab);
+
+                        AppBarLayout.LayoutParams params = (AppBarLayout.LayoutParams) mToolbar
+                                .getLayoutParams();
+                        // Check if the tab is "Request ServiceStation" which requires toolbar scrolling to be disabled under certain conditions.
+                        if (tab.getPosition() == 2) {
+                            // Clear scroll flags - makes scrolling disabled.
+                            params.setScrollFlags(0);
+                        } else {
+                            // Restore original scroll flags
+                            params.setScrollFlags(mToolbarScrollFlags);
+                        }
+
+                        // Make sure our layout params are taken into consideration
+                        mToolbar.requestLayout();
+                    }
+        });
     }
 
     private class TabsPagerAdapter extends FragmentStatePagerAdapter {
@@ -243,6 +295,19 @@ public class ClientMainActivity extends AppCompatActivity implements GoogleApiCl
             case TAB_FRAGMENT_REQUEST_SERVICES_INDEX:
                 if (mRequestServiceTabFragment == null) {
                     mRequestServiceTabFragment = new RequestServiceTabFragment();
+                    // TODO: pass user data once user logs-in
+                    ClientUser mockUser = new ClientUser();
+                    mockUser.setName("Maxim Glukhov");
+                    mockUser.setEmail("maximglukhov@hotmail.com");
+
+                    VehicleData mockVehicle = new VehicleData();
+                    mockVehicle.setVehicleMake("Audi");
+                    mockVehicle.setVehicleModel("R8 Coupe");
+                    mockVehicle.setVehicleYear(2016);
+                    mockVehicle.setVehicleModifications("5.2 V10 FSI (560 Hp) GT");
+                    mockUser.setVehicleData(mockVehicle);
+
+                    mRequestServiceTabFragment.setUserData(mockUser);
                     return true;
                 }
         }

@@ -23,11 +23,20 @@ public class ServerConnection {
 
     private FindServicesTask mFindServicesTask;
 
+    private GetTenderRepliesTask mGetTenderRepliesTask;
+
     private static final String SERVICES_URL = "https://api.myjson.com/bins/2545c";
+
+    private static final String RESPOND_SERVICES_URL = "https://api.myjson.com/bins/5apnk";
 
     public interface OnServicesRetrievedListener {
         void onServicesRetrievingStarted();
         void onServicesRetrieved(List<ServiceSearchResult> searchResults);
+    }
+
+    public interface OnTenderRepliesRetrievedListener {
+        void onTenderRepliesRetrievingStarted();
+        void onTenderRepliesRetrieved(List<TenderReply> tenderReplies);
     }
 
     public void findServices(ServiceSearchQuery searchQuery, GoogleApiClient googleApiClient,
@@ -37,13 +46,47 @@ public class ServerConnection {
         mFindServicesTask.execute(searchQuery);
     }
 
+    // TODO: When using real back-end the id for whom should be specified here.
+    public void getTenderReplies(final GoogleApiClient googleApiClient,
+                                 final OnTenderRepliesRetrievedListener listener) {
+        if (googleApiClient != null) {
+            cancelGetTenderRepliesTask();
+
+            final ServiceSearchQuery searchQuery = new ServiceSearchQuery();
+            findServices(searchQuery, googleApiClient, new OnServicesRetrievedListener() {
+                @Override
+                public void onServicesRetrievingStarted() {
+
+                }
+
+                @Override
+                public void onServicesRetrieved(List<ServiceSearchResult> searchResults) {
+                    ServiceStation[] services = new ServiceStation[searchResults.size()];
+                    for (int i = 0; i < searchResults.size(); i++) {
+                        services[i] = searchResults.get(i).getSerivce();
+                    }
+
+                    mGetTenderRepliesTask = new GetTenderRepliesTask(listener);
+                    mGetTenderRepliesTask.execute(services);
+                }
+            });
+        }
+    }
+
     public void cancelServiceSearchTask() {
         if (mFindServicesTask != null && mFindServicesTask.getStatus() == AsyncTask.Status.RUNNING)
             mFindServicesTask.cancel(true);
     }
 
+    public void cancelGetTenderRepliesTask() {
+        if (mGetTenderRepliesTask != null && mGetTenderRepliesTask.getStatus()
+                == AsyncTask.Status.RUNNING)
+            mGetTenderRepliesTask.cancel(true);
+    }
+
     public void cancelAllTasks() {
         cancelServiceSearchTask();
+        cancelGetTenderRepliesTask();
     }
 
     private class FindServicesTask extends AsyncTask<ServiceSearchQuery, Integer, List<ServiceSearchResult>> {
@@ -85,6 +128,8 @@ public class ServerConnection {
                         String phoneNumber = object.getString("phoneNumber");
                         String email = object.getString("email");
 
+                        long id = object.getLong("id");
+
                         // Convert ID to place
                         PendingResult<PlaceBuffer> places_buffer = Places.GeoDataApi
                                 .getPlaceById(mGoogleApiClient, placeID);
@@ -100,6 +145,7 @@ public class ServerConnection {
                         ServiceStation resultServiceStation = new ServiceStation(name, place, avgRating, submittedRating,
                                 ServiceType.decode(availableServices),
                                 cityName, phoneNumber, email);
+                        resultServiceStation.setID(id);
                         ServiceSearchResult searchResult = new ServiceSearchResult(resultServiceStation);
 
                         searchResults.add(searchResult);
@@ -121,6 +167,71 @@ public class ServerConnection {
         protected void onPostExecute(List<ServiceSearchResult> serviceSearchResults) {
             super.onPostExecute(serviceSearchResults);
             mListener.onServicesRetrieved(serviceSearchResults);
+        }
+    }
+
+    private class GetTenderRepliesTask extends AsyncTask<ServiceStation, Void,
+            List<TenderReply>> {
+
+        private final OnTenderRepliesRetrievedListener mListener;
+
+        public GetTenderRepliesTask(OnTenderRepliesRetrievedListener listener) {
+            mListener = listener;
+        }
+
+        @Override
+        protected List<TenderReply> doInBackground(ServiceStation... params) {
+
+            HttpHandler httpHandler = new HttpHandler();
+            // Get JSON file from server
+            String jsonFile = httpHandler.makeServiceCall(RESPOND_SERVICES_URL);
+
+            List<TenderReply> tenderReplies = new ArrayList<>();
+            try {
+                JSONObject repliesJSONObject = new JSONObject(jsonFile);
+                JSONArray repliesJSONArray = repliesJSONObject.getJSONArray("respond_services");
+
+                if (repliesJSONArray != null) {
+                    for (int i = 0; i < repliesJSONArray.length(); i++) {
+                        // Periodically check if the task was canceled.
+                        if (isCancelled())
+                            break;
+
+                        JSONObject object = repliesJSONArray.getJSONObject(i);
+
+                        // Get reply data.
+                        String message = object.getString("message");
+                        long serviceID = object.getLong("service_id");
+
+                        for (ServiceStation station : params) {
+                            // Search for service with the correct ID
+                            if (station.getID() == serviceID) {
+                                // Add it to the result array list.
+                                tenderReplies.add(new TenderReply(station, message));
+                                break;
+                            }
+                        }
+                    }
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            return tenderReplies;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            if (mListener != null)
+                mListener.onTenderRepliesRetrievingStarted();
+        }
+
+        @Override
+        protected void onPostExecute(List<TenderReply> tenderReplies) {
+            super.onPostExecute(tenderReplies);
+            if (mListener != null)
+                mListener.onTenderRepliesRetrieved(tenderReplies);
         }
     }
 
