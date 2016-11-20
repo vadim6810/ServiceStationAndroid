@@ -25,9 +25,11 @@ public class ServerConnection {
 
     private GetTenderRepliesTask mGetTenderRepliesTask;
 
-    private static final String SERVICES_URL = "https://api.myjson.com/bins/2545c";
+//    private static final String SERVICES_URL = "https://api.myjson.com/bins/2545c";
+    private static final String SERVICES_URL = "https://jsonblob.com/api/jsonBlob/58313b84e4b0a828bd27ae30";
 
-    private static final String RESPOND_SERVICES_URL = "https://api.myjson.com/bins/5apnk";
+//    private static final String RESPOND_SERVICES_URL = "https://api.myjson.com/bins/5apnk";
+    private static final String RESPOND_SERVICES_URL = "https://jsonblob.com/api/jsonBlob/58313c83e4b0a828bd27ae5d";
 
     public interface OnServicesRetrievedListener {
         void onServicesRetrievingStarted();
