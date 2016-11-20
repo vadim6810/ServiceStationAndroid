@@ -81,7 +81,6 @@
                         android:id="@+id/acquire_location_progress_bar"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
-                        android:paddingTop="@dimen/activity_vertical_margin"
                         android:layout_gravity="center"
                         android:background="@android:color/transparent"
                         android:indeterminate="true"

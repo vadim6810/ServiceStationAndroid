@@ -4,6 +4,7 @@
     android:layout_height="match_parent">
 
     <TextView
+        android:id="@+id/service_details_title"
         android:text="@string/register_user_details_provider_prompt"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -12,6 +13,7 @@
         android:gravity="center"/>
 
     <TextView
+        android:id="@+id/service_details_caption"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/item_spacing"
@@ -22,6 +24,7 @@
         android:textAppearance="@style/TextAppearance.AppCompat.Caption" />
 
     <ScrollView
+        android:id="@+id/service_details_layout"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1">
@@ -251,4 +254,29 @@
                 android:textAllCaps="false"/>
         </LinearLayout>
     </ScrollView>
+    <LinearLayout
+        android:id="@+id/loading_service_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="@dimen/item_spacing"
+        android:paddingBottom="@dimen/item_spacing"
+        android:paddingLeft="@dimen/item_spacing"
+        android:paddingRight="@dimen/item_spacing"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:visibility="gone">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/loading_progress_title"/>
+        <ProgressBar
+            android:id="@+id/service_load_progress_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:paddingLeft="@dimen/item_spacing"
+            android:paddingRight="@dimen/item_spacing"
+            android:background="@android:color/transparent"
+            android:indeterminate="true"
+            android:visibility="visible"/>
+    </LinearLayout>
 </LinearLayout>

@@ -28,6 +28,7 @@ import il.co.tel_ran.carservice.R;
 import il.co.tel_ran.carservice.ServerConnection;
 import il.co.tel_ran.carservice.ServiceSearchQuery;
 import il.co.tel_ran.carservice.ServiceSearchResult;
+import il.co.tel_ran.carservice.ServiceStation;
 import il.co.tel_ran.carservice.User;
 import il.co.tel_ran.carservice.UserType;
 import il.co.tel_ran.carservice.Utils;
@@ -59,6 +60,7 @@ public class ProfileActivity extends AppCompatActivity
     private Snackbar mChangesSnackbar;
 
     private RegistrationServiceDetailsFragment mServiceDetailsFragment;
+    private int mServiceId;
     private GoogleApiClient mGoogleApiClient;
 
     @Override
@@ -128,12 +130,29 @@ public class ProfileActivity extends AppCompatActivity
 
     @Override
     public void onServicesRetrievingStarted() {
-
+        if (mServiceDetailsFragment != null) {
+            mServiceDetailsFragment.toggleLoadingService(true);
+        }
     }
 
     @Override
     public void onServicesRetrieved(List<ServiceSearchResult> searchResults) {
+        ServiceStation loadedService = null;
+        for (ServiceSearchResult searchResult : searchResults) {
+            loadedService = searchResult.getSerivce();
+            if (loadedService.getID() == mServiceId) {
+                break;
+            }
+        }
 
+        if (loadedService != null) {
+            if (mServiceDetailsFragment != null) {
+                mServiceDetailsFragment.toggleLoadingService(false);
+                mServiceDetailsFragment.setFieldsFromService(loadedService);
+            }
+        } else {
+            // TODO: Add text view to display if service failed to load.
+        }
     }
 
     @Override
@@ -184,7 +203,8 @@ public class ProfileActivity extends AppCompatActivity
                 ProviderUser providerUser = new ProviderUser();
 
                 // Load user's service details from the server.
-                loadServiceDetails(1);
+                mServiceId = 1;
+                loadServiceDetails();
 
                 mUser = providerUser;
                 break;
@@ -223,7 +243,7 @@ public class ProfileActivity extends AppCompatActivity
         setupActionBar();
     }
 
-    private void loadServiceDetails(int id) {
+    private void loadServiceDetails() {
         ServerConnection serverConnection = new ServerConnection();
         serverConnection.findServices(new ServiceSearchQuery(), mGoogleApiClient, this);
     }
@@ -231,6 +251,11 @@ public class ProfileActivity extends AppCompatActivity
     private void setupServiceDetailsFragment() {
         mServiceDetailsFragment = (RegistrationServiceDetailsFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.service_details_fragment);
+
+        mServiceDetailsFragment.toggleFields(false);
+
+        mServiceDetailsFragment.hideTitle(true);
+        mServiceDetailsFragment.hideCaption(true);
     }
 
     private void toggleEditing(boolean toggle) {
@@ -261,6 +286,10 @@ public class ProfileActivity extends AppCompatActivity
             }
 
             finishEditing();
+        }
+
+        if (mServiceDetailsFragment != null) {
+            mServiceDetailsFragment.toggleFields(toggle);
         }
     }
 

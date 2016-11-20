@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
@@ -24,6 +25,8 @@ import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 
 import il.co.tel_ran.carservice.R;
+import il.co.tel_ran.carservice.ServiceStation;
+import il.co.tel_ran.carservice.ServiceType;
 import il.co.tel_ran.carservice.TimeHolder;
 import il.co.tel_ran.carservice.Utils;
 import il.co.tel_ran.carservice.dialogs.TimePickerDialogFragment;
@@ -75,11 +78,22 @@ public class RegistrationServiceDetailsFragment extends RegistrationUserDetailsF
     private EditText mDirectorNameEditText;
     private EditText mDirectorPhonenumberEditText;
 
+    private TextView mTitle;
+    private TextView mCaption;
+
+    private View mServiceDetailsLayout;
+    private View mServiceLoadingLayout;
+
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View layout = inflater.inflate(R.layout.fragment_registration_step_servicedetails, null);
+
+        mTitle = (TextView) layout.findViewById(R.id.service_details_title);
+        mCaption = (TextView) layout.findViewById(R.id.service_details_caption);
+
+        mServiceDetailsLayout = layout.findViewById(R.id.service_details_layout);
 
         mServiceNameEditText = (EditText) layout.findViewById(R.id.service_name_edit_text);
 
@@ -114,6 +128,9 @@ public class RegistrationServiceDetailsFragment extends RegistrationUserDetailsF
         mRemovePhotoButton.setOnClickListener(this);
 
         mServicePhotoImageView = (ImageView) layout.findViewById(R.id.service_photo);
+
+        mServiceLoadingLayout = layout.findViewById(R.id.loading_service_layout);
+
         return layout;
     }
 
@@ -294,5 +311,56 @@ public class RegistrationServiceDetailsFragment extends RegistrationUserDetailsF
         mDirectorPhonenumberEditText.setEnabled(toggle);
         mBrowsePhotoButton.setEnabled(toggle);
         mRemovePhotoButton.setEnabled(toggle);
+    }
+
+    public void hideTitle(boolean hide) {
+        mTitle.setVisibility(hide ? View.GONE : View.VISIBLE);
+    }
+
+    public void hideCaption(boolean hide) {
+        mCaption.setVisibility(hide ? View.GONE : View.VISIBLE);
+    }
+
+    public void toggleLoadingService(boolean toggle) {
+        if (toggle) {
+            mServiceDetailsLayout.setVisibility(View.GONE);
+            mServiceLoadingLayout.setVisibility(View.VISIBLE);
+        } else {
+            mServiceDetailsLayout.setVisibility(View.VISIBLE);
+            mServiceLoadingLayout.setVisibility(View.GONE);
+
+        }
+    }
+
+    public void setFieldsFromService(ServiceStation service) {
+        mServiceNameEditText.setText(service.getName());
+        mAddressSearchButton.setText(service.getCityName());
+        mPhonenumberEditText.setText(service.getPhonenumber());
+        /*
+            Missing:
+            mOpeningTimeButton
+            mClosingTimeButton
+            mVehicleTypeCheckBoxes
+            mDirectorNameEditText
+            mDirectorPhonenumberEditText
+            mServicePhotoImageView
+        */
+
+        for (ServiceType serviceType : service.getAvailableServices()) {
+            switch (serviceType) {
+                case SERVICE_TYPE_CAR_WASH:
+                    mServicesCheckBoxes[0].setChecked(true);
+                    break;
+                case SERVICE_TYPE_TUNING:
+                    mServicesCheckBoxes[1].setChecked(true);
+                    break;
+                case SERVICE_TYPE_TYRE_REPAIR:
+                    mServicesCheckBoxes[2].setChecked(true);
+                    break;
+                case SERVICE_TYPE_AC_REPAIR_REFILL:
+                    mServicesCheckBoxes[3].setChecked(true);
+                    break;
+            }
+        }
     }
 }

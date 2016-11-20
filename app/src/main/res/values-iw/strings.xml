@@ -111,4 +111,5 @@
     <string name="status_title">מצב</string>
     <string name="tap_to_set">הקש על מנת להגדיר</string>
     <string name="user_password_error_message">סיסמה שגויה</string>
+    <string name="loading_progress_title">טוען...</string>
 </resources>
