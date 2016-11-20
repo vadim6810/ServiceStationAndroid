@@ -3,7 +3,6 @@ package il.co.tel_ran.carservice.fragments;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
@@ -35,17 +34,13 @@ import java.util.List;
 
 import il.co.tel_ran.carservice.R;
 import il.co.tel_ran.carservice.ServerConnection;
-import il.co.tel_ran.carservice.ServiceStation;
 import il.co.tel_ran.carservice.ServiceSearchQuery;
 import il.co.tel_ran.carservice.ServiceSearchResult;
-import il.co.tel_ran.carservice.adapters.ServiceSearchResultAdapter;
 import il.co.tel_ran.carservice.ServiceType;
 import il.co.tel_ran.carservice.Utils;
 import il.co.tel_ran.carservice.activities.ClientMainActivity;
-import il.co.tel_ran.carservice.dialogs.ServiceContactDetailsDialog;
+import il.co.tel_ran.carservice.adapters.ServiceSearchResultAdapter;
 import il.co.tel_ran.carservice.dialogs.ServiceDetailsDialog;
-import il.co.tel_ran.carservice.dialogs.ServiceLeaveMessageDialog;
-import il.co.tel_ran.carservice.dialogs.ServiceSubmitRatingDialog;
 
 import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;
@@ -303,6 +298,11 @@ public class SearchServiceTabFragment extends Fragment
     }
 
     @Override
+    public void onClickDeleteResult(View view) {
+        // Unused for this tab - only for Recent Services Tab
+    }
+
+    @Override
     public void onChipDelete(ChipView view) {
         for (LinearLayout layout : mChipsContainerLayouts) {
             int index = layout.indexOfChild(view);
@@ -428,7 +428,7 @@ public class SearchServiceTabFragment extends Fragment
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         mSearchResultsRecyclerView.setLayoutManager(layoutManager);
         ServiceSearchResultAdapter searchResultAdapter = new ServiceSearchResultAdapter(
-                new ArrayList<ServiceSearchResult>(), getContext(), this);
+                new ArrayList<ServiceSearchResult>(), getContext(), this, false);
         mSearchResultsRecyclerView.setAdapter(searchResultAdapter);
     }
 

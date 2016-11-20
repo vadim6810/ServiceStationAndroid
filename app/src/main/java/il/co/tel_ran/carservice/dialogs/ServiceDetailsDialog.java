@@ -1,14 +1,19 @@
 package il.co.tel_ran.carservice.dialogs;
 
+import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.AppCompatRatingBar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,12 +21,14 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.HashSet;
 import java.util.Locale;
+import java.util.Set;
 
 import il.co.tel_ran.carservice.LoadPlacePhotoTask;
 import il.co.tel_ran.carservice.R;
-import il.co.tel_ran.carservice.ServiceStation;
 import il.co.tel_ran.carservice.ServiceSearchResult;
+import il.co.tel_ran.carservice.ServiceStation;
 import il.co.tel_ran.carservice.Utils;
 import il.co.tel_ran.carservice.activities.ClientMainActivity;
 
@@ -133,6 +140,40 @@ public class ServiceDetailsDialog extends DialogFragment implements View.OnClick
         if (args != null && !args.isEmpty()) {
             mServicesText = getArguments().getCharSequence("services_text");
         }
+    }
+
+    @NonNull
+    @Override
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
+        Log.d("RSTF", "onCreateDialog :: called");
+        if (mSearchResult != null) {
+            ServiceStation serviceStation = mSearchResult.getSerivce();
+            if (serviceStation != null) {
+                // Cast the ID to string because SharedPreferences only supports String sets by default.
+                String serviceIdString = String.valueOf(serviceStation.getID());
+
+                Context context = getContext();
+                SharedPreferences sharedPreferences = context
+                        .getSharedPreferences(ClientMainActivity.SHARED_PREFS_RECENT_SERVICES,
+                                Context.MODE_PRIVATE);
+
+                // Get current services.
+                Set<String> currentServices = sharedPreferences
+                        .getStringSet("service_set", new HashSet<String>());
+
+                // Check if the service is already saved in recent services set.
+                if (!currentServices.contains(serviceIdString)) {
+                    Log.d("RSTF", "onCreateDialog :: updating services");
+                    // Add this service to the current recent services set.
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    currentServices.add(serviceIdString);
+                    editor.putStringSet("service_set", currentServices);
+                    editor.apply();
+                }
+            }
+        }
+
+        return super.onCreateDialog(savedInstanceState);
     }
 
     @Nullable

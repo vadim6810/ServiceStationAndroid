@@ -5,6 +5,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -28,16 +29,19 @@ public class ServiceSearchResultAdapter
     private final String mServiceACRepairRefillStr;
     private final String mServiceTyreRepairStr;
 
-    private List<ServiceSearchResult> mSearchResults = new ArrayList<ServiceSearchResult>();
+    private final boolean mIsRecentServices;
+
+    private List<ServiceSearchResult> mSearchResults = new ArrayList<>();
 
     private ServiceSearchResultClickListener mListener;
 
     public interface ServiceSearchResultClickListener {
         void onClickSearchResult(View view);
+        void onClickDeleteResult(View view);
     }
 
     public ServiceSearchResultAdapter(List<ServiceSearchResult> searchResults, Context context,
-                                      ServiceSearchResultClickListener listener) {
+                                      ServiceSearchResultClickListener listener, boolean isRecentServices) {
         mSearchResults = searchResults;
 
         mServiceCarWashStr = context.getString(R.string.required_service_car_wash);
@@ -46,11 +50,17 @@ public class ServiceSearchResultAdapter
         mServiceACRepairRefillStr = context.getString(R.string.required_service_air_cond_refill);
 
         mListener = listener;
+
+        mIsRecentServices = isRecentServices;
     }
 
     @Override
     public void onClick(View v) {
-        mListener.onClickSearchResult(v);
+        if (v.getId() == R.id.remove_recent_service_button) {
+            mListener.onClickDeleteResult(v);
+        } else {
+            mListener.onClickSearchResult(v);
+        }
     }
 
     @Override
@@ -62,7 +72,15 @@ public class ServiceSearchResultAdapter
 
         serviceSearchResult.setOnClickListener(this);
 
-        return new ViewHolder(serviceSearchResult);
+        ViewHolder holder =  new ViewHolder(serviceSearchResult);
+
+        holder.deleteServiceButton.setOnClickListener(this);
+
+        if (mIsRecentServices) {
+            holder.deleteServiceButton.setVisibility(View.VISIBLE);
+        }
+
+        return holder;
     }
 
     @Override
@@ -109,6 +127,8 @@ public class ServiceSearchResultAdapter
         private final TextView availableServicesTextView;
         private final TextView locationTextView;
 
+        private final ImageButton deleteServiceButton;
+
         public ViewHolder(View layout) {
             super(layout);
 
@@ -118,6 +138,8 @@ public class ServiceSearchResultAdapter
                     R.id.result_available_services_text_view);
             locationTextView = (TextView) layout.findViewById(
                     R.id.result_location_text_view);
+            deleteServiceButton = (ImageButton) layout.findViewById(
+                    R.id.remove_recent_service_button);
         }
     }
 
@@ -143,6 +165,14 @@ public class ServiceSearchResultAdapter
 
     public void removeAllItems() {
         mSearchResults.clear();
+    }
+
+    public void removeItem(int position) {
+        if (position >= 0 && position < mSearchResults.size()) {
+            mSearchResults.remove(position);
+
+            notifyDataSetChanged();
+        }
     }
 
     public ServiceSearchResult getItem(int position) {

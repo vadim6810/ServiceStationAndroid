@@ -36,6 +36,8 @@ public class ClientMainActivity extends AppCompatActivity implements GoogleApiCl
 
     public static final int REQUEST_CODE_POST_TENDER = 1;
 
+    public static final String SHARED_PREFS_RECENT_SERVICES = "recent_services";
+
     private GoogleApiClient mGoogleApiClient;
 
     private ServerConnection mServerConnection;
@@ -233,6 +235,11 @@ public class ClientMainActivity extends AppCompatActivity implements GoogleApiCl
                         } else {
                             // Restore original scroll flags
                             params.setScrollFlags(mToolbarScrollFlags);
+
+                            // Recent services
+                            if (tab.getPosition() == 0) {
+                                mRecentServicesTabFragment.reloadRecentServices();
+                            }
                         }
 
                         // Make sure our layout params are taken into consideration
