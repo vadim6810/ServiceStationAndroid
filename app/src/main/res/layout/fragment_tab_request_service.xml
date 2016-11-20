@@ -66,6 +66,21 @@
                     android:clickable="true"
                     android:orientation="vertical">
                     <TextView
+                        android:id="@+id/request_status_text_view"
+                        android:textSize="18sp"
+                        android:paddingTop="@dimen/item_spacing"
+                        android:paddingLeft="@dimen/item_spacing"
+                        android:paddingRight="@dimen/item_spacing"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+                    <TextView
+                        android:id="@+id/request_deadline_text_view"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingLeft="@dimen/item_spacing"
+                        android:paddingRight="@dimen/item_spacing"
+                        android:textSize="14sp"/>
+                    <TextView
                         android:id="@+id/request_message_text_view"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"

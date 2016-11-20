@@ -2,6 +2,7 @@ package il.co.tel_ran.carservice.fragments;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -19,9 +20,9 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.places.Place;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import il.co.tel_ran.carservice.ClientUser;
@@ -29,7 +30,6 @@ import il.co.tel_ran.carservice.R;
 import il.co.tel_ran.carservice.ServerConnection;
 import il.co.tel_ran.carservice.ServiceSearchResult;
 import il.co.tel_ran.carservice.ServiceStation;
-import il.co.tel_ran.carservice.ServiceType;
 import il.co.tel_ran.carservice.TenderReply;
 import il.co.tel_ran.carservice.TenderRequest;
 import il.co.tel_ran.carservice.Utils;
@@ -60,9 +60,13 @@ public class RequestServiceTabFragment extends Fragment
     private TextView mRequestMessageTextView;
     private TextView mRequestLocationTextView;
 
+    private TextView mRequestStatusTextView;
+
     private TenderRequest mTenderRequest;
 
     private ServerConnection mServerConnection;
+
+    private TextView mDeadlineTextView;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -89,6 +93,10 @@ public class RequestServiceTabFragment extends Fragment
 
             mRequestMessageTextView = (TextView) mMainLayout.findViewById(R.id.request_message_text_view);
             mRequestLocationTextView = (TextView) mMainLayout.findViewById(R.id.request_location_text_view);
+
+            mRequestStatusTextView = (TextView) mMainLayout.findViewById(R.id.request_status_text_view);
+
+            mDeadlineTextView = (TextView) mMainLayout.findViewById(R.id.request_deadline_text_view);
 
             setupRecyclerView();
 
@@ -166,6 +174,21 @@ public class RequestServiceTabFragment extends Fragment
             // Make sure the layout is visible.
             mTenderRequestCard.setVisibility(View.VISIBLE);
 
+            mRequestStatusTextView.setText(
+                    Utils.toSentenceCase(mTenderRequest.getStatus().toString()));
+            mRequestStatusTextView.setTextColor(getColorForStatus(mTenderRequest.getStatus()));
+
+            int deadlineYear = mTenderRequest.getDeadline(Calendar.YEAR);
+            int deadlineMonth = mTenderRequest.getDeadline(Calendar.MONTH);
+            int deadlineDay = mTenderRequest.getDeadline(Calendar.DAY_OF_MONTH);
+            if (deadlineYear != 0) {
+                mDeadlineTextView.setVisibility(View.VISIBLE);
+                mDeadlineTextView.setText(getString(R.string.deadline_with_date,
+                        Utils.getFormattedDate(getContext(), deadlineYear, deadlineMonth, deadlineDay)));
+            } else {
+                mDeadlineTextView.setVisibility(View.GONE);
+            }
+
             getTenderReplies();
         }
     }
@@ -234,6 +257,25 @@ public class RequestServiceTabFragment extends Fragment
         repliesAdapter.removeItem(itemPos);
     }
 
+    @Override
+    public void onItemClick(DialogFragment dialogFragment, ServiceDetailsDialog.ITEM_TYPE itemType,
+                            ServiceSearchResult result, View view) {
+
+    }
+
+    public int getColorForStatus(TenderRequest.Status status) {
+        switch (status) {
+            case CLOSED:
+                return Color.RED;
+            case OPENED:
+                return Color.MAGENTA;
+            case RESOLVED:
+                return Color.GREEN;
+        }
+
+        return 0;
+    }
+
     private void setupRecyclerView() {
         mTenderRepliesRecyclerView = (RecyclerView) mMainLayout.findViewById(
                 R.id.tender_replies_recycler_view);
@@ -279,11 +321,5 @@ public class RequestServiceTabFragment extends Fragment
                 }
             }
         }
-    }
-
-    @Override
-    public void onItemClick(DialogFragment dialogFragment, ServiceDetailsDialog.ITEM_TYPE itemType,
-                            ServiceSearchResult result, View view) {
-
     }
 }

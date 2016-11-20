@@ -101,4 +101,14 @@
     <string name="active_tender_request_title">Current Tender Request</string>
     <string name="tender_request_message">Requesting %1$s for %2$s.</string>
     <string name="tender_reply_title">Reply From: %1$s</string>
+    <string name="deadline_title">Deadline</string>
+    <string name="tap_to_set">Tap to set</string>
+    <string name="date_too_early_message">Date can\'t be earlier than today</string>
+    <string name="status_title">Status</string>
+    <string name="opened_title">Opened</string>
+    <string name="closed_title">Closed</string>
+    <string name="resolved_title">Resolved</string>
+    <string name="deadline_with_date">Deadline: %1$s</string>
+    <string name="incomplete_fields_message">Please fill all the fields</string>
+    <string name="service_details_title">Service Details</string>
 </resources>

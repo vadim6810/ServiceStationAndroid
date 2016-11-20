@@ -19,7 +19,9 @@ import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.location.places.AutocompleteFilter;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
@@ -231,5 +233,19 @@ public class Utils {
         }
 
         return serviceTypeStrings;
+    }
+
+    public static String toSentenceCase(String string) {
+        String lower = string.toLowerCase();
+        return Character.toUpperCase(lower.charAt(0)) + lower.substring(1);
+    }
+
+    public static String getFormattedDate(Context context, int year, int month, int day) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(year, month, day);
+        DateFormat dateFormat = android.text.format.DateFormat
+                .getDateFormat(context);
+
+        return dateFormat.format(calendar.getTime());
     }
 }
