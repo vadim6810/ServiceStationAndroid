@@ -100,4 +100,14 @@
     <string name="active_tender_request_title">Текущий Тендер Запрос</string>
     <string name="tender_request_message">Запрашивающая %1$s для %2$s.</string>
     <string name="tender_reply_title">Ответить От: %1$s</string>
+    <string name="user_password_error_message">Неправильный пароль</string>
+    <string name="tap_to_set">нажмите, чтобы задать</string>
+    <string name="status_title">Статус</string>
+    <string name="resolved_title">Решены</string>
+    <string name="opened_title">Открытый</string>
+    <string name="incomplete_fields_message">Пожалуйста, заполните все поля</string>
+    <string name="closed_title">Закрыто</string>
+    <string name="deadline_title">Крайний Срок</string>
+    <string name="deadline_with_date">Крайний Срок: %1$ד</string>
+    <string name="date_too_early_message">Срок не может быть раньше, чем сегодня</string>
 </resources>

@@ -100,4 +100,15 @@
     <string name="active_tender_request_title">בקשת שירות נוכחית</string>
     <string name="tender_request_message">מבקש %1$s עבור %2$s.</string>
     <string name="tender_reply_title">מענה מ: %1$s</string>
+    <string name="closed_title">סגור</string>
+    <string name="date_too_early_message">התאריך לא יכול להיות מוקדם יותר מהיום</string>
+    <string name="deadline_title">תאריך אחרון</string>
+    <string name="deadline_with_date">תאריך אחרון: %1$s</string>
+    <string name="incomplete_fields_message">אנא מלא את כל השדות</string>
+    <string name="opened_title">פתוח</string>
+    <string name="resolved_title">נפתר</string>
+    <string name="service_details_title">פרטי שירות</string>
+    <string name="status_title">מצב</string>
+    <string name="tap_to_set">הקש על מנת להגדיר</string>
+    <string name="user_password_error_message">סיסמה שגויה</string>
 </resources>
