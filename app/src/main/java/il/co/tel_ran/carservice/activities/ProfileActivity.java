@@ -2,6 +2,7 @@ package il.co.tel_ran.carservice.activities;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -15,18 +16,28 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.places.Places;
+
+import java.util.List;
+
 import il.co.tel_ran.carservice.ClientUser;
 import il.co.tel_ran.carservice.ProviderUser;
 import il.co.tel_ran.carservice.R;
+import il.co.tel_ran.carservice.ServerConnection;
+import il.co.tel_ran.carservice.ServiceSearchQuery;
+import il.co.tel_ran.carservice.ServiceSearchResult;
 import il.co.tel_ran.carservice.User;
 import il.co.tel_ran.carservice.UserType;
 import il.co.tel_ran.carservice.Utils;
 import il.co.tel_ran.carservice.VehicleData;
 import il.co.tel_ran.carservice.dialogs.ChangePasswordDialog;
+import il.co.tel_ran.carservice.fragments.RegistrationServiceDetailsFragment;
 import il.co.tel_ran.carservice.fragments.RegistrationVehicleDetailsFragment;
 
 public class ProfileActivity extends AppCompatActivity
-    implements View.OnClickListener, View.OnTouchListener {
+    implements View.OnClickListener, View.OnTouchListener, ServerConnection.OnServicesRetrievedListener, GoogleApiClient.OnConnectionFailedListener {
 
     private UserType mUserType = UserType.USER_CLIENT;
 
@@ -46,6 +57,9 @@ public class ProfileActivity extends AppCompatActivity
     private TextView mVehicleDetailsTextView;
 
     private Snackbar mChangesSnackbar;
+
+    private RegistrationServiceDetailsFragment mServiceDetailsFragment;
+    private GoogleApiClient mGoogleApiClient;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -113,10 +127,27 @@ public class ProfileActivity extends AppCompatActivity
     }
 
     @Override
+    public void onServicesRetrievingStarted() {
+
+    }
+
+    @Override
+    public void onServicesRetrieved(List<ServiceSearchResult> searchResults) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_profile);
+
+        setupGoogleApiClient();
 
         Bundle extras = getIntent().getExtras();
         if (extras != null && !extras.isEmpty()) {
@@ -135,8 +166,10 @@ public class ProfileActivity extends AppCompatActivity
         mEmailAddressEditText = (EditText) findViewById(R.id.user_email_edit_text);
         mEmailAddressEditText.setOnTouchListener(this);
 
-        mVehicleDetailsLayout = findViewById(R.id.vehicle_details_layout);
+        mVehicleDetailsLayout = findViewById(R.id.vehicle_info_layout);
         mVehicleDetailsTextView = (TextView) findViewById(R.id.vehicle_details_text_view);
+
+        setupServiceDetailsFragment();
 
         setupChangesSnackbar();
 
@@ -145,12 +178,25 @@ public class ProfileActivity extends AppCompatActivity
             case USER_SERVICE_PROVIDER:
                 // Hide vehicle details layout since it's irrelevant.
                 mVehicleDetailsLayout.setVisibility(View.GONE);
+                findViewById(R.id.update_button).setVisibility(View.GONE);
 
-                mUser = new ProviderUser();
+                // Mock details
+                ProviderUser providerUser = new ProviderUser();
+
+                // Load user's service details from the server.
+                loadServiceDetails(1);
+
+                mUser = providerUser;
                 break;
             case USER_CLIENT:
                 // FALLTHROUGH
             default:
+                // Hide service details layout since it's irrelevant
+                View rootView = mServiceDetailsFragment.getView();
+                if (rootView != null) {
+                    rootView.setVisibility(View.GONE);
+                }
+
                 // Mock details
                 ClientUser clientUser = new ClientUser();
 
@@ -175,6 +221,16 @@ public class ProfileActivity extends AppCompatActivity
         mUserChanges = new User(mUser);
 
         setupActionBar();
+    }
+
+    private void loadServiceDetails(int id) {
+        ServerConnection serverConnection = new ServerConnection();
+        serverConnection.findServices(new ServiceSearchQuery(), mGoogleApiClient, this);
+    }
+
+    private void setupServiceDetailsFragment() {
+        mServiceDetailsFragment = (RegistrationServiceDetailsFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.service_details_fragment);
     }
 
     private void toggleEditing(boolean toggle) {
@@ -313,5 +369,14 @@ public class ProfileActivity extends AppCompatActivity
                 RegistrationVehicleDetailsFragment.getInstance(vehicleData);
         Utils.showDialogFragment(getSupportFragmentManager(), vehicleDetailsFragment,
                 "change_password_dialog");
+    }
+
+    private void setupGoogleApiClient() {
+        mGoogleApiClient = new GoogleApiClient
+                .Builder(this)
+                .addApi(Places.GEO_DATA_API)
+                .addApi(Places.PLACE_DETECTION_API)
+                .enableAutoManage(this, this)
+                .build();
     }
 }

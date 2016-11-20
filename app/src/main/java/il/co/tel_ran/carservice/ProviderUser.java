@@ -6,6 +6,8 @@ package il.co.tel_ran.carservice;
 
 public class ProviderUser extends User {
 
+    private ServiceStation mService;
+
     public ProviderUser() {
 
     }
@@ -13,6 +15,12 @@ public class ProviderUser extends User {
     public ProviderUser(User user) {
         setName(user.getName());
         setEmail(user.getEmail());
+    }
+
+    public ProviderUser(ProviderUser providerUser) {
+        setName(providerUser.getName());
+        setEmail(providerUser.getEmail());
+        setService(providerUser.getService());
     }
 
     @Override
@@ -29,5 +37,13 @@ public class ProviderUser extends User {
         // TODO: Add other checks.
 
         return true;
+    }
+
+    public void setService(ServiceStation serviceStation) {
+        mService = serviceStation;
+    }
+
+    public ServiceStation getService() {
+        return mService;
     }
 }

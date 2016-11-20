@@ -7,10 +7,12 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
+import android.support.v7.widget.AppCompatCheckBox;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -24,7 +26,6 @@ import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 import il.co.tel_ran.carservice.R;
 import il.co.tel_ran.carservice.TimeHolder;
 import il.co.tel_ran.carservice.Utils;
-import il.co.tel_ran.carservice.activities.SignUpActivity;
 import il.co.tel_ran.carservice.dialogs.TimePickerDialogFragment;
 
 import static android.app.Activity.RESULT_CANCELED;
@@ -51,13 +52,55 @@ public class RegistrationServiceDetailsFragment extends RegistrationUserDetailsF
     private ImageView mServicePhotoImageView;
     private Button mRemovePhotoButton;
 
+    private EditText mServiceNameEditText;
+
+    private EditText mPhonenumberEditText;
+
+    private final static int[] SERVICE_CHECKBOX_IDS = {
+            R.id.service_checkbox_car_wash,
+            R.id.service_checkbox_tuning,
+            R.id.service_checkbox_tyre_repair,
+            R.id.service_checkbox_air_cond
+    };
+    private AppCompatCheckBox[] mServicesCheckBoxes = new AppCompatCheckBox[SERVICE_CHECKBOX_IDS.length];
+
+    private final static int[] VEHICLE_TYPE_CHECKBOX_IDS = {
+            R.id.service_vehicle_type_private,
+            R.id.service_vehicle_type_truck,
+            R.id.service_vehicle_type_bus,
+            R.id.service_vehicle_type_motorcycles
+    };
+    private AppCompatCheckBox[] mVehicleTypeCheckBoxes = new AppCompatCheckBox[VEHICLE_TYPE_CHECKBOX_IDS.length];
+
+    private EditText mDirectorNameEditText;
+    private EditText mDirectorPhonenumberEditText;
+
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View layout = inflater.inflate(R.layout.fragment_registration_step_servicedetails, null);
 
+        mServiceNameEditText = (EditText) layout.findViewById(R.id.service_name_edit_text);
+
         mAddressSearchButton = (Button) layout.findViewById(R.id.search_address_button);
         mAddressSearchButton.setOnClickListener(this);
+
+        mPhonenumberEditText = (EditText) layout.findViewById(R.id.service_phonenumber_edit_text);
+
+        for (int i = 0; i < mServicesCheckBoxes.length; i++) {
+            mServicesCheckBoxes[i] = (AppCompatCheckBox) layout
+                    .findViewById(SERVICE_CHECKBOX_IDS[i]);
+        }
+
+        for (int i = 0; i< mVehicleTypeCheckBoxes.length; i++) {
+            mVehicleTypeCheckBoxes[i] = (AppCompatCheckBox) layout
+                    .findViewById(VEHICLE_TYPE_CHECKBOX_IDS[i]);
+        }
+
+        mDirectorNameEditText = (EditText) layout.findViewById(R.id.director_name_edit_text);
+
+        mDirectorPhonenumberEditText = (EditText) layout.findViewById(R.id.director_phonenumber_edit_text);
 
         mOpeningTimeButton = (Button) layout.findViewById(R.id.set_start_hour_button);
         mOpeningTimeButton.setOnClickListener(this);
@@ -85,20 +128,18 @@ public class RegistrationServiceDetailsFragment extends RegistrationUserDetailsF
 
     @Override
     public void onClick(View v) {
-        SignUpActivity containerActivity = (SignUpActivity) getActivity();
+        Activity containerActivity = getActivity();
         switch (v.getId()) {
             case R.id.search_address_button:
-                if (containerActivity.isGoogleApiClientConnected()) {
-                    try {
-                        // Build a place search intent with address filter.
-                        Intent addressIntent = Utils.buildPlaceAutoCompleteIntent(containerActivity,
-                                Utils.PLACE_FILTER_ADDRESS);
-                        // Start the overlay activity with a unique request code to ideintify later.
-                        startActivityForResult(addressIntent, PLACE_AUTOCOMPLETE_REQUEST_CODE);
-                    } catch (GooglePlayServicesNotAvailableException
-                            | GooglePlayServicesRepairableException e) {
-                        e.printStackTrace();
-                    }
+                try {
+                    // Build a place search intent with address filter.
+                    Intent addressIntent = Utils.buildPlaceAutoCompleteIntent(containerActivity,
+                            Utils.PLACE_FILTER_ADDRESS);
+                    // Start the overlay activity with a unique request code to ideintify later.
+                    startActivityForResult(addressIntent, PLACE_AUTOCOMPLETE_REQUEST_CODE);
+                } catch (GooglePlayServicesNotAvailableException
+                        | GooglePlayServicesRepairableException e) {
+                    e.printStackTrace();
                 }
                 break;
             case R.id.set_start_hour_button:
@@ -207,12 +248,14 @@ public class RegistrationServiceDetailsFragment extends RegistrationUserDetailsF
         TimePickerDialogFragment timePickerFragment = new TimePickerDialogFragment();
 
         int identifier;
+        boolean setArguments = false;
 
         Bundle bundle = new Bundle();
         if (isStartTime) {
             identifier = R.id.set_start_hour_button;
 
             if (mOpeningTime != null) {
+                setArguments = true;
                 bundle.putInt("hour", mOpeningTime.getHour());
                 bundle.putInt("minute", mOpeningTime.getMinute());
             }
@@ -220,14 +263,36 @@ public class RegistrationServiceDetailsFragment extends RegistrationUserDetailsF
             identifier = R.id.set_end_hour_button;
 
             if (mClosingTime != null) {
+                setArguments = true;
                 bundle.putInt("hour", mClosingTime.getHour());
                 bundle.putInt("minute", mClosingTime.getMinute());
             }
         }
-        timePickerFragment.setArguments(bundle);
+
+        if (setArguments)
+            timePickerFragment.setArguments(bundle);
 
         timePickerFragment.setOnTimeListener(this);
         timePickerFragment.show(getActivity().getSupportFragmentManager(),
                 Integer.toString(identifier));
+    }
+
+    // Used for ProfileActivity - limit user's option to make any changes.
+    public void toggleFields(boolean toggle) {
+        mServiceNameEditText.setEnabled(toggle);
+        mAddressSearchButton.setEnabled(toggle);
+        mPhonenumberEditText.setEnabled(toggle);
+        mOpeningTimeButton.setEnabled(toggle);
+        mClosingTimeButton.setEnabled(toggle);
+        for (int i = 0; i < mServicesCheckBoxes.length; i++) {
+            mServicesCheckBoxes[i].setEnabled(toggle);
+        }
+        for (int i = 0; i< mVehicleTypeCheckBoxes.length; i++) {
+            mVehicleTypeCheckBoxes[i].setEnabled(toggle);
+        }
+        mDirectorNameEditText.setEnabled(toggle);
+        mDirectorPhonenumberEditText.setEnabled(toggle);
+        mBrowsePhotoButton.setEnabled(toggle);
+        mRemovePhotoButton.setEnabled(toggle);
     }
 }

@@ -97,6 +97,7 @@
                 android:layout_height="wrap_content"
                 android:background="@drawable/profile_section_background"
                 android:orientation="vertical"
+                android:visibility="gone"
                 android:layout_marginTop="@dimen/activity_horizontal_margin"
                 android:paddingLeft="@dimen/item_spacing"
                 android:paddingRight="@dimen/item_spacing"
@@ -116,6 +117,39 @@
                     android:textColor="@color/colorPrimaryText"
                     android:textSize="16sp"/>
                 <Button
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/item_spacing"
+                    android:background="@drawable/transparent_background_interactive"
+                    android:text="@string/update"
+                    android:textColor="?attr/colorAccent"
+                    android:textAllCaps="false"
+                    android:onClick="updateVehicleDetails"/>
+            </LinearLayout>
+            <LinearLayout
+                android:id="@+id/service_info_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/profile_section_background"
+                android:orientation="vertical"
+                android:layout_marginTop="@dimen/activity_horizontal_margin"
+                android:paddingLeft="@dimen/item_spacing"
+                android:paddingRight="@dimen/item_spacing"
+                android:paddingBottom="@dimen/item_spacing">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/item_spacing"
+                    android:text="@string/service_details_title"
+                    android:textSize="20sp"/>
+                <fragment
+                    android:id="@+id/service_details_fragment"
+                    class="il.co.tel_ran.carservice.fragments.RegistrationServiceDetailsFragment"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    tools:layout="@layout/fragment_registration_step_servicedetails" />
+                <Button
+                    android:id="@+id/update_button"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/item_spacing"

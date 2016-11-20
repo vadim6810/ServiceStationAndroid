@@ -72,7 +72,8 @@ public class ClientMainActivity extends AppCompatActivity implements GoogleApiCl
                 // TODO: Add check for user signed-in
                 Intent intent = new Intent(ClientMainActivity.this, ProfileActivity.class);
                 // Since we are in ClientMainActivity the user type is a client.
-                intent.putExtra("user_type", UserType.USER_CLIENT);
+//                intent.putExtra("user_type", UserType.USER_CLIENT);
+                intent.putExtra("user_type", UserType.USER_SERVICE_PROVIDER);
                 startActivity(intent);
                 break;
             case R.id.menu_item_about:
