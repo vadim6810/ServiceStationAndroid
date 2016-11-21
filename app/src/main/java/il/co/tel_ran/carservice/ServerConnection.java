@@ -145,7 +145,7 @@ public class ServerConnection {
                                 place.getAddress());
 
                         ServiceStation resultServiceStation = new ServiceStation(name, place, avgRating, submittedRating,
-                                ServiceType.decode(availableServices),
+                                Utils.decodeEnumSet(ServiceType.class, availableServices),
                                 cityName, phoneNumber, email);
                         resultServiceStation.setID(id);
                         ServiceSearchResult searchResult = new ServiceSearchResult(resultServiceStation);

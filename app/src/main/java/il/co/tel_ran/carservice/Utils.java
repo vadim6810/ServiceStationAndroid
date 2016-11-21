@@ -248,4 +248,31 @@ public class Utils {
 
         return dateFormat.format(calendar.getTime());
     }
+
+    public static<T extends Enum<T>> EnumSet<T> decodeEnumSet(Class<T> classType, int value) {
+        EnumSet<T> result = EnumSet.noneOf(classType);
+        // Iterate through all types.
+        for (T type : classType.getEnumConstants()) {
+            // Get value for the type.
+            int compare = 1 << type.ordinal();
+            // Check if given value contains the service type value using bitwise and.
+            if ((value & compare) == compare) {
+                result.add(type);
+            }
+        }
+
+        return result;
+    }
+
+    public static<T extends Enum<T>> int encodeEnumSet(EnumSet<T> set) {
+        int value = 0;
+        for (T type : set) {
+            // Get value for the type.
+            int compare = 1 << type.ordinal();
+            // Add the value to the total sum.
+            value |= compare;
+        }
+
+        return value;
+    }
 }
