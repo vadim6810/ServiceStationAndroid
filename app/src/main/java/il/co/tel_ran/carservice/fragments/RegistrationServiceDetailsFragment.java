@@ -24,11 +24,14 @@ import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 
+import java.util.EnumSet;
+
 import il.co.tel_ran.carservice.R;
 import il.co.tel_ran.carservice.ServiceStation;
 import il.co.tel_ran.carservice.ServiceType;
 import il.co.tel_ran.carservice.TimeHolder;
 import il.co.tel_ran.carservice.Utils;
+import il.co.tel_ran.carservice.VehicleType;
 import il.co.tel_ran.carservice.dialogs.TimePickerDialogFragment;
 
 import static android.app.Activity.RESULT_CANCELED;
@@ -58,6 +61,8 @@ public class RegistrationServiceDetailsFragment extends RegistrationUserDetailsF
     private EditText mServiceNameEditText;
 
     private EditText mPhonenumberEditText;
+
+    private ServiceStation mService = new ServiceStation();
 
     private final static int[] SERVICE_CHECKBOX_IDS = {
             R.id.service_checkbox_car_wash,
@@ -199,6 +204,9 @@ public class RegistrationServiceDetailsFragment extends RegistrationUserDetailsF
                     // Change the text color to accent color to be more intuitive.
                     // Clicking on the button again will up the place search again.
                     mAddressSearchButton.setTextColor(Utils.getThemeAccentColor(containerActivity));
+
+                    mService.setLocation(place);
+                    mService.setCityName(Utils.parseCityNameFromAddress(place.getAddress()));
                 } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
                     Status status = PlaceAutocomplete.getStatus(getActivity(), data);
                     // TODO: Handle error
@@ -242,6 +250,8 @@ public class RegistrationServiceDetailsFragment extends RegistrationUserDetailsF
                 mOpeningTime.setMinute(minute);
             }
 
+            mService.setOpeningTime(mOpeningTime);
+
             mOpeningTimeButton.setText(mOpeningTime.toString());
         } else {
             // Set closing time since it doesn't have start hour id.
@@ -256,6 +266,8 @@ public class RegistrationServiceDetailsFragment extends RegistrationUserDetailsF
                 } else {
                     mClosingTime = tmpTime;
                     mClosingTimeButton.setText(mClosingTime.toString());
+
+                    mService.setClosingTime(mClosingTime);
                 }
             }
         }
@@ -333,34 +345,120 @@ public class RegistrationServiceDetailsFragment extends RegistrationUserDetailsF
     }
 
     public void setFieldsFromService(ServiceStation service) {
-        mServiceNameEditText.setText(service.getName());
-        mAddressSearchButton.setText(service.getCityName());
-        mPhonenumberEditText.setText(service.getPhonenumber());
+        if (service != null) {
+            String name = service.getName();
+            if (name != null)
+                mServiceNameEditText.setText(service.getName());
+            else
+                mServiceNameEditText.setText("");
+
+            String cityName = service.getCityName();
+            if (cityName != null)
+                mAddressSearchButton.setText(service.getCityName());
+            else
+                mAddressSearchButton.setText(getString(R.string.search_location_button_hint));
+
+            String phonenumber = service.getPhonenumber();
+            if (phonenumber != null)
+                mPhonenumberEditText.setText(service.getPhonenumber());
+            else
+                mPhonenumberEditText.setText("");
         /*
             Missing:
-            mOpeningTimeButton
-            mClosingTimeButton
-            mVehicleTypeCheckBoxes
-            mDirectorNameEditText
-            mDirectorPhonenumberEditText
             mServicePhotoImageView
         */
 
-        for (ServiceType serviceType : service.getAvailableServices()) {
-            switch (serviceType) {
-                case SERVICE_TYPE_CAR_WASH:
-                    mServicesCheckBoxes[0].setChecked(true);
-                    break;
-                case SERVICE_TYPE_TUNING:
-                    mServicesCheckBoxes[1].setChecked(true);
-                    break;
-                case SERVICE_TYPE_TYRE_REPAIR:
-                    mServicesCheckBoxes[2].setChecked(true);
-                    break;
-                case SERVICE_TYPE_AC_REPAIR_REFILL:
-                    mServicesCheckBoxes[3].setChecked(true);
-                    break;
+            EnumSet<ServiceType> serviceTypes = service.getAvailableServices();
+            if (serviceTypes != null) {
+                for (ServiceType serviceType : ServiceType.values()) {
+                    boolean contains = serviceTypes.contains(serviceType);
+                    switch (serviceType) {
+                        case SERVICE_TYPE_CAR_WASH:
+                            mServicesCheckBoxes[0].setChecked(contains);
+                            break;
+                        case SERVICE_TYPE_TUNING:
+                            mServicesCheckBoxes[1].setChecked(contains);
+                            break;
+                        case SERVICE_TYPE_TYRE_REPAIR:
+                            mServicesCheckBoxes[2].setChecked(contains);
+                            break;
+                        case SERVICE_TYPE_AC_REPAIR_REFILL:
+                            mServicesCheckBoxes[3].setChecked(contains);
+                            break;
+                    }
+                }
             }
+
+            TimeHolder openingTime = service.getOpeningTime();
+            if (openingTime != null)
+                mOpeningTimeButton.setText(openingTime.toString());
+            else
+                mOpeningTimeButton.setText(getString(R.string.set_opening_time));
+
+            TimeHolder closingTime = service.getClosingTime();
+            if (closingTime != null)
+                mClosingTimeButton.setText(closingTime.toString());
+            else
+                mClosingTimeButton.setText(getString(R.string.set_closing_time));
+
+            EnumSet<VehicleType> vehicleTypes = service.getVehicleTypes();
+            if (vehicleTypes != null) {
+                for (VehicleType vehicleType : VehicleType.values()) {
+                    boolean contains = vehicleTypes.contains(vehicleType);
+                    switch (vehicleType) {
+                        case PRIVATE:
+                            mVehicleTypeCheckBoxes[0].setChecked(contains);
+                            break;
+                        case TRUCK:
+                            mVehicleTypeCheckBoxes[1].setChecked(contains);
+                            break;
+                        case BUS:
+                            mVehicleTypeCheckBoxes[2].setChecked(contains);
+                            break;
+                        case MOTORCYCLE:
+                            mVehicleTypeCheckBoxes[3].setChecked(contains);
+                            break;
+                    }
+                }
+            }
+
+            String directorName = service.getDirectorName();
+            if (directorName != null)
+                mDirectorNameEditText.setText(directorName);
+            else
+                mDirectorNameEditText.setText("");
+
+            String directorPhonenumber = service.getDirectorPhonenumber();
+            if (directorPhonenumber != null)
+                mDirectorPhonenumberEditText.setText(directorPhonenumber);
+            else
+                mDirectorPhonenumberEditText.setText("");
+
+            // TODO: add code for image loading
         }
+    }
+
+    public void updateServiceFromFields() {
+        mService.setName(mServiceNameEditText.getText().toString());
+        mService.setPhonenumber(mPhonenumberEditText.getText().toString());
+        mService.setOpeningTime(mOpeningTime);
+        mService.setClosingTime(mClosingTime);
+
+        mService.toggleService(ServiceType.SERVICE_TYPE_CAR_WASH, mServicesCheckBoxes[0].isChecked());
+        mService.toggleService(ServiceType.SERVICE_TYPE_TUNING, mServicesCheckBoxes[1].isChecked());
+        mService.toggleService(ServiceType.SERVICE_TYPE_TYRE_REPAIR, mServicesCheckBoxes[2].isChecked());
+        mService.toggleService(ServiceType.SERVICE_TYPE_AC_REPAIR_REFILL, mServicesCheckBoxes[3].isChecked());
+
+        mService.toggleVehicleType(VehicleType.PRIVATE, mVehicleTypeCheckBoxes[0].isChecked());
+        mService.toggleVehicleType(VehicleType.TRUCK, mVehicleTypeCheckBoxes[1].isChecked());
+        mService.toggleVehicleType(VehicleType.BUS, mVehicleTypeCheckBoxes[2].isChecked());
+        mService.toggleVehicleType(VehicleType.MOTORCYCLE, mVehicleTypeCheckBoxes[3].isChecked());
+
+        mService.setDirectorName(mDirectorNameEditText.getText().toString());
+        mService.setDirectorPhonenumber(mDirectorPhonenumberEditText.getText().toString());
+    }
+
+    public ServiceStation getService() {
+        return new ServiceStation(mService);
     }
 }

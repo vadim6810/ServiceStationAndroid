@@ -7,6 +7,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -44,7 +45,7 @@ public class ProfileActivity extends AppCompatActivity
 
     private Menu mMenu;
 
-    private User mUser;
+    private User mUser = new User();
     private User mUserChanges;
 
     private boolean mIsEditing = false;
@@ -58,10 +59,13 @@ public class ProfileActivity extends AppCompatActivity
     private TextView mVehicleDetailsTextView;
 
     private Snackbar mChangesSnackbar;
+    private boolean mUndoChanges;
 
     private RegistrationServiceDetailsFragment mServiceDetailsFragment;
     private int mServiceId;
     private GoogleApiClient mGoogleApiClient;
+
+    private boolean mIsServiceLoading = false;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -79,9 +83,16 @@ public class ProfileActivity extends AppCompatActivity
                 super.onBackPressed();
                 break;
             case R.id.menu_item_edit:
-                // Allow user editing.
-                mIsEditing = !mIsEditing;
-                toggleEditing(mIsEditing);
+                if (mIsServiceLoading) {
+                    Toast.makeText(
+                            ProfileActivity.this, R.string.loading_message, Toast.LENGTH_SHORT)
+                            .show();
+                } else {
+                    // Allow user editing.
+                    mIsEditing = !mIsEditing;
+                    toggleEditing(mIsEditing);
+                }
+
                 break;
             default:
                 super.onOptionsItemSelected(item);
@@ -124,7 +135,7 @@ public class ProfileActivity extends AppCompatActivity
     public void updateVehicleDetails(VehicleData newVehicleData) {
         if (newVehicleData != null && mUserType == UserType.USER_CLIENT) {
             ((ClientUser) mUser).setVehicleData(newVehicleData);
-            updateFields();
+            updateFields(false);
         }
     }
 
@@ -133,10 +144,14 @@ public class ProfileActivity extends AppCompatActivity
         if (mServiceDetailsFragment != null) {
             mServiceDetailsFragment.toggleLoadingService(true);
         }
+
+        mIsServiceLoading = true;
     }
 
     @Override
     public void onServicesRetrieved(List<ServiceSearchResult> searchResults) {
+        mIsServiceLoading = false;
+
         ServiceStation loadedService = null;
         for (ServiceSearchResult searchResult : searchResults) {
             loadedService = searchResult.getSerivce();
@@ -149,6 +164,14 @@ public class ProfileActivity extends AppCompatActivity
             if (mServiceDetailsFragment != null) {
                 mServiceDetailsFragment.toggleLoadingService(false);
                 mServiceDetailsFragment.setFieldsFromService(loadedService);
+            }
+
+            try {
+                ((ProviderUser) mUser).setService(loadedService);
+                // Save as a copy
+                ((ProviderUser) mUserChanges).setService(new ServiceStation(loadedService));
+            } catch (ClassCastException e) {
+                e.printStackTrace();
             }
         } else {
             // TODO: Add text view to display if service failed to load.
@@ -192,6 +215,10 @@ public class ProfileActivity extends AppCompatActivity
 
         setupChangesSnackbar();
 
+        // Mock details
+        mUser.setName("Max");
+        mUser.setEmail("maximglukhov@hotmail.com");
+
         // TODO: Remove mock user later.
         switch (mUserType) {
             case USER_SERVICE_PROVIDER:
@@ -200,13 +227,18 @@ public class ProfileActivity extends AppCompatActivity
                 findViewById(R.id.update_button).setVisibility(View.GONE);
 
                 // Mock details
-                ProviderUser providerUser = new ProviderUser();
+                ProviderUser providerUser = new ProviderUser(mUser);
 
                 // Load user's service details from the server.
                 mServiceId = 1;
                 loadServiceDetails();
 
                 mUser = providerUser;
+                mUserChanges = new ProviderUser(mUser);
+
+                if (mServiceDetailsFragment != null)
+                    ((ProviderUser) mUserChanges).setService(mServiceDetailsFragment.getService());
+
                 break;
             case USER_CLIENT:
                 // FALLTHROUGH
@@ -218,7 +250,7 @@ public class ProfileActivity extends AppCompatActivity
                 }
 
                 // Mock details
-                ClientUser clientUser = new ClientUser();
+                ClientUser clientUser = new ClientUser(mUser);
 
                 VehicleData mockVehicleData = new VehicleData();
                 mockVehicleData.setVehicleMake("Audi");
@@ -228,17 +260,11 @@ public class ProfileActivity extends AppCompatActivity
 
                 clientUser.setVehicleData(mockVehicleData);
                 mUser = clientUser;
-                    break;
+                mUserChanges = new ClientUser(mUser);
+                break;
         }
 
-        // Mock details
-        mUser.setName("Max");
-        mUser.setEmail("maximglukhov@hotmail.com");
-
-        updateFields();
-
-        // Make a copy of the user.
-        mUserChanges = new User(mUser);
+        updateFields(false);
 
         setupActionBar();
     }
@@ -298,6 +324,18 @@ public class ProfileActivity extends AppCompatActivity
         mUserChanges.setName(mNameEditText.getText().toString());
         mUserChanges.setEmail(mEmailAddressEditText.getText().toString());
 
+        if (mUserType == UserType.USER_SERVICE_PROVIDER && mServiceDetailsFragment != null) {
+            // Update Service in fragment
+            mServiceDetailsFragment.updateServiceFromFields();
+
+            try {
+                // Get a copy of the service.
+                ((ProviderUser) mUserChanges).setService(mServiceDetailsFragment.getService());
+            } catch (ClassCastException e) {
+                e.printStackTrace();
+            }
+        }
+
         // Check if any of the fields were changed
         if (changesMade()) {
             // Show the user a message notifying him about the changes, also giving him an option to undo the changes.
@@ -313,19 +351,34 @@ public class ProfileActivity extends AppCompatActivity
         Toast.makeText(ProfileActivity.this, getString(R.string.discarding_changes_message),
                 Toast.LENGTH_SHORT).show();
 
-        mUserChanges = new User(mUser);
+        if (mUserType == UserType.USER_SERVICE_PROVIDER) {
+            mUserChanges = new ProviderUser((ProviderUser) mUser);
+        } else {
+            mUserChanges = new ClientUser((ClientUser) mUser);
+        }
 
-        updateFields();
+        updateFields(true);
     }
 
     private void saveChanges() {
-        mUserChanges.setName(mNameEditText.getText().toString());
-        mUserChanges.setEmail(mEmailAddressEditText.getText().toString());
+        Log.d("ProfileActivity", "saveChanges :: called");
+        mUser.setName(mNameEditText.getText().toString());
+        mUser.setEmail(mEmailAddressEditText.getText().toString());
 
-        mUser = new User(mUserChanges);
+        try {
+            if (mUserType == UserType.USER_SERVICE_PROVIDER) {
+                // Get a copy of the internal service
+                ((ProviderUser) mUser).setService((mServiceDetailsFragment.getService()));
+                mUserChanges = new ProviderUser((ProviderUser) mUser);
+            } else {
+                mUserChanges = new ClientUser((ClientUser) mUser);
+            }
+        } catch (ClassCastException e) {
+            e.printStackTrace();
+        }
     }
 
-    private void updateFields() {
+    private void updateFields(boolean undo) {
         mNameEditText.setText(mUser.getName());
         mEmailAddressEditText.setText(mUser.getEmail());
 
@@ -336,6 +389,17 @@ public class ProfileActivity extends AppCompatActivity
                 mVehicleDetailsTextView.setText(((ClientUser) mUser).getVehicleData().toString());
                 break;
             case USER_SERVICE_PROVIDER:
+                if (mServiceDetailsFragment != null) {
+                    try {
+                        if (undo) {
+                            mServiceDetailsFragment.setFieldsFromService(((ProviderUser) mUser).getService());
+                        } else {
+                            mServiceDetailsFragment.setFieldsFromService(((ProviderUser) mUserChanges).getService());
+                        }
+                    } catch (ClassCastException e) {
+                        e.printStackTrace();
+                    }
+                }
                 break;
         }
     }
@@ -347,9 +411,11 @@ public class ProfileActivity extends AppCompatActivity
                     @Override
                     public void onClick(View v) {
                         undoChanges();
+                        mUndoChanges = true;
                     }
                 })
                 .setCallback(new Snackbar.Callback() {
+
                     @Override
                     public void onDismissed(Snackbar snackbar, int event) {
                         // Check if the event was dismissed by anything but the action
@@ -364,7 +430,10 @@ public class ProfileActivity extends AppCompatActivity
                                 // FALLTHROUGH
                             default:
                                 // FALLTHROUGH
-                                saveChanges();
+                                if (!mUndoChanges)
+                                    saveChanges();
+
+                                mUndoChanges = false;
                                 break;
                         }
                     }

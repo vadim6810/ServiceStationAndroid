@@ -20,7 +20,7 @@ public class ProviderUser extends User {
     public ProviderUser(ProviderUser providerUser) {
         setName(providerUser.getName());
         setEmail(providerUser.getEmail());
-        setService(providerUser.getService());
+        setService(new ServiceStation(providerUser.getService()));
     }
 
     @Override
@@ -34,7 +34,11 @@ public class ProviderUser extends User {
             return false;
         }
 
-        // TODO: Add other checks.
+        if (mService != ((ProviderUser) otherUser).getService())
+            return false;
+
+        if (mService != null && !mService.equals(((ProviderUser) otherUser).getService()))
+            return false;
 
         return true;
     }
