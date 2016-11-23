@@ -97,7 +97,7 @@
                 android:layout_height="wrap_content"
                 android:background="@drawable/profile_section_background"
                 android:orientation="vertical"
-                android:visibility="gone"
+                android:visibility="visible"
                 android:layout_marginTop="@dimen/activity_horizontal_margin"
                 android:paddingLeft="@dimen/item_spacing"
                 android:paddingRight="@dimen/item_spacing"
@@ -135,7 +135,8 @@
                 android:layout_marginTop="@dimen/activity_horizontal_margin"
                 android:paddingLeft="@dimen/item_spacing"
                 android:paddingRight="@dimen/item_spacing"
-                android:paddingBottom="@dimen/item_spacing">
+                android:paddingBottom="@dimen/item_spacing"
+                android:visibility="gone">
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

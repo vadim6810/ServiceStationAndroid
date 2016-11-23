@@ -1,9 +1,11 @@
 package il.co.tel_ran.carservice.activities;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -61,11 +63,29 @@ public class ProfileActivity extends AppCompatActivity
     private Snackbar mChangesSnackbar;
     private boolean mUndoChanges;
 
+    private View mServiceDetailsLayout;
     private RegistrationServiceDetailsFragment mServiceDetailsFragment;
-    private int mServiceId;
+    private long mServiceId;
     private GoogleApiClient mGoogleApiClient;
 
     private boolean mIsServiceLoading = false;
+
+    private boolean mChangesMade;
+
+    @Override
+    public void onBackPressed() {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        Log.d("PMA" , "onBackPressed :: fragmentManager.getBackStackEntryCount() = " + fragmentManager.getBackStackEntryCount());
+        if (fragmentManager.getBackStackEntryCount() == 0) {
+            Log.d("PMA" , "onBackPressed :: any changes: " + mChangesMade);
+            Intent intent = new Intent();
+            intent.putExtra("any_changes", mChangesMade);
+            setResult(RESULT_OK, intent);
+            finish();
+        }
+
+        super.onBackPressed();
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -80,7 +100,7 @@ public class ProfileActivity extends AppCompatActivity
         switch (item.getItemId()) {
             case android.R.id.home:
                 // Navigate on back stack when pressing the back button.
-                super.onBackPressed();
+                onBackPressed();
                 break;
             case R.id.menu_item_edit:
                 if (mIsServiceLoading) {
@@ -198,6 +218,8 @@ public class ProfileActivity extends AppCompatActivity
                 mUserType = userType;
             }
 
+            mServiceId = extras.getLong("service_id");
+
             // TODO: Get User object from extras.
         }
 
@@ -211,6 +233,8 @@ public class ProfileActivity extends AppCompatActivity
         mVehicleDetailsLayout = findViewById(R.id.vehicle_info_layout);
         mVehicleDetailsTextView = (TextView) findViewById(R.id.vehicle_details_text_view);
 
+        mServiceDetailsLayout = findViewById(R.id.service_info_layout);
+
         setupServiceDetailsFragment();
 
         setupChangesSnackbar();
@@ -222,15 +246,15 @@ public class ProfileActivity extends AppCompatActivity
         // TODO: Remove mock user later.
         switch (mUserType) {
             case USER_SERVICE_PROVIDER:
-                // Hide vehicle details layout since it's irrelevant.
+                // Hide vehicle details layout since it's visible by default.
                 mVehicleDetailsLayout.setVisibility(View.GONE);
                 findViewById(R.id.update_button).setVisibility(View.GONE);
+                // Show the service details layout since it's hidden by default.
+                mServiceDetailsLayout.setVisibility(View.VISIBLE);
 
                 // Mock details
                 ProviderUser providerUser = new ProviderUser(mUser);
 
-                // Load user's service details from the server.
-                mServiceId = 1;
                 loadServiceDetails();
 
                 mUser = providerUser;
@@ -243,11 +267,7 @@ public class ProfileActivity extends AppCompatActivity
             case USER_CLIENT:
                 // FALLTHROUGH
             default:
-                // Hide service details layout since it's irrelevant
-                View rootView = mServiceDetailsFragment.getView();
-                if (rootView != null) {
-                    rootView.setVisibility(View.GONE);
-                }
+                // Service details is hidden by default.
 
                 // Mock details
                 ClientUser clientUser = new ClientUser(mUser);
@@ -361,7 +381,8 @@ public class ProfileActivity extends AppCompatActivity
     }
 
     private void saveChanges() {
-        Log.d("ProfileActivity", "saveChanges :: called");
+        mChangesMade = true;
+
         mUser.setName(mNameEditText.getText().toString());
         mUser.setEmail(mEmailAddressEditText.getText().toString());
 

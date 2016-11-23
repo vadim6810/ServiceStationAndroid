@@ -111,6 +111,6 @@
     <string name="deadline_with_date">Deadline: %1$s</string>
     <string name="incomplete_fields_message">Please fill all the fields</string>
     <string name="service_details_title">Service Details</string>
-    <string name="loading_progress_title">Loading...</string>
-    <string name="loading_message">Loading... please wait.</string>
+    <string name="loading_progress_title">Loading…</string>
+    <string name="loading_message">Loading… please wait.</string>
 </resources>

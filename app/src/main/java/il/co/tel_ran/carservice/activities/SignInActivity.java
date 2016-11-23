@@ -15,6 +15,7 @@ import android.widget.TextView;
 import java.util.regex.Pattern;
 
 import il.co.tel_ran.carservice.R;
+import il.co.tel_ran.carservice.User;
 
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 
@@ -87,7 +88,24 @@ public class SignInActivity extends AppCompatActivity implements TextView.OnEdit
     }
 
     public void signIn(View view) {
-        if (isEmailValid(mEmailEditText.getText())) {
+        // Temporary: switch to provider main activity
+        Intent providerIntent = new Intent(SignInActivity.this, ProviderMainActivity.class);
+
+        // When sign in is complete, we should retrieve user information from back-end.
+        // In this case we would end up with an instance of ProviderUser, which should contain
+        // service ID.
+        // For now we will use a mock user id to load user's service.
+        providerIntent.putExtra("service_id", 1);
+
+        User mockUser = new User();
+        mockUser.setName("Maxim Glukhov");
+        mockUser.setEmail("maximglukhov@hotmail.com");
+
+        providerIntent.putExtra("user", mockUser);
+
+        startActivity(providerIntent);
+
+        /*if (isEmailValid(mEmailEditText.getText())) {
             mEmailInputLayout.setError(null);
         } else {
             mEmailInputLayout.setError(getString(R.string.user_email_error_message));
@@ -96,7 +114,7 @@ public class SignInActivity extends AppCompatActivity implements TextView.OnEdit
             mPasswordInputLayout.setError(null);
         } else {
             mPasswordInputLayout.setError(getString(R.string.user_password_error_message));
-        }
+        }*/
 
         // TODO: Sign in - send data to back-end and wait for answer.
     }

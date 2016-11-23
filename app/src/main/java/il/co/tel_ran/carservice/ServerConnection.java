@@ -109,6 +109,10 @@ public class ServerConnection {
             String jsonFile = httpHandler.makeServiceCall(SERVICES_URL);
 
             List<ServiceSearchResult> searchResults = new ArrayList<>();
+
+            if (jsonFile == null || jsonFile.isEmpty())
+                return searchResults;
+
             try {
                 JSONObject servicesJSONObject = new JSONObject(jsonFile);
                 JSONArray servicesJSONArray = servicesJSONObject.getJSONArray("services");

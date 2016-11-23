@@ -61,7 +61,7 @@ public class ClientMainActivity extends AppCompatActivity implements GoogleApiCl
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.client_main_activity_menu, menu);
+        getMenuInflater().inflate(R.menu.main_activity_menu, menu);
         return true;
     }
 
@@ -72,8 +72,7 @@ public class ClientMainActivity extends AppCompatActivity implements GoogleApiCl
                 // TODO: Add check for user signed-in
                 Intent intent = new Intent(ClientMainActivity.this, ProfileActivity.class);
                 // Since we are in ClientMainActivity the user type is a client.
-//                intent.putExtra("user_type", UserType.USER_CLIENT);
-                intent.putExtra("user_type", UserType.USER_SERVICE_PROVIDER);
+                intent.putExtra("user_type", UserType.USER_CLIENT);
                 startActivity(intent);
                 break;
             case R.id.menu_item_about:
@@ -97,6 +96,9 @@ public class ClientMainActivity extends AppCompatActivity implements GoogleApiCl
     }
 
     public GoogleApiClient getGoogleApiClient() {
+        if (mGoogleApiClient != null && !mGoogleApiClient.isConnected())
+            mGoogleApiClient.reconnect();
+
         return mGoogleApiClient;
     }
 
