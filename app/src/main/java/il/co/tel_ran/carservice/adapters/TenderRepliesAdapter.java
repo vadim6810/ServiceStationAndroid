@@ -55,24 +55,15 @@ public class TenderRepliesAdapter
 
     @Override
     public void onClick(View v) {
-        View clickedParent = null;
-        ViewParent parent = v.getParent();
-        if (parent != null) {
-            try {
-                clickedParent = (View) parent;
-            } catch (ClassCastException e) {
-                e.printStackTrace();
+        if (mListener != null) {
+            switch (v.getId()) {
+                case R.id.tender_reply_details_layout:
+                    mListener.onClickTenderReply(v);
+                    break;
+                case R.id.remove_tender_reply_button:
+                    mListener.onDeleteTenderReply(v);
+                    break;
             }
-        }
-        switch (v.getId()) {
-            case R.id.tender_reply_details_layout:
-                if (clickedParent != null)
-                    mListener.onClickTenderReply(clickedParent);
-                break;
-            case R.id.remove_tender_reply_button:
-                if (clickedParent != null)
-                    mListener.onDeleteTenderReply(clickedParent);
-                break;
         }
     }
 

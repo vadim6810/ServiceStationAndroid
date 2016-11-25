@@ -226,8 +226,9 @@ public class RequestServiceTabFragment extends Fragment
         TenderRepliesAdapter repliesAdapter = (TenderRepliesAdapter) mTenderRepliesRecyclerView
                 .getAdapter();
 
+        View parent = mTenderRepliesRecyclerView.findContainingItemView(view);
         // Find the position in the adapter for this view.
-        int itemPos = mTenderRepliesRecyclerView.getChildAdapterPosition((View) view.getParent());
+        int itemPos = mTenderRepliesRecyclerView.getChildAdapterPosition(parent);
         // Get the result object for this position.
         final TenderReply tenderReply = repliesAdapter.getItem(itemPos);
         ServiceStation serviceStation = tenderReply.getReplyingService();
@@ -253,9 +254,10 @@ public class RequestServiceTabFragment extends Fragment
         TenderRepliesAdapter repliesAdapter = (TenderRepliesAdapter) mTenderRepliesRecyclerView
                 .getAdapter();
 
+        View parent = mTenderRepliesRecyclerView.findContainingItemView(view);
         // Find the position in the adapter for this view.
-        // We call .getParent on the parent of the original clicked view - this is because of a deeper hierachy.
-        int itemPos = mTenderRepliesRecyclerView.getChildAdapterPosition((View) (view.getParent().getParent()));
+        int itemPos = mTenderRepliesRecyclerView.getChildAdapterPosition(parent);
+
         repliesAdapter.removeItem(itemPos);
     }
 
