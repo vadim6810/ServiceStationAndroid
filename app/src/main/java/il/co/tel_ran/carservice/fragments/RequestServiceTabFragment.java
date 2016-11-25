@@ -83,6 +83,8 @@ public class RequestServiceTabFragment extends Fragment
             mMainLayout = inflater.inflate(R.layout.fragment_tab_request_service, container, false);
 
             mTenderRequestCard = mMainLayout.findViewById(R.id.active_tender_request_card);
+            mTenderRequestCard.setVisibility(View.GONE);
+
             mTenderRequestLayout = mMainLayout.findViewById(R.id.active_tender_request_layout);
             mTenderRequestDetailsLayout = mMainLayout.findViewById(R.id.active_tender_request_details_layout);
             mTenderRequestDetailsLayout.setOnClickListener(this);
