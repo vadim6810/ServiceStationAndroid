@@ -241,10 +241,13 @@ public class Utils {
     }
 
     public static String getFormattedDate(Context context, int year, int month, int day) {
+        return getFormattedDate(android.text.format.DateFormat
+                .getDateFormat(context), year, month, day);
+    }
+
+    public static String getFormattedDate(DateFormat dateFormat, int year, int month, int day) {
         Calendar calendar = Calendar.getInstance();
         calendar.set(year, month, day);
-        DateFormat dateFormat = android.text.format.DateFormat
-                .getDateFormat(context);
 
         return dateFormat.format(calendar.getTime());
     }
