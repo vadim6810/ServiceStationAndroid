@@ -1,22 +1,32 @@
 package il.co.tel_ran.carservice.activities;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.NavigationView;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.AppCompatRatingBar;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.Places;
 
 import java.util.List;
+import java.util.Locale;
 
+import il.co.tel_ran.carservice.LoadPlacePhotoTask;
 import il.co.tel_ran.carservice.ProviderUser;
 import il.co.tel_ran.carservice.R;
 import il.co.tel_ran.carservice.ServerConnection;
@@ -28,7 +38,7 @@ import il.co.tel_ran.carservice.UserType;
 
 public class ProviderMainActivity extends AppCompatActivity
         implements ServerConnection.OnServicesRetrievedListener,
-        GoogleApiClient.OnConnectionFailedListener {
+        GoogleApiClient.OnConnectionFailedListener, NavigationView.OnNavigationItemSelectedListener {
 
     private static final int REQUEST_CODE_PROFILE_CHANGED = 1;
 
@@ -38,7 +48,17 @@ public class ProviderMainActivity extends AppCompatActivity
 
     ProviderUser mUser;
 
+    private Toolbar mToolbar;
     private ActionBar mActionBar;
+
+    private DrawerLayout mDrawerLayout;
+    private ImageView mDrawerServicePhotoImageView;
+    private TextView mDrawerServiceNameTextView;
+    private NavigationView mNavigationView;
+    private AppCompatRatingBar mDrawerServiceRatingBar;
+    private TextView mDrawerRatingCountTextView;
+
+    private View mContentFrameLayout;
 
     /*
      * ServerConnection.OnServicesRetrievedListener
@@ -46,10 +66,14 @@ public class ProviderMainActivity extends AppCompatActivity
 
     @Override
     public void onServicesRetrievingStarted() {
-        Log.d("PMA", "onServicesRetrievingStarted :: called.");
+
         mIsLoadingService = true;
         if (mActionBar != null) {
             mActionBar.setTitle(R.string.loading_progress_title);
+        }
+
+        if (mDrawerServiceNameTextView != null) {
+            mDrawerServiceNameTextView.setText(R.string.loading_progress_title);
         }
     }
 
@@ -62,13 +86,8 @@ public class ProviderMainActivity extends AppCompatActivity
             loadedService = searchResult.getSerivce();
             // Check if this result is our service
             if (loadedService.getID() == mUser.getService().getID()) {
-                Log.d("PMA", "onServicesRetrieved :: found service id match: loadedId=" + loadedService.getID() + " userServiceId=" + mUser.getService().getID());
-                if (mActionBar != null) {
-                    // Update action bar title to display service's name
-                    mActionBar.setTitle(loadedService.getName());
-                }
                 mUser.setService(loadedService);
-
+                updateLayout();
                 break;
             }
         }
@@ -87,6 +106,31 @@ public class ProviderMainActivity extends AppCompatActivity
 
     }
 
+    /*
+     * NavigationView.OnNavigationItemSelectedListener
+     */
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.drawer_menu_item_profile:
+                startProfileActivity();
+
+                // Return false because we don't want to display the item as selected item.
+                // That's because we are launching a different activity rather than updating a fragment.
+                return false;
+            case R.id.drawer_menu_item_inbox:
+                break;
+            case R.id.drawer_menu_item_notifications:
+                break;
+            case R.id.drawer_menu_item_tender_requests:
+                break;
+            default:
+                return false;
+        }
+        return true;
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main_activity_menu, menu);
@@ -100,20 +144,7 @@ public class ProviderMainActivity extends AppCompatActivity
                 super.onBackPressed();
                 return true;
             case R.id.menu_item_profile:
-                if (mIsLoadingService) {
-                    Toast.makeText(
-                            ProviderMainActivity.this, R.string.loading_message, Toast.LENGTH_SHORT)
-                            .show();
-
-                    return true;
-                }
-                // TODO: Add check for user signed-in
-                Intent intent = new Intent(ProviderMainActivity.this, ProfileActivity.class);
-                // Since we are in ClientMainActivity the user type is a client.
-                intent.putExtra("user_type", UserType.USER_SERVICE_PROVIDER);
-                // Pass user's service id
-                intent.putExtra("service_id", mUser.getService().getID());
-                startActivityForResult(intent, REQUEST_CODE_PROFILE_CHANGED);
+                startProfileActivity();
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -145,9 +176,12 @@ public class ProviderMainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_provider_main);
 
+        setupGoogleApiClient();
+
         setupActionBar();
 
-        setupGoogleApiClient();
+        setupDrawerLayout();
+        setupDrawerHeader();
 
         mServerConnection = new ServerConnection();
 
@@ -172,6 +206,8 @@ public class ProviderMainActivity extends AppCompatActivity
             // Exit this activity.
             finish();
         }
+
+        mContentFrameLayout = findViewById(R.id.frame);
     }
 
     private void setupGoogleApiClient() {
@@ -188,8 +224,8 @@ public class ProviderMainActivity extends AppCompatActivity
     }
 
     private void setupActionBar() {
-        Toolbar toolbar = (Toolbar) findViewById(R.id.actionBar);
-        setSupportActionBar(toolbar);
+        mToolbar = (Toolbar) findViewById(R.id.actionBar);
+        setSupportActionBar(mToolbar);
 
         mActionBar = getSupportActionBar();
         if (mActionBar != null) {
@@ -197,5 +233,95 @@ public class ProviderMainActivity extends AppCompatActivity
             mActionBar.setHomeButtonEnabled(true);
             mActionBar.setTitle(getString(R.string.app_name));
         }
+    }
+
+    private void setupDrawerLayout() {
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.activity_provider_drawer_layout);
+
+        ActionBarDrawerToggle actionBarDrawerToggle = new ActionBarDrawerToggle(
+                ProviderMainActivity.this, mDrawerLayout, mToolbar,
+                R.string.open_drawer, R.string.close_drawer);
+
+        mDrawerLayout.addDrawerListener(actionBarDrawerToggle);
+        // Make navigation drawer icon sync animation with the navigation drawer.
+        actionBarDrawerToggle.syncState();
+
+        mNavigationView = (NavigationView) findViewById(R.id.provider_navigation_view);
+        mNavigationView.setNavigationItemSelectedListener(this);
+    }
+
+    private void setupDrawerHeader() {
+        View headerView = mNavigationView.getHeaderView(0);
+        mDrawerServicePhotoImageView = (ImageView) headerView.findViewById(R.id.service_details_photo);
+        mDrawerServiceNameTextView = (TextView) headerView.findViewById(R.id.service_name_text_view);
+        mDrawerServiceRatingBar = (AppCompatRatingBar) headerView.findViewById(R.id.service_rating_bar);
+        mDrawerRatingCountTextView = (TextView) headerView.findViewById(R.id.rating_submit_count_text_view);
+    }
+
+    private void updateLayout() {
+        if (mUser == null)
+            return;
+
+        ServiceStation userService = mUser.getService();
+        if (userService == null)
+            return;
+
+        if (mActionBar != null) {
+            // Update action bar title to display service's name
+            mActionBar.setTitle(userService.getName());
+        }
+
+        Place location = userService.getLocation();
+        if (mDrawerServicePhotoImageView != null && location != null) {
+            mDrawerServicePhotoImageView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+            // Update service photo in drawer layout
+            // Get photo for this Google Maps address to display.
+            new LoadPlacePhotoTask(mGoogleApiClient,
+                    mDrawerServicePhotoImageView.getMeasuredWidth(),
+                    mDrawerServicePhotoImageView.getMeasuredHeight()) {
+
+                @Override
+                protected void onPostExecute(Bitmap bitmapPhoto) {
+                    if (bitmapPhoto != null) {
+                        // Photo has been loaded, display it.
+                        mDrawerServicePhotoImageView.setImageBitmap(bitmapPhoto);
+
+                    }
+                }
+            }.execute(location.getId());
+        }
+
+        if (mDrawerServiceNameTextView != null) {
+            // Update service name title in drawer layout
+            mDrawerServiceNameTextView.setText(userService.getName());
+        }
+
+        if (mDrawerServiceRatingBar != null) {
+            // Update rating stars.
+            mDrawerServiceRatingBar.setRating(userService.getAvgRating());
+        }
+
+        if (mDrawerRatingCountTextView != null) {
+            // Update rating submitted count.
+            mDrawerRatingCountTextView.setText(String.format(Locale.getDefault(),
+                    "(%d)", userService.getSubmittedRatings()));
+        }
+    }
+
+    private void startProfileActivity() {
+        if (mIsLoadingService) {
+            Toast.makeText(
+                    ProviderMainActivity.this, R.string.loading_message, Toast.LENGTH_SHORT)
+                    .show();
+
+            return;
+        }
+        // TODO: Add check for user signed-in
+        Intent intent = new Intent(ProviderMainActivity.this, ProfileActivity.class);
+        // Since we are in ClientMainActivity the user type is a client.
+        intent.putExtra("user_type", UserType.USER_SERVICE_PROVIDER);
+        // Pass user's service id
+        intent.putExtra("service_id", mUser.getService().getID());
+        startActivityForResult(intent, REQUEST_CODE_PROFILE_CHANGED);
     }
 }
