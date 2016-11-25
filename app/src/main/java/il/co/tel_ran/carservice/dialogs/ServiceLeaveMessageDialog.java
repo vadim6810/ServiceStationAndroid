@@ -20,6 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 
+import il.co.tel_ran.carservice.MaxLengthTextWatcher;
 import il.co.tel_ran.carservice.R;
 import il.co.tel_ran.carservice.ServiceSearchResult;
 
@@ -64,7 +65,11 @@ public class ServiceLeaveMessageDialog extends DialogFragment
         mLeaveMessageEditText = (EditText) layout.findViewById(
                 R.id.leave_message_edit_text);
         // Add TextWatcher to validate user's input.
-        mLeaveMessageEditText.addTextChangedListener(new MessageTextWatcher());
+        mLeaveMessageEditText.addTextChangedListener(new MaxLengthTextWatcher(MAX_MESSAGE_LENGTH,
+                mLeaveMessageInputLayout, mLeaveMessageEditText,
+                getString(R.string.leave_message_empty_error),
+                getString(R.string.leave_message_too_long, MAX_MESSAGE_LENGTH),
+                ContextCompat.getColor(getContext(), R.color.colorSecondaryText)));
 
         return layout;
     }
@@ -150,72 +155,5 @@ public class ServiceLeaveMessageDialog extends DialogFragment
     private boolean isMessageValid(CharSequence message) {
         int length = message.length();
         return length > 0 && length <= MAX_MESSAGE_LENGTH;
-    }
-
-    private class MessageTextWatcher implements TextWatcher {
-        private int mLastLength;
-
-        private boolean mSpanSet = false;
-        @Override
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-        }
-
-        @Override
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
-        }
-
-        @Override
-        public void afterTextChanged(Editable s) {
-            int length = s.length();
-
-            // Make sure we don't get stuck in an infinite loop.
-            if (mLastLength == length)
-                return;
-            mLastLength = length;
-
-            Context context = getContext();
-
-            if (length == 0) {
-                // User has to type at least something
-                mLeaveMessageInputLayout.setError(context.getString(R.string.leave_message_empty_error));
-            }
-
-            // Notify the user that he has exceeded the allowed character count.
-            if (length > MAX_MESSAGE_LENGTH) {
-                // Apply span if we haven't already.
-                if (!mSpanSet) {
-                    SpannableStringBuilder spannableStringBuilder = new SpannableStringBuilder(
-                            s);
-                    // Color the exceeding characters to let the user know which characters are exceeding.
-                    spannableStringBuilder.setSpan(new ForegroundColorSpan(ContextCompat.getColor(
-                            context, R.color.colorSecondaryText)),
-                            MAX_MESSAGE_LENGTH, length,
-                            Spanned.SPAN_EXCLUSIVE_INCLUSIVE);
-                    // Apply the spanned text.
-                    mLeaveMessageEditText.setText(spannableStringBuilder);
-                    // Move the cursor back to the end of the text.
-                    mLeaveMessageEditText.setSelection(length);
-                    mSpanSet = true;
-                }
-                // Show the error message.
-                if (mLeaveMessageInputLayout.getError() == null) {
-                    mLeaveMessageInputLayout.setError(context.getString(R.string.leave_message_too_long,
-                            MAX_MESSAGE_LENGTH));
-                }
-            } else {
-                // Make sure we don't accidentally remove the previous error message if the length is still at 0.
-                if (length > 0)
-                    mLeaveMessageInputLayout.setError(null);
-
-                // Remove spans because the length is no longer exceeding the maximum amount of allowed characters.
-                if (mSpanSet) {
-                    ForegroundColorSpan[] spans = s.getSpans(0, length,
-                            ForegroundColorSpan.class);
-                    if (spans.length > 0)
-                        s.removeSpan(spans[0]);
-                }
-                mSpanSet = false;
-            }
-        }
     }
 }
