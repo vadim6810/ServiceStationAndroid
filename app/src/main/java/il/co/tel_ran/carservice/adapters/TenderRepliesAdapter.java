@@ -105,7 +105,7 @@ public class TenderRepliesAdapter
 
                 holder.messageTextView.setText(reply.getReplyMessage());
                 holder.ratingBar.setRating(replyingService.getAvgRating());
-                //holder.ratingCountTextView.setText('(' + replyingService.getSubmittedRatings() + ')');
+                holder.ratingCountTextView.setText('(' + String.valueOf(replyingService.getSubmittedRatings()) + ')');
                 holder.locationTextView.setText(replyingService.getLocation().getAddress());
             }
         }
