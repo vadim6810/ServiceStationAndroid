@@ -24,12 +24,16 @@ public class ServerConnection {
     private FindServicesTask mFindServicesTask;
 
     private GetTenderRepliesTask mGetTenderRepliesTask;
+    
+    private GetTenderRequestsTask mGetTenderRequestsTask;
 
 //    private static final String SERVICES_URL = "https://api.myjson.com/bins/2545c";
     private static final String SERVICES_URL = "https://jsonblob.com/api/jsonBlob/58313b84e4b0a828bd27ae30";
 
 //    private static final String RESPOND_SERVICES_URL = "https://api.myjson.com/bins/5apnk";
     private static final String RESPOND_SERVICES_URL = "https://jsonblob.com/api/jsonBlob/58313c83e4b0a828bd27ae5d";
+
+    private static final String REQUEST_TENDER_URL = "https://jsonblob.com/api/jsonBlob/8d29361b-b3cb-11e6-871b-771d67f790ab";
 
     public interface OnServicesRetrievedListener {
         void onServicesRetrievingStarted();
@@ -39,6 +43,11 @@ public class ServerConnection {
     public interface OnTenderRepliesRetrievedListener {
         void onTenderRepliesRetrievingStarted();
         void onTenderRepliesRetrieved(List<TenderReply> tenderReplies);
+    }
+    
+    public interface OnTenderRequestsRetrievedListener {
+        void onTenderRequestRetrievingStarted();
+        void onTenderRequestRetrieved(List<TenderRequest> tenderRequests);
     }
 
     public void findServices(ServiceSearchQuery searchQuery, GoogleApiClient googleApiClient,
@@ -76,6 +85,14 @@ public class ServerConnection {
         }
     }
 
+    // TODO: when back-end available add id/user parameter to fetch existing requests for users
+    // TODO: when back-end available add service id parameter to update layout & communication for providers.
+    public void getTenderRequests(OnTenderRequestsRetrievedListener listener) {
+        cancelGetTenderRequestsTask();
+        mGetTenderRequestsTask = new GetTenderRequestsTask(listener);
+        mGetTenderRequestsTask.execute();
+    }
+
     public void cancelServiceSearchTask() {
         if (mFindServicesTask != null && mFindServicesTask.getStatus() == AsyncTask.Status.RUNNING)
             mFindServicesTask.cancel(true);
@@ -86,10 +103,17 @@ public class ServerConnection {
                 == AsyncTask.Status.RUNNING)
             mGetTenderRepliesTask.cancel(true);
     }
+    
+    public void cancelGetTenderRequestsTask() {
+        if (mGetTenderRequestsTask != null && mGetTenderRequestsTask.getStatus()
+                == AsyncTask.Status.RUNNING)
+            mGetTenderRequestsTask.cancel(true);
+    }
 
     public void cancelAllTasks() {
         cancelServiceSearchTask();
         cancelGetTenderRepliesTask();
+        cancelGetTenderRequestsTask();
     }
 
     private class FindServicesTask extends AsyncTask<ServiceSearchQuery, Integer, ServiceSearchResult> {
@@ -238,6 +262,92 @@ public class ServerConnection {
             super.onPostExecute(tenderReplies);
             if (mListener != null)
                 mListener.onTenderRepliesRetrieved(tenderReplies);
+        }
+    }
+    
+    private class GetTenderRequestsTask extends AsyncTask<Void, Void, List<TenderRequest>> {
+        
+        private OnTenderRequestsRetrievedListener mListener;
+        
+        public GetTenderRequestsTask(OnTenderRequestsRetrievedListener listener) {
+            mListener = listener;
+        }
+
+        @Override
+        protected List<TenderRequest> doInBackground(Void... params) {
+            HttpHandler httpHandler = new HttpHandler();
+            // Get JSON file from server
+            String jsonFile = httpHandler.makeServiceCall(REQUEST_TENDER_URL);
+
+            List<TenderRequest> tenderRequests = new ArrayList<>();
+            try {
+                JSONObject requestsJSONObject = new JSONObject(jsonFile);
+                JSONArray requestsJSONArray = requestsJSONObject.getJSONArray("requests");
+
+                if (requestsJSONArray != null) {
+                    for (int i = 0; i < requestsJSONArray.length(); i++) {
+                        // Periodically check if the task was canceled.
+                        if (isCancelled())
+                            break;
+
+                        JSONObject object = requestsJSONArray.getJSONObject(i);
+
+                        // Get request data.
+                        long id = object.getLong("id");
+                        int statusInt = object.getInt("status");
+                        String location = object.getString("location");
+                        String placeId = object.getString("placeId");
+                        String services = object.getString("services");
+                        String vehicleMake = object.getString("vehicleMake");
+                        String vehicleModel = object.getString("vehicleModel");
+                        int vehicleYear = object.getInt("vehicleYear");
+                        String vehicleModifications = object.getString("vehicleModifications");
+                        long submitTimeStamp = object.getLong("submitTimeStamp");
+                        long updateTimeStamp = object.getLong("updateTimeStamp");
+                        int deadlineYear = object.getInt("deadlineYear");
+                        int deadlineMonth = object.getInt("deadlineMonth");
+                        int deadlineDay = object.getInt("deadlineDay");
+
+                        VehicleData vehicleData = new VehicleData();
+                        vehicleData.setVehicleMake(vehicleMake);
+                        vehicleData.setVehicleModel(vehicleModel);
+                        vehicleData.setVehicleYear(vehicleYear);
+                        vehicleData.setVehicleModifications(vehicleModifications);
+
+                        TenderRequest request = new TenderRequest();
+                        request.setLocation(location);
+                        request.setPlaceID(placeId);
+                        request.setVehicleData(vehicleData);
+                        request.setServices(services);
+                        request.setDeadlineDate(deadlineDay, deadlineMonth, deadlineYear);
+                        request.setStatus(statusInt == 0 ? TenderRequest.Status.CLOSED
+                                : statusInt == 1 ? TenderRequest.Status.OPENED : TenderRequest.Status.RESOLVED);
+                        request.setSubmitTimestamp(submitTimeStamp);
+                        request.setUpdateTimestamp(updateTimeStamp);
+
+                        tenderRequests.add(request);
+
+                    }
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            return tenderRequests;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            if (mListener != null)
+                mListener.onTenderRequestRetrievingStarted();
+        }
+
+        @Override
+        protected void onPostExecute(List<TenderRequest> tenderRequests) {
+            super.onPostExecute(tenderRequests);
+            if (mListener != null)
+                mListener.onTenderRequestRetrieved(tenderRequests);
         }
     }
 

@@ -5,7 +5,11 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
@@ -35,10 +39,13 @@ import il.co.tel_ran.carservice.ServiceSearchResult;
 import il.co.tel_ran.carservice.ServiceStation;
 import il.co.tel_ran.carservice.User;
 import il.co.tel_ran.carservice.UserType;
+import il.co.tel_ran.carservice.fragments.RefreshingFragment;
+import il.co.tel_ran.carservice.fragments.TenderRequestsFragment;
 
 public class ProviderMainActivity extends AppCompatActivity
         implements ServerConnection.OnServicesRetrievedListener,
-        GoogleApiClient.OnConnectionFailedListener, NavigationView.OnNavigationItemSelectedListener {
+        GoogleApiClient.OnConnectionFailedListener, NavigationView.OnNavigationItemSelectedListener,
+        SwipeRefreshLayout.OnRefreshListener, RefreshingFragment.RefreshingFragmentListener {
 
     private static final int REQUEST_CODE_PROFILE_CHANGED = 1;
 
@@ -51,14 +58,17 @@ public class ProviderMainActivity extends AppCompatActivity
     private Toolbar mToolbar;
     private ActionBar mActionBar;
 
+    private SwipeRefreshLayout mSwipeRefreshLayout;
+
     private DrawerLayout mDrawerLayout;
+    private int mSelectedDrawerItem;
     private ImageView mDrawerServicePhotoImageView;
     private TextView mDrawerServiceNameTextView;
     private NavigationView mNavigationView;
     private AppCompatRatingBar mDrawerServiceRatingBar;
     private TextView mDrawerRatingCountTextView;
 
-    private View mContentFrameLayout;
+    private TenderRequestsFragment mTenderRequestsFragment;
 
     /*
      * ServerConnection.OnServicesRetrievedListener
@@ -112,6 +122,10 @@ public class ProviderMainActivity extends AppCompatActivity
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        // Close opened drawer.
+        mDrawerLayout.closeDrawers();
+
+        Fragment replaceFragment = null;
         switch (item.getItemId()) {
             case R.id.drawer_menu_item_profile:
                 startProfileActivity();
@@ -124,9 +138,24 @@ public class ProviderMainActivity extends AppCompatActivity
             case R.id.drawer_menu_item_notifications:
                 break;
             case R.id.drawer_menu_item_tender_requests:
+                if (mTenderRequestsFragment == null) {
+                    mTenderRequestsFragment = new TenderRequestsFragment();
+                    mTenderRequestsFragment.setOnRefreshEndListener(this);
+                }
+                replaceFragment = mTenderRequestsFragment;
                 break;
             default:
                 return false;
+        }
+
+        mSelectedDrawerItem = item.getItemId();
+
+        if (replaceFragment != null) {
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            // Replace the current fragment with one corresponding to the selected item.
+            fragmentTransaction.replace(R.id.frame, replaceFragment);
+            fragmentTransaction.commit();
         }
         return true;
     }
@@ -146,8 +175,46 @@ public class ProviderMainActivity extends AppCompatActivity
             case R.id.menu_item_profile:
                 startProfileActivity();
                 return true;
+            case R.id.menu_item_refresh:
+                // Toggle refresh indicator
+                mSwipeRefreshLayout.setRefreshing(true);
+                // Start refreshing
+                onRefresh();
+                return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public ServerConnection getServerConnection() {
+        return mServerConnection;
+    }
+
+    /*
+     * SwipeRefreshLayout.OnRefreshListener
+     */
+
+    @Override
+    public void onRefresh() {
+        switch (mSelectedDrawerItem) {
+            case R.id.drawer_menu_item_inbox:
+                break;
+            case R.id.drawer_menu_item_notifications:
+                break;
+            case R.id.drawer_menu_item_tender_requests:
+                if (mTenderRequestsFragment != null) {
+                    mTenderRequestsFragment.onRefreshStart();
+                }
+                break;
+        }
+    }
+
+    /*
+     * RefreshingFragment.RefreshingFragmentListener
+     */
+
+    @Override
+    public void onRefreshEnd() {
+        mSwipeRefreshLayout.setRefreshing(false);
     }
 
     @Override
@@ -176,6 +243,8 @@ public class ProviderMainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_provider_main);
 
+        setupServerConnection();
+
         setupGoogleApiClient();
 
         setupActionBar();
@@ -183,7 +252,7 @@ public class ProviderMainActivity extends AppCompatActivity
         setupDrawerLayout();
         setupDrawerHeader();
 
-        mServerConnection = new ServerConnection();
+        setupRefreshLayout();
 
         Bundle extras = getIntent().getExtras();
         if (extras != null && !extras.isEmpty()) {
@@ -206,8 +275,15 @@ public class ProviderMainActivity extends AppCompatActivity
             // Exit this activity.
             finish();
         }
+    }
 
-        mContentFrameLayout = findViewById(R.id.frame);
+    private void setupRefreshLayout() {
+        mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
+        mSwipeRefreshLayout.setOnRefreshListener(this);
+    }
+
+    private void setupServerConnection() {
+        mServerConnection = new ServerConnection();
     }
 
     private void setupGoogleApiClient() {
@@ -248,6 +324,12 @@ public class ProviderMainActivity extends AppCompatActivity
 
         mNavigationView = (NavigationView) findViewById(R.id.provider_navigation_view);
         mNavigationView.setNavigationItemSelectedListener(this);
+
+        // Set the default page to show current tender requests
+        MenuItem tenderRequestsMenuItem = mNavigationView.getMenu()
+                .findItem(R.id.drawer_menu_item_tender_requests);
+        this.onNavigationItemSelected(tenderRequestsMenuItem);
+        mNavigationView.setCheckedItem(R.id.drawer_menu_item_tender_requests);
     }
 
     private void setupDrawerHeader() {

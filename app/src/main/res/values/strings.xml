@@ -115,5 +115,8 @@
     <string name="loading_message">Loading… please wait.</string>
     <string name="open_drawer">Open Drawer</string>
     <string name="close_drawer">Close Drawer</string>
+    <string name="reply_title">Reply</string>
+    <string name="tender_request_title">Tender Request</string>
+    <string name="send_title">Send</string>
     <string name="refresh_title">Refresh</string>
 </resources>
