@@ -167,7 +167,8 @@ public class RecentServicesTabFragment extends RefreshingFragment
     @Override
     public void onClickDeleteResult(View view) {
         // Find the position in the adapter for this view.
-        int itemPos = mSearchResultsRecyclerView.getChildAdapterPosition((View) view.getParent());
+        View parent = mSearchResultsRecyclerView.findContainingItemView(view);
+        int itemPos = mSearchResultsRecyclerView.getChildAdapterPosition(parent);
         ServiceSearchResultAdapter adapter = (ServiceSearchResultAdapter) mSearchResultsRecyclerView
                 .getAdapter();
         // Get the result object for this position.
