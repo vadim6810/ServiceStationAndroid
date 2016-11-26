@@ -41,7 +41,7 @@ import il.co.tel_ran.carservice.dialogs.ServiceDetailsDialog;
 /**
  * Created by Max on 16/09/2016.
  */
-public class RequestServiceTabFragment extends Fragment
+public class RequestServiceTabFragment extends RefreshingFragment
         implements View.OnClickListener, TenderRepliesAdapter.TenderReplyClickListener,
         ServerConnection.OnTenderRepliesRetrievedListener,
         ServiceDetailsDialog.ServiceDetailsDialogListener {
@@ -280,6 +280,22 @@ public class RequestServiceTabFragment extends Fragment
         return 0;
     }
 
+    /*
+     * RefreshingFragment.onRefreshStart
+     */
+
+    @Override
+    public void onRefreshStart() {
+        super.onRefreshStart();
+
+        // Make sure we only request for replies once we show the active request (meaning the user has posted a request)
+        if (mTenderRequestCard.getVisibility() == View.VISIBLE) {
+            getTenderReplies();
+        } else {
+            onRefreshEnd();
+        }
+    }
+
     private void setupRecyclerView() {
         mTenderRepliesRecyclerView = (RecyclerView) mMainLayout.findViewById(
                 R.id.tender_replies_recycler_view);
@@ -325,5 +341,7 @@ public class RequestServiceTabFragment extends Fragment
                 }
             }
         }
+
+        onRefreshEnd();
     }
 }

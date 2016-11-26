@@ -1,5 +1,6 @@
 package il.co.tel_ran.carservice.fragments;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -49,7 +50,7 @@ import static android.app.Activity.RESULT_OK;
 /**
  * Created by Max on 16/09/2016.
  */
-public class SearchServiceTabFragment extends Fragment
+public class SearchServiceTabFragment extends RefreshingFragment
     implements View.OnClickListener, ChipView.OnChipDeleteClickListener,
         ServerConnection.OnServicesRetrievedListener,
         ServiceSearchResultAdapter.ServiceSearchResultClickListener,
@@ -85,6 +86,8 @@ public class SearchServiceTabFragment extends Fragment
     private ServiceDetailsDialog serviceDetailsDialog;
 
     private TextView mNoServicesTextView;
+
+    private ServiceSearchQuery mSearchQuery;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -211,7 +214,7 @@ public class SearchServiceTabFragment extends Fragment
                 Utils.collapseView(mSearchFieldsLayout, EXPAND_COLLAPSE_DURATION);
                 Utils.expandView(mExpandFieldsButton, EXPAND_COLLAPSE_DURATION);
 
-                ServiceSearchQuery searchQuery = new ServiceSearchQuery(mLocations);
+                mSearchQuery = new ServiceSearchQuery(mLocations);
                 for (int i = 0; i < SERVICE_CHECKBOX_IDS.length; i++) {
                     // This is a new created object with empty service types (all toggled off).
                     // Therefore only add the checked ones.
@@ -220,31 +223,40 @@ public class SearchServiceTabFragment extends Fragment
 
                     switch (SERVICE_CHECKBOX_IDS[i]) {
                         case R.id.service_checkbox_air_cond:
-                            searchQuery.toggleServiceType(
+                            mSearchQuery.toggleServiceType(
                                     ServiceType.SERVICE_TYPE_AC_REPAIR_REFILL, true);
                             break;
                         case R.id.service_checkbox_car_wash:
-                            searchQuery.toggleServiceType(
+                            mSearchQuery.toggleServiceType(
                                     ServiceType.SERVICE_TYPE_CAR_WASH, true);
                             break;
                         case R.id.service_checkbox_tuning:
-                            searchQuery.toggleServiceType(
+                            mSearchQuery.toggleServiceType(
                                     ServiceType.SERVICE_TYPE_TUNING, true);
                             break;
                         case R.id.service_checkbox_tyre_repair:
-                            searchQuery.toggleServiceType(
+                            mSearchQuery.toggleServiceType(
                                     ServiceType.SERVICE_TYPE_TYRE_REPAIR, true);
                             break;
                     }
                 }
-
-                ServerConnection connection = containerActivity.getServerConnection();
-                if (connection != null) {
-                    connection.findServices(searchQuery, containerActivity.getGoogleApiClient(),
-                            this);
-                }
+                findServices(containerActivity);
                 break;
         }
+    }
+
+    private boolean findServices(ClientMainActivity clientMainActivity) {
+        if (clientMainActivity != null && mSearchQuery != null) {
+            ServerConnection connection = clientMainActivity.getServerConnection();
+            if (connection != null) {
+                connection.findServices(mSearchQuery, clientMainActivity.getGoogleApiClient(),
+                        this);
+            }
+
+            return true;
+        }
+
+        return false;
     }
 
     @Override
@@ -276,6 +288,8 @@ public class SearchServiceTabFragment extends Fragment
         } else {
             mNoServicesTextView.setVisibility(View.VISIBLE);
         }
+
+        onRefreshEnd();
     }
 
     @Override
@@ -319,6 +333,30 @@ public class SearchServiceTabFragment extends Fragment
                     rearrangePlaceChips(layout);
                 }
                 break;
+            }
+        }
+    }
+
+    /*
+     * RefreshingFragment.onRefreshStart
+     */
+
+    @Override
+    public void onRefreshStart() {
+        super.onRefreshStart();
+
+        Activity activity = getActivity();
+        if (activity != null) {
+            try {
+                ClientMainActivity clientActivity = (ClientMainActivity) activity;
+                boolean started = findServices(clientActivity);
+
+                // Make sure the refresh animation is ended if we are not able to search.
+                if (!started) {
+                    onRefreshEnd();
+                }
+            } catch (ClassCastException e) {
+                e.printStackTrace();
             }
         }
     }

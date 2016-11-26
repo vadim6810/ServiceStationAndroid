@@ -32,7 +32,7 @@ import il.co.tel_ran.carservice.dialogs.ServiceDetailsDialog;
 /**
  * Created by Max on 16/09/2016.
  */
-public class RecentServicesTabFragment extends Fragment
+public class RecentServicesTabFragment extends RefreshingFragment
         implements ServerConnection.OnServicesRetrievedListener, ServiceSearchResultAdapter.ServiceSearchResultClickListener {
 
     private Set<Long> mServiceIds = new HashSet<>();
@@ -110,6 +110,8 @@ public class RecentServicesTabFragment extends Fragment
                 return;
             }
         }
+
+        onRefreshEnd();
     }
 
     @Override
@@ -140,6 +142,8 @@ public class RecentServicesTabFragment extends Fragment
         } else {
             mNoServicesTextView.setVisibility(View.GONE);
         }
+
+        onRefreshEnd();
     }
 
     @Override
@@ -175,6 +179,17 @@ public class RecentServicesTabFragment extends Fragment
 
         // Remove the view from the RecyclerView
         adapter.removeItem(itemPos);
+    }
+
+    /*
+     * RefreshingFragment.onRefreshStart
+     */
+
+    @Override
+    public void onRefreshStart() {
+        super.onRefreshStart();
+
+        reloadRecentServices();
     }
 
     private void loadServices() {

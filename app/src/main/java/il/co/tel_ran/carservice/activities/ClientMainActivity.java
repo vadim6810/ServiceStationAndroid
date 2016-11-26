@@ -9,6 +9,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -28,11 +29,13 @@ import il.co.tel_ran.carservice.UserType;
 import il.co.tel_ran.carservice.Utils;
 import il.co.tel_ran.carservice.VehicleData;
 import il.co.tel_ran.carservice.fragments.RecentServicesTabFragment;
+import il.co.tel_ran.carservice.fragments.RefreshingFragment;
 import il.co.tel_ran.carservice.fragments.RequestServiceTabFragment;
 import il.co.tel_ran.carservice.fragments.RetainedFragment;
 import il.co.tel_ran.carservice.fragments.SearchServiceTabFragment;
 
-public class ClientMainActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
+public class ClientMainActivity extends AppCompatActivity
+        implements GoogleApiClient.OnConnectionFailedListener, SwipeRefreshLayout.OnRefreshListener, RefreshingFragment.RefreshingFragmentListener {
 
     public static final int REQUEST_CODE_POST_TENDER = 1;
 
@@ -50,9 +53,12 @@ public class ClientMainActivity extends AppCompatActivity implements GoogleApiCl
     private SearchServiceTabFragment mSearchServiceTabFragment;
     private static final int TAB_FRAGMENT_REQUEST_SERVICES_INDEX = 2;
     private RequestServiceTabFragment mRequestServiceTabFragment;
+    private int mSelectedTabPos = 0;
 
     private Toolbar mToolbar;
     private int mToolbarScrollFlags;
+
+    private SwipeRefreshLayout mSwipeRefreshLayout;
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
@@ -76,6 +82,12 @@ public class ClientMainActivity extends AppCompatActivity implements GoogleApiCl
                 startActivity(intent);
                 break;
             case R.id.menu_item_about:
+                break;
+            case R.id.menu_item_refresh:
+                // Show refreshing animation.
+                mSwipeRefreshLayout.setRefreshing(true);
+                // Start refreshing.
+                onRefresh();
                 break;
             default:
                 return super.onOptionsItemSelected(item);
@@ -154,6 +166,8 @@ public class ClientMainActivity extends AppCompatActivity implements GoogleApiCl
 
         setupActionBar();
         setupTabLayout();
+
+        setupRefreshLayout();
     }
 
     @Override
@@ -179,6 +193,11 @@ public class ClientMainActivity extends AppCompatActivity implements GoogleApiCl
                 break;
         }
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    private void setupRefreshLayout() {
+        mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
+        mSwipeRefreshLayout.setOnRefreshListener(this);
     }
 
     private void setupGoogleApiClient() {
@@ -229,10 +248,12 @@ public class ClientMainActivity extends AppCompatActivity implements GoogleApiCl
                     public void onTabSelected(TabLayout.Tab tab) {
                         super.onTabSelected(tab);
 
+                        mSelectedTabPos = tab.getPosition();
+
                         AppBarLayout.LayoutParams params = (AppBarLayout.LayoutParams) mToolbar
                                 .getLayoutParams();
                         // Check if the tab is "Request ServiceStation" which requires toolbar scrolling to be disabled under certain conditions.
-                        if (tab.getPosition() == 2) {
+                        if (mSelectedTabPos == TAB_FRAGMENT_REQUEST_SERVICES_INDEX) {
                             // Clear scroll flags - makes scrolling disabled.
                             params.setScrollFlags(0);
                         } else {
@@ -240,7 +261,7 @@ public class ClientMainActivity extends AppCompatActivity implements GoogleApiCl
                             params.setScrollFlags(mToolbarScrollFlags);
 
                             // Recent services
-                            if (tab.getPosition() == 0) {
+                            if (mSelectedTabPos == TAB_FRAGMENT_RECENT_SERVICES_INDEX) {
                                 mRecentServicesTabFragment.reloadRecentServices();
                             }
                         }
@@ -249,6 +270,42 @@ public class ClientMainActivity extends AppCompatActivity implements GoogleApiCl
                         mToolbar.requestLayout();
                     }
         });
+    }
+
+    /*
+     * SwipeRefreshLayout.OnRefreshListener
+     */
+
+    @Override
+    public void onRefresh() {
+        switch (mSelectedTabPos) {
+            case TAB_FRAGMENT_RECENT_SERVICES_INDEX:
+                if (mRecentServicesTabFragment != null) {
+                    mRecentServicesTabFragment.onRefreshStart();
+                }
+                break;
+            case TAB_FRAGMENT_SEARCH_SERVICES_INDEX:
+                if (mSearchServiceTabFragment != null) {
+                    mSearchServiceTabFragment.onRefreshStart();
+                }
+                break;
+            case TAB_FRAGMENT_REQUEST_SERVICES_INDEX:
+                if (mRequestServiceTabFragment != null) {
+                    mRequestServiceTabFragment.onRefreshStart();
+                }
+                break;
+        }
+    }
+
+    /*
+     * RefreshingFragment.RefreshingFragmentListener
+     */
+
+    @Override
+    public void onRefreshEnd() {
+
+
+        mSwipeRefreshLayout.setRefreshing(false);
     }
 
     private class TabsPagerAdapter extends FragmentStatePagerAdapter {
@@ -295,11 +352,14 @@ public class ClientMainActivity extends AppCompatActivity implements GoogleApiCl
             case TAB_FRAGMENT_RECENT_SERVICES_INDEX:
                 if (mRecentServicesTabFragment == null) {
                     mRecentServicesTabFragment = new RecentServicesTabFragment();
+                    mRecentServicesTabFragment.setOnRefreshEndListener(this);
                     return true;
                 }
             case TAB_FRAGMENT_SEARCH_SERVICES_INDEX:
                 if (mSearchServiceTabFragment == null) {
                     mSearchServiceTabFragment = new SearchServiceTabFragment();
+
+                    mSearchServiceTabFragment.setOnRefreshEndListener(this);
                     return true;
                 }
             case TAB_FRAGMENT_REQUEST_SERVICES_INDEX:
@@ -318,6 +378,8 @@ public class ClientMainActivity extends AppCompatActivity implements GoogleApiCl
                     mockUser.setVehicleData(mockVehicle);
 
                     mRequestServiceTabFragment.setUserData(mockUser);
+
+                    mRequestServiceTabFragment.setOnRefreshEndListener(this);
                     return true;
                 }
         }
