@@ -23,6 +23,7 @@ import il.co.tel_ran.carservice.R;
 import il.co.tel_ran.carservice.ServerConnection;
 import il.co.tel_ran.carservice.ServiceSearchQuery;
 import il.co.tel_ran.carservice.ServiceSearchResult;
+import il.co.tel_ran.carservice.ServiceStation;
 import il.co.tel_ran.carservice.Utils;
 import il.co.tel_ran.carservice.activities.ClientMainActivity;
 import il.co.tel_ran.carservice.adapters.ServiceSearchResultAdapter;
@@ -117,7 +118,7 @@ public class RecentServicesTabFragment extends Fragment
     }
 
     @Override
-    public void onServicesRetrieved(List<ServiceSearchResult> searchResults) {
+    public void onServicesRetrieved(ServiceSearchResult searchResult) {
         Log.d("RSTF", "onServicesRetrieved :: called");
         ServiceSearchResultAdapter adapter = (ServiceSearchResultAdapter) mSearchResultsRecyclerView
                 .getAdapter();
@@ -125,12 +126,12 @@ public class RecentServicesTabFragment extends Fragment
         adapter.removeAllItems();
 
         boolean anyServices = false;
-        for (ServiceSearchResult result : searchResults) {
+        for (ServiceStation service : searchResult.getSerivces()) {
             // Check if this result is one of user's recent services
-            if (mServiceIds.contains(result.getSerivce().getID())) {
+            if (mServiceIds.contains(service.getID())) {
                 anyServices = true;
                 // Add to recycler view
-                adapter.addItem(result);
+                adapter.addItem(service);
             }
         }
 
@@ -148,7 +149,7 @@ public class RecentServicesTabFragment extends Fragment
         ServiceSearchResultAdapter adapter = (ServiceSearchResultAdapter) mSearchResultsRecyclerView
                 .getAdapter();
         // Get the result object for this position.
-        final ServiceSearchResult searchResult = adapter.getItem(itemPos);
+        final ServiceStation service = adapter.getItem(itemPos);
 
         // Get the services text from the search result view (from the adapter).
         // This is done because the EnumSet<ServiceType> types were already parsed to string.
@@ -156,7 +157,7 @@ public class RecentServicesTabFragment extends Fragment
         CharSequence servicesText = ((TextView)view
                 .findViewById(R.id.result_available_services_text_view)).getText();
 
-        showServiceDetailsDialog(searchResult, servicesText);
+        showServiceDetailsDialog(service, servicesText);
     }
 
     @Override
@@ -166,10 +167,10 @@ public class RecentServicesTabFragment extends Fragment
         ServiceSearchResultAdapter adapter = (ServiceSearchResultAdapter) mSearchResultsRecyclerView
                 .getAdapter();
         // Get the result object for this position.
-        final ServiceSearchResult searchResult = adapter.getItem(itemPos);
+        final ServiceStation service = adapter.getItem(itemPos);
 
         // Remove this service from saved recent services set.
-        mServiceIds.remove(searchResult.getSerivce().getID());
+        mServiceIds.remove(service.getID());
         saveServices();
 
         // Remove the view from the RecyclerView
@@ -223,9 +224,9 @@ public class RecentServicesTabFragment extends Fragment
         }
     }
 
-    private void showServiceDetailsDialog(ServiceSearchResult searchResult,
+    private void showServiceDetailsDialog(ServiceStation service,
                                           CharSequence servicesText) {
-        ServiceDetailsDialog serviceDetailsDialog = ServiceDetailsDialog.getInstance(servicesText, searchResult,
+        ServiceDetailsDialog serviceDetailsDialog = ServiceDetailsDialog.getInstance(servicesText, service,
                 this);
         Utils.showDialogFragment(getFragmentManager(), serviceDetailsDialog,
                 "service_details_dialog");
@@ -237,7 +238,7 @@ public class RecentServicesTabFragment extends Fragment
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         mSearchResultsRecyclerView.setLayoutManager(layoutManager);
         ServiceSearchResultAdapter searchResultAdapter = new ServiceSearchResultAdapter(
-                new ArrayList<ServiceSearchResult>(), getContext(), this, true);
+                new ArrayList<ServiceStation>(), getContext(), this, true);
         mSearchResultsRecyclerView.setAdapter(searchResultAdapter);
 
     }

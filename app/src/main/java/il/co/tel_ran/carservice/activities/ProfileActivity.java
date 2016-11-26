@@ -169,12 +169,12 @@ public class ProfileActivity extends AppCompatActivity
     }
 
     @Override
-    public void onServicesRetrieved(List<ServiceSearchResult> searchResults) {
+    public void onServicesRetrieved(ServiceSearchResult searchResult) {
         mIsServiceLoading = false;
 
         ServiceStation loadedService = null;
-        for (ServiceSearchResult searchResult : searchResults) {
-            loadedService = searchResult.getSerivce();
+        for (ServiceStation service : searchResult.getSerivces()) {
+            loadedService = service;
             if (loadedService.getID() == mServiceId) {
                 break;
             }

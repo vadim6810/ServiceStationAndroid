@@ -36,6 +36,7 @@ import il.co.tel_ran.carservice.R;
 import il.co.tel_ran.carservice.ServerConnection;
 import il.co.tel_ran.carservice.ServiceSearchQuery;
 import il.co.tel_ran.carservice.ServiceSearchResult;
+import il.co.tel_ran.carservice.ServiceStation;
 import il.co.tel_ran.carservice.ServiceType;
 import il.co.tel_ran.carservice.Utils;
 import il.co.tel_ran.carservice.activities.ClientMainActivity;
@@ -248,7 +249,7 @@ public class SearchServiceTabFragment extends Fragment
 
     @Override
     public void onItemClick(DialogFragment dialogFragment, ServiceDetailsDialog.ITEM_TYPE itemType,
-                            ServiceSearchResult result, View view) {
+                            ServiceStation serviceStation, View view) {
     }
 
     @Override
@@ -264,14 +265,14 @@ public class SearchServiceTabFragment extends Fragment
     }
 
     @Override
-    public void onServicesRetrieved(List<ServiceSearchResult> searchResults) {
+    public void onServicesRetrieved(ServiceSearchResult searchResult) {
         mResultsProgressBar.setVisibility(View.GONE);
 
-        if (searchResults != null && !searchResults.isEmpty()) {
+        if (searchResult != null) {
             ServiceSearchResultAdapter adapter = (ServiceSearchResultAdapter) mSearchResultsRecyclerView
                     .getAdapter();
 
-            adapter.addItems(searchResults);
+            adapter.addItems(searchResult.getSerivces());
         } else {
             mNoServicesTextView.setVisibility(View.VISIBLE);
         }
@@ -286,7 +287,7 @@ public class SearchServiceTabFragment extends Fragment
         ServiceSearchResultAdapter adapter = (ServiceSearchResultAdapter) mSearchResultsRecyclerView
                 .getAdapter();
         // Get the result object for this position.
-        final ServiceSearchResult searchResult = adapter.getItem(itemPos);
+        final ServiceStation service = adapter.getItem(itemPos);
 
         // Get the services text from the search result view (from the adapter).
         // This is done because the EnumSet<ServiceType> types were already parsed to string.
@@ -294,7 +295,7 @@ public class SearchServiceTabFragment extends Fragment
         CharSequence servicesText = ((TextView)view
                 .findViewById(R.id.result_available_services_text_view)).getText();
 
-        showServiceDetailsDialog(searchResult, servicesText);
+        showServiceDetailsDialog(service, servicesText);
     }
 
     @Override
@@ -428,13 +429,13 @@ public class SearchServiceTabFragment extends Fragment
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         mSearchResultsRecyclerView.setLayoutManager(layoutManager);
         ServiceSearchResultAdapter searchResultAdapter = new ServiceSearchResultAdapter(
-                new ArrayList<ServiceSearchResult>(), getContext(), this, false);
+                new ArrayList<ServiceStation>(), getContext(), this, false);
         mSearchResultsRecyclerView.setAdapter(searchResultAdapter);
     }
 
-    private void showServiceDetailsDialog(ServiceSearchResult searchResult,
+    private void showServiceDetailsDialog(ServiceStation service,
                                           CharSequence servicesText) {
-        serviceDetailsDialog = ServiceDetailsDialog.getInstance(servicesText, searchResult,
+        serviceDetailsDialog = ServiceDetailsDialog.getInstance(servicesText, service,
                 this);
         showServiceDetailsDialog();
     }

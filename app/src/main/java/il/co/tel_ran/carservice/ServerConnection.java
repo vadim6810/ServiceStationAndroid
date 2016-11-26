@@ -33,7 +33,7 @@ public class ServerConnection {
 
     public interface OnServicesRetrievedListener {
         void onServicesRetrievingStarted();
-        void onServicesRetrieved(List<ServiceSearchResult> searchResults);
+        void onServicesRetrieved(ServiceSearchResult searchResult);
     }
 
     public interface OnTenderRepliesRetrievedListener {
@@ -62,14 +62,15 @@ public class ServerConnection {
                 }
 
                 @Override
-                public void onServicesRetrieved(List<ServiceSearchResult> searchResults) {
-                    ServiceStation[] services = new ServiceStation[searchResults.size()];
-                    for (int i = 0; i < searchResults.size(); i++) {
-                        services[i] = searchResults.get(i).getSerivce();
+                public void onServicesRetrieved(ServiceSearchResult searchResult) {
+                    List<ServiceStation> services = searchResult.getSerivces();
+                    ServiceStation[] servicesArray = new ServiceStation[services.size()];
+                    for (int i = 0; i < services.size(); i++) {
+                        servicesArray[i] = services.get(i);
                     }
 
                     mGetTenderRepliesTask = new GetTenderRepliesTask(listener);
-                    mGetTenderRepliesTask.execute(services);
+                    mGetTenderRepliesTask.execute(servicesArray);
                 }
             });
         }
@@ -91,7 +92,7 @@ public class ServerConnection {
         cancelGetTenderRepliesTask();
     }
 
-    private class FindServicesTask extends AsyncTask<ServiceSearchQuery, Integer, List<ServiceSearchResult>> {
+    private class FindServicesTask extends AsyncTask<ServiceSearchQuery, Integer, ServiceSearchResult> {
 
         private GoogleApiClient mGoogleApiClient;
         private OnServicesRetrievedListener mListener;
@@ -103,15 +104,15 @@ public class ServerConnection {
         }
 
         @Override
-        protected List<ServiceSearchResult> doInBackground(ServiceSearchQuery... params) {
+        protected ServiceSearchResult doInBackground(ServiceSearchQuery... params) {
             HttpHandler httpHandler = new HttpHandler();
             // Get JSON file from server
             String jsonFile = httpHandler.makeServiceCall(SERVICES_URL);
 
-            List<ServiceSearchResult> searchResults = new ArrayList<>();
+            ServiceSearchResult searchResult = new ServiceSearchResult();
 
             if (jsonFile == null || jsonFile.isEmpty())
-                return searchResults;
+                return searchResult;
 
             try {
                 JSONObject servicesJSONObject = new JSONObject(jsonFile);
@@ -152,15 +153,14 @@ public class ServerConnection {
                                 Utils.decodeEnumSet(ServiceType.class, availableServices),
                                 cityName, phoneNumber, email);
                         resultServiceStation.setID(id);
-                        ServiceSearchResult searchResult = new ServiceSearchResult(resultServiceStation);
 
-                        searchResults.add(searchResult);
+                        searchResult.addService(resultServiceStation);
                     }
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            return filterServices(params[0], searchResults);
+            return filterServices(params[0], searchResult);
         }
 
         @Override
@@ -170,9 +170,9 @@ public class ServerConnection {
         }
 
         @Override
-        protected void onPostExecute(List<ServiceSearchResult> serviceSearchResults) {
-            super.onPostExecute(serviceSearchResults);
-            mListener.onServicesRetrieved(serviceSearchResults);
+        protected void onPostExecute(ServiceSearchResult serviceSearchResult) {
+            super.onPostExecute(serviceSearchResult);
+            mListener.onServicesRetrieved(serviceSearchResult);
         }
     }
 
@@ -247,12 +247,11 @@ public class ServerConnection {
     // TODO: Remove when switching to real results.
 
     // Filtering should be done on back-end.
-    private List<ServiceSearchResult> filterServices(ServiceSearchQuery searchQuery,
-                                                     List<ServiceSearchResult> searchResults) {
-        List<ServiceSearchResult> filteredResults = new ArrayList<>();
+    private ServiceSearchResult filterServices(ServiceSearchQuery searchQuery,
+                                                     ServiceSearchResult searchResult) {
+        ServiceSearchResult filteredResult = new ServiceSearchResult();
 
-        for (ServiceSearchResult searchResult : searchResults) {
-            ServiceStation serviceStation = searchResult.getSerivce();
+        for (ServiceStation serviceStation : searchResult.getSerivces()) {
             boolean containsService = false;
 
             if (searchQuery.getAvailableServices().isEmpty()) {
@@ -288,10 +287,10 @@ public class ServerConnection {
             if (!containsLocation)
                 continue;
 
-            filteredResults.add(searchResult);
+            filteredResult.addService(serviceStation);
         }
 
-        return filteredResults;
+        return filteredResult;
     }
 
     /*// TODO: Remove when switching to real results.

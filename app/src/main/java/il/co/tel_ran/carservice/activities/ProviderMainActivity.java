@@ -78,12 +78,12 @@ public class ProviderMainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onServicesRetrieved(List<ServiceSearchResult> searchResults) {
+    public void onServicesRetrieved(ServiceSearchResult searchResult) {
         mIsLoadingService = false;
 
         ServiceStation loadedService = null;
-        for (ServiceSearchResult searchResult : searchResults) {
-            loadedService = searchResult.getSerivce();
+        for (ServiceStation service : searchResult.getSerivces()) {
+            loadedService = service;
             // Check if this result is our service
             if (loadedService.getID() == mUser.getService().getID()) {
                 mUser.setService(loadedService);

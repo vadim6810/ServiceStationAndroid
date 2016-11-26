@@ -11,6 +11,7 @@ import android.widget.RatingBar;
 
 import il.co.tel_ran.carservice.R;
 import il.co.tel_ran.carservice.ServiceSearchResult;
+import il.co.tel_ran.carservice.ServiceStation;
 
 /**
  * Created by Max on 16/10/2016.
@@ -21,16 +22,16 @@ public class ServiceSubmitRatingDialog extends DialogFragment implements
 
     private static SubmitRatingDialogListener mListener;
 
-    private static ServiceSearchResult mSearchResult;
+    private static ServiceStation mServiceStation;
 
     private float mRating;
 
     public interface SubmitRatingDialogListener {
-        void onRatingSubmitted(float rating, ServiceSearchResult searchResult);
+        void onRatingSubmitted(float rating, ServiceStation service);
     }
 
     public static ServiceSubmitRatingDialog getInstance(float rating, SubmitRatingDialogListener
-            listener, ServiceSearchResult result) {
+            listener, ServiceStation service) {
         ServiceSubmitRatingDialog submitRatingDialog = new ServiceSubmitRatingDialog();
 
         Bundle args = new Bundle();
@@ -38,7 +39,7 @@ public class ServiceSubmitRatingDialog extends DialogFragment implements
         submitRatingDialog.setArguments(args);
 
         mListener = listener;
-        mSearchResult = result;
+        mServiceStation = service;
 
         return submitRatingDialog;
     }
@@ -84,7 +85,7 @@ public class ServiceSubmitRatingDialog extends DialogFragment implements
     public void onClick(DialogInterface dialog, int which) {
         switch (which) {
             case DialogInterface.BUTTON_POSITIVE:
-                mListener.onRatingSubmitted(mRating, mSearchResult);
+                mListener.onRatingSubmitted(mRating, mServiceStation);
                 break;
         }
     }

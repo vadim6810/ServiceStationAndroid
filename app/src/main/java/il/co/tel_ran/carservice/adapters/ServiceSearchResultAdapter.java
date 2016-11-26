@@ -31,7 +31,7 @@ public class ServiceSearchResultAdapter
 
     private final boolean mIsRecentServices;
 
-    private List<ServiceSearchResult> mSearchResults = new ArrayList<>();
+    private List<ServiceStation> mSearchResults = new ArrayList<>();
 
     private ServiceSearchResultClickListener mListener;
 
@@ -40,9 +40,9 @@ public class ServiceSearchResultAdapter
         void onClickDeleteResult(View view);
     }
 
-    public ServiceSearchResultAdapter(List<ServiceSearchResult> searchResults, Context context,
+    public ServiceSearchResultAdapter(List<ServiceStation> services, Context context,
                                       ServiceSearchResultClickListener listener, boolean isRecentServices) {
-        mSearchResults = searchResults;
+        mSearchResults = services;
 
         mServiceCarWashStr = context.getString(R.string.required_service_car_wash);
         mServiceTuningStr = context.getString(R.string.required_service_tuning);
@@ -85,8 +85,7 @@ public class ServiceSearchResultAdapter
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        ServiceSearchResult searchResult = mSearchResults.get(position);
-        ServiceStation serviceStation = searchResult.getSerivce();
+        ServiceStation serviceStation = mSearchResults.get(position);
 
         String servicesText = "";
         int count = 0;
@@ -143,21 +142,21 @@ public class ServiceSearchResultAdapter
         }
     }
 
-    public void addItem(ServiceSearchResult searchResult) {
-        addItem(searchResult, true);
+    public void addItem(ServiceStation service) {
+        addItem(service, true);
     }
 
-    public void addItems(ServiceSearchResult... searchResults) {
-        for (ServiceSearchResult result : searchResults) {
-            addItem(result, false);
+    public void addItems(ServiceStation... services) {
+        for (ServiceStation service : services) {
+            addItem(service, false);
         }
 
         notifyDataSetChanged();
     }
 
-    public void addItems(Collection<ServiceSearchResult> searchResults) {
-        for (ServiceSearchResult result : searchResults) {
-            addItem(result, false);
+    public void addItems(Collection<ServiceStation> services) {
+        for (ServiceStation service : services) {
+            addItem(service, false);
         }
 
         notifyDataSetChanged();
@@ -175,7 +174,7 @@ public class ServiceSearchResultAdapter
         }
     }
 
-    public ServiceSearchResult getItem(int position) {
+    public ServiceStation getItem(int position) {
         if (position >= 0 && position < mSearchResults.size()) {
             return mSearchResults.get(position);
         }
@@ -183,9 +182,9 @@ public class ServiceSearchResultAdapter
         return null;
     }
 
-    private void addItem(ServiceSearchResult searchResult, boolean notify) {
-        if (searchResult != null) {
-            mSearchResults.add(searchResult);
+    private void addItem(ServiceStation service, boolean notify) {
+        if (service != null) {
+            mSearchResults.add(service);
 
             if (notify) {
                 notifyDataSetChanged();

@@ -244,7 +244,7 @@ public class RequestServiceTabFragment extends Fragment
         servicesText = servicesText.substring(0, servicesText.length() - 2);
 
         ServiceDetailsDialog serviceDetailsDialog = ServiceDetailsDialog.getInstance(
-                servicesText, new ServiceSearchResult(serviceStation), this);
+                servicesText, serviceStation, this);
         Utils.showDialogFragment(getFragmentManager(), serviceDetailsDialog,
                 "service_details_dialog");
     }
@@ -263,7 +263,7 @@ public class RequestServiceTabFragment extends Fragment
 
     @Override
     public void onItemClick(DialogFragment dialogFragment, ServiceDetailsDialog.ITEM_TYPE itemType,
-                            ServiceSearchResult result, View view) {
+                            ServiceStation sevice, View view) {
 
     }
 

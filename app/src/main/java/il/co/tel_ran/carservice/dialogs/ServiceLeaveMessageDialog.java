@@ -1,7 +1,6 @@
 package il.co.tel_ran.carservice.dialogs;
 
 import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -10,11 +9,6 @@ import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
-import android.text.Editable;
-import android.text.SpannableStringBuilder;
-import android.text.Spanned;
-import android.text.TextWatcher;
-import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,6 +17,7 @@ import android.widget.EditText;
 import il.co.tel_ran.carservice.MaxLengthTextWatcher;
 import il.co.tel_ran.carservice.R;
 import il.co.tel_ran.carservice.ServiceSearchResult;
+import il.co.tel_ran.carservice.ServiceStation;
 
 /**
  * Created by Max on 16/10/2016.
@@ -33,21 +28,21 @@ public class ServiceLeaveMessageDialog extends DialogFragment
 
     private static final int MAX_MESSAGE_LENGTH = 100; // Max message characters.
 
-    private static ServiceSearchResult mSearchResult;
+    private static ServiceStation mServiceStation;
     private static LeaveMessageDialogListener mListener;
 
     private TextInputLayout mLeaveMessageInputLayout;
     private EditText mLeaveMessageEditText;
 
     public interface LeaveMessageDialogListener {
-        void onMessageSubmitted(CharSequence message, ServiceSearchResult searchResult);
+        void onMessageSubmitted(CharSequence message, ServiceStation serviceStation);
     }
 
-    public static ServiceLeaveMessageDialog getInstance(ServiceSearchResult result,
+    public static ServiceLeaveMessageDialog getInstance(ServiceStation service,
                                                         LeaveMessageDialogListener listener) {
         ServiceLeaveMessageDialog leaveMessageDialog = new ServiceLeaveMessageDialog();
 
-        mSearchResult = result;
+        mServiceStation = service;
 
         mListener = listener;
 
@@ -143,7 +138,7 @@ public class ServiceLeaveMessageDialog extends DialogFragment
                 if (mLeaveMessageEditText != null) {
                     CharSequence message = mLeaveMessageEditText.getText();
                     if (mListener != null && isMessageValid(message)) {
-                        mListener.onMessageSubmitted(message, mSearchResult);
+                        mListener.onMessageSubmitted(message, mServiceStation);
                     }
                 }
                 break;

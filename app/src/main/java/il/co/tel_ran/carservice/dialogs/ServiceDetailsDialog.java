@@ -41,7 +41,7 @@ public class ServiceDetailsDialog extends DialogFragment implements View.OnClick
         ServiceLeaveMessageDialog.LeaveMessageDialogListener
 {
 
-    private ServiceSearchResult mSearchResult;
+    private ServiceStation mServiceStation;
     private CharSequence mServicesText;
 
     private Fragment mCallingFragment;
@@ -56,16 +56,16 @@ public class ServiceDetailsDialog extends DialogFragment implements View.OnClick
 
     public interface ServiceDetailsDialogListener {
         void onItemClick(DialogFragment dialogFragment, ITEM_TYPE itemType,
-                         ServiceSearchResult result, View view);
+                         ServiceStation serviceStation, View view);
     }
 
     public static ServiceDetailsDialog getInstance(CharSequence servicesText,
-                                                   ServiceSearchResult serviceSearchResult) {
-        return getInstance(servicesText, serviceSearchResult, null);
+                                                   ServiceStation service) {
+        return getInstance(servicesText, service, null);
     }
 
     public static ServiceDetailsDialog getInstance(CharSequence servicesText,
-                                                   ServiceSearchResult serviceSearchResult,
+                                                   ServiceStation service,
                                                    @Nullable Fragment callingFragment) {
         ServiceDetailsDialog serviceDetailsDialog = new ServiceDetailsDialog();
 
@@ -73,7 +73,7 @@ public class ServiceDetailsDialog extends DialogFragment implements View.OnClick
         args.putCharSequence("services_text", servicesText);
         serviceDetailsDialog.setArguments(args);
 
-        serviceDetailsDialog.setSearchResult(serviceSearchResult);
+        serviceDetailsDialog.setSearchResult(service);
         serviceDetailsDialog.setCallingFragment(callingFragment);
 
         return serviceDetailsDialog;
@@ -89,7 +89,7 @@ public class ServiceDetailsDialog extends DialogFragment implements View.OnClick
                 itemType = ITEM_TYPE.ITEM_FAB;
                 // Open Google Maps with navigation directions.
                 Uri gmmIntentUri = Uri.parse(
-                        "google.navigation:q=" + mSearchResult.getSerivce().getLocation().getAddress());
+                        "google.navigation:q=" + mServiceStation.getLocation().getAddress());
                 Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
                 mapIntent.setPackage("com.google.android.apps.maps");
                 startActivity(mapIntent);
@@ -117,11 +117,11 @@ public class ServiceDetailsDialog extends DialogFragment implements View.OnClick
                 // This dialog was instantiated within a fragment
                 ServiceDetailsDialogListener fragment =
                         (ServiceDetailsDialogListener) mCallingFragment;
-                fragment.onItemClick(this, itemType, mSearchResult, v);
+                fragment.onItemClick(this, itemType, mServiceStation, v);
             } else {
                 // This dialog was instantiated within an activity
                 ServiceDetailsDialogListener activity = (ServiceDetailsDialogListener) getActivity();
-                activity.onItemClick(this, itemType, mSearchResult, v);
+                activity.onItemClick(this, itemType, mServiceStation, v);
             }
         } catch (ClassCastException e) {
             e.printStackTrace();
@@ -146,30 +146,28 @@ public class ServiceDetailsDialog extends DialogFragment implements View.OnClick
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Log.d("RSTF", "onCreateDialog :: called");
-        if (mSearchResult != null) {
-            ServiceStation serviceStation = mSearchResult.getSerivce();
-            if (serviceStation != null) {
-                // Cast the ID to string because SharedPreferences only supports String sets by default.
-                String serviceIdString = String.valueOf(serviceStation.getID());
+        if (mServiceStation != null) {
+            ServiceStation serviceStation = mServiceStation;
+            // Cast the ID to string because SharedPreferences only supports String sets by default.
+            String serviceIdString = String.valueOf(serviceStation.getID());
 
-                Context context = getContext();
-                SharedPreferences sharedPreferences = context
-                        .getSharedPreferences(ClientMainActivity.SHARED_PREFS_RECENT_SERVICES,
-                                Context.MODE_PRIVATE);
+            Context context = getContext();
+            SharedPreferences sharedPreferences = context
+                    .getSharedPreferences(ClientMainActivity.SHARED_PREFS_RECENT_SERVICES,
+                            Context.MODE_PRIVATE);
 
-                // Get current services.
-                Set<String> currentServices = sharedPreferences
-                        .getStringSet("service_set", new HashSet<String>());
+            // Get current services.
+            Set<String> currentServices = sharedPreferences
+                    .getStringSet("service_set", new HashSet<String>());
 
-                // Check if the service is already saved in recent services set.
-                if (!currentServices.contains(serviceIdString)) {
-                    Log.d("RSTF", "onCreateDialog :: updating services");
-                    // Add this service to the current recent services set.
-                    SharedPreferences.Editor editor = sharedPreferences.edit();
-                    currentServices.add(serviceIdString);
-                    editor.putStringSet("service_set", currentServices);
-                    editor.apply();
-                }
+            // Check if the service is already saved in recent services set.
+            if (!currentServices.contains(serviceIdString)) {
+                Log.d("RSTF", "onCreateDialog :: updating services");
+                // Add this service to the current recent services set.
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                currentServices.add(serviceIdString);
+                editor.putStringSet("service_set", currentServices);
+                editor.apply();
             }
         }
 
@@ -181,7 +179,7 @@ public class ServiceDetailsDialog extends DialogFragment implements View.OnClick
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View layout = inflater.inflate(R.layout.service_details_card_layout, null);
 
-        ServiceStation serviceStation = mSearchResult.getSerivce();
+        ServiceStation serviceStation = mServiceStation;
 
         // ImageView for service's photo (based on Google Maps address).
         final ImageView placeImageView = (ImageView) layout
@@ -254,8 +252,8 @@ public class ServiceDetailsDialog extends DialogFragment implements View.OnClick
         return layout;
     }
 
-    public void setSearchResult(ServiceSearchResult result) {
-        mSearchResult = result;
+    public void setSearchResult(ServiceStation service) {
+        mServiceStation = service;
     }
 
     public void setCallingFragment(Fragment fragment) {
@@ -271,18 +269,18 @@ public class ServiceDetailsDialog extends DialogFragment implements View.OnClick
     }
 
     @Override
-    public void onRatingSubmitted(float rating, ServiceSearchResult searchResult) {
+    public void onRatingSubmitted(float rating, ServiceStation serviceStation) {
         // TODO: send new rating to back-end (update if exists, add if not)
         // TODO: update the search result rating card (after back-end receives update)
     }
 
     @Override
-    public void onMessageSubmitted(CharSequence message, ServiceSearchResult searchResult) {
+    public void onMessageSubmitted(CharSequence message, ServiceStation serviceStation) {
         // TODO: send submitted message to back-end
     }
 
     private void showContactDetailsDialog() {
-        ServiceStation serviceStation = mSearchResult.getSerivce();
+        ServiceStation serviceStation = mServiceStation;
         ServiceContactDetailsDialog contactDetailsDialog = ServiceContactDetailsDialog.getInstance(
                 serviceStation.getPhonenumber(), serviceStation.getEmail());
         Utils.showDialogFragment(getFragmentManager(), contactDetailsDialog,
@@ -292,13 +290,13 @@ public class ServiceDetailsDialog extends DialogFragment implements View.OnClick
     private void showSubmitRatingDialog() {
         // TODO: check if user has already submitted rating before, and use it as the current rating.
         ServiceSubmitRatingDialog submitRatingDialog = ServiceSubmitRatingDialog.getInstance(0.0f,
-                this, mSearchResult);
+                this, mServiceStation);
         Utils.showDialogFragment(getFragmentManager(), submitRatingDialog,
                 "submit_rating_dialog");
     }
 
     private void showLeaveMessageDialog() {
-        ServiceLeaveMessageDialog submitRatingDialog = ServiceLeaveMessageDialog.getInstance(mSearchResult,
+        ServiceLeaveMessageDialog submitRatingDialog = ServiceLeaveMessageDialog.getInstance(mServiceStation,
                 this);
         Utils.showDialogFragment(getFragmentManager(), submitRatingDialog,
                 "leave_message_dialog");
