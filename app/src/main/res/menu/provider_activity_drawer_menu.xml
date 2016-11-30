@@ -5,24 +5,17 @@
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/drawer_menu_item_profile"
-            android:orderInCategory="1"
             app:showAsAction="never"
             android:title="@string/menu_item_profile"/>
 
         <item
             android:id="@+id/drawer_menu_item_inbox"
-            android:orderInCategory="2"
-
-        <item
-            android:id="@+id/drawer_menu_item_notifications"
-            android:orderInCategory="2"
-            app:showAsAction="never"
-            android:title="Notifications"/>
+            app:actionLayout="@layout/navigation_item_notification"
+            app:showAsAction="always"
             android:title="@string/inbox_title" />
 
         <item
             android:id="@+id/drawer_menu_item_tender_requests"
-            android:orderInCategory="2"
             app:showAsAction="never"
             android:title="@string/tender_requests_title"/>
 

@@ -49,6 +49,9 @@ public class ProviderMainActivity extends AppCompatActivity
 
     private static final int REQUEST_CODE_PROFILE_CHANGED = 1;
 
+    private static final int DRAWER_MENU_ITEM_PROFILE_INDEX = 0;
+    private static final int DRAWER_MENU_ITEM_INBOX_INDEX = 1;
+
     private ServerConnection mServerConnection;
     private GoogleApiClient mGoogleApiClient;
     private boolean mIsLoadingService;
@@ -67,6 +70,7 @@ public class ProviderMainActivity extends AppCompatActivity
     private NavigationView mNavigationView;
     private AppCompatRatingBar mDrawerServiceRatingBar;
     private TextView mDrawerRatingCountTextView;
+    private TextView mInboxItemTitleTextView;
 
     private TenderRequestsFragment mTenderRequestsFragment;
 
@@ -135,8 +139,6 @@ public class ProviderMainActivity extends AppCompatActivity
                 return false;
             case R.id.drawer_menu_item_inbox:
                 break;
-            case R.id.drawer_menu_item_notifications:
-                break;
             case R.id.drawer_menu_item_tender_requests:
                 if (mTenderRequestsFragment == null) {
                     mTenderRequestsFragment = new TenderRequestsFragment();
@@ -197,8 +199,6 @@ public class ProviderMainActivity extends AppCompatActivity
     public void onRefresh() {
         switch (mSelectedDrawerItem) {
             case R.id.drawer_menu_item_inbox:
-                break;
-            case R.id.drawer_menu_item_notifications:
                 break;
             case R.id.drawer_menu_item_tender_requests:
                 if (mTenderRequestsFragment != null) {
@@ -330,6 +330,11 @@ public class ProviderMainActivity extends AppCompatActivity
                 .findItem(R.id.drawer_menu_item_tender_requests);
         this.onNavigationItemSelected(tenderRequestsMenuItem);
         mNavigationView.setCheckedItem(R.id.drawer_menu_item_tender_requests);
+
+        View inboxItemLayout = mNavigationView.getMenu().getItem(DRAWER_MENU_ITEM_INBOX_INDEX)
+                .getActionView();
+        mInboxItemTitleTextView = (TextView) inboxItemLayout.findViewById(R.id.notification_text_view);
+        mInboxItemTitleTextView.setText("0");
     }
 
     private void setupDrawerHeader() {
