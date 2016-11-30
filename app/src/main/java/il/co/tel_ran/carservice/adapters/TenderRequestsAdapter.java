@@ -1,8 +1,10 @@
 package il.co.tel_ran.carservice.adapters;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,6 +35,8 @@ public class TenderRequestsAdapter
 
     private static final int MAX_MESSAGE_LENGTH = 50;
 
+    private final Context mContext;
+
     private List<TenderRequest> mTenderRequests = new ArrayList<>();
 
     private final String mTenderRequestString;
@@ -45,6 +49,9 @@ public class TenderRequestsAdapter
     private final int mExceedingTextLengthColor;
     private final String mEmptyMessageErrorText;
     private final String mMessageTooLongErrorText;
+    private final String mMessageTheSameErrorText;
+
+    private final String mConfirmationDialogMessage;
 
     private final String mUpdateString;
 
@@ -59,6 +66,8 @@ public class TenderRequestsAdapter
             addItems(requests);
         }
 
+        mContext = context;
+
         mListener = listener;
 
         mTenderRequestString = context.getString(R.string.tender_request_message);
@@ -69,6 +78,9 @@ public class TenderRequestsAdapter
         mExceedingTextLengthColor = ContextCompat.getColor(context, R.color.colorSecondaryText);
         mEmptyMessageErrorText = context.getString(R.string.leave_message_empty_error);
         mMessageTooLongErrorText = context.getString(R.string.leave_message_too_long, MAX_MESSAGE_LENGTH);
+        mMessageTheSameErrorText = context.getString(R.string.leave_message_not_different_error);
+
+        mConfirmationDialogMessage = context.getString(R.string.reply_to_tender_request_dialog_message);
 
         mUpdateString = context.getString(R.string.update);
     }
@@ -118,24 +130,54 @@ public class TenderRequestsAdapter
             holder.locationTextView.setText(tenderRequest.getLocation());
 
             holder.sendButton.setOnClickListener(new View.OnClickListener() {
+
+                private String mPrevMessage = null;
+
                 @Override
-                public void onClick(View v) {
+                public void onClick(final View v) {
                     if (mListener != null) {
-                        // TODO: Add check for message length.
-                        // TODO: Add confirmation dialog.
-                        boolean isUpdate = false;
-                        Object tag = holder.sendButton.getTag();
-                        if (tag != null) {
-                            isUpdate = true;
-                        } else {
-                            holder.sendButton.setTag(1);
-                            holder.sendButton.setText(mUpdateString);
-                            holder.replyButton.setText(mUpdateString);
+                        final String replyMessage = holder.getReplyMessage();
+
+                        // Make sure message is not empty
+                        if (replyMessage.length() == 0) {
+                            holder.messageInputLayout.setError(mEmptyMessageErrorText);
+                            // Don't send the message.
+                            return;
                         }
 
-                        toggleReplyLayout(holder, false);
+                        final boolean isFirstMessage = mPrevMessage == null;
 
-                        mListener.onSendReply(v, holder.getReplyMessage(), isUpdate);
+                       if (!isFirstMessage && mPrevMessage.equals(replyMessage)) {
+                           holder.messageInputLayout.setError(mMessageTheSameErrorText);
+                           // Show error
+                           return;
+                       }
+                        showMessageSendConfirmationDialog(replyMessage, new DialogInterface.OnClickListener() {
+                                    // Positive button
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        boolean isUpdate = false;
+
+                                        // Check if we had a previous message, if not then the user is send a new one.
+                                        // Update the buttons to let the user know that the next time it will be an update.
+                                        if (isFirstMessage) {
+                                            // Update reply button and send button
+                                            holder.sendButton.setText(mUpdateString);
+                                            holder.replyButton.setText(mUpdateString);
+                                        } else {
+                                            isUpdate = true;
+                                        }
+
+                                        toggleReplyLayout(holder, false);
+
+                                        mListener.onSendReply(v, replyMessage, isUpdate);
+
+                                        mPrevMessage = replyMessage;
+                                    }
+                                }, null);
+
+                                // TODO: Add check for message length.
+                                // TODO: Add confirmation dialog.
                     }
                 }
             });
@@ -280,5 +322,15 @@ public class TenderRequestsAdapter
             Utils.collapseView(holder.messageLayout, EXPAND_COLLAPSE_DURATION);
             Utils.expandView(holder.replyLayout, EXPAND_COLLAPSE_DURATION);
         }
+    }
+
+    private void showMessageSendConfirmationDialog(String message,
+                                                   DialogInterface.OnClickListener positiveButtonLister,
+                                                   DialogInterface.OnClickListener negativeButtonListener) {
+        new AlertDialog.Builder(mContext)
+                .setTitle(R.string.reply_to_tender_request_dialog_title)
+                .setMessage(String.format(Locale.getDefault(), mConfirmationDialogMessage, message))
+                .setPositiveButton(R.string.send_title, positiveButtonLister)
+                .setNegativeButton(R.string.button_cancel, negativeButtonListener).create().show();
     }
 }

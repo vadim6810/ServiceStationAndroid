@@ -54,6 +54,7 @@
     <string name="leave_message_hint">Leave a short message:</string>
     <string name="leave_message_empty_error">Please enter a message</string>
     <string name="leave_message_too_long">Message can\'t be longer than %1$d characters</string>
+    <string name="leave_message_not_different_error">Message must be different for an update"</string>
     <string name="sign_in_prompt">Welcome</string>
     <string name="hint_password">Password:</string>
     <string name="register_user_details_provider_prompt">Setup service info</string>
@@ -119,6 +120,8 @@
     <string name="tender_request_title">Tender Request</string>
     <string name="send_title">Send</string>
     <string name="refresh_title">Refresh</string>
+    <string name="reply_to_tender_request_dialog_title">Are you sure you want to send this message?</string>
+    <string name="reply_to_tender_request_dialog_message">Your message: %1$s</string>
     <string name="inbox_title">Inbox</string>
     <string name="tender_requests_title">Tender Requests</string>
     <string name="no_tender_requests_to_show">No tender requests to show.</string>
