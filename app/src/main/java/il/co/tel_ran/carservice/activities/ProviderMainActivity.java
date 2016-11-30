@@ -51,7 +51,7 @@ public class ProviderMainActivity extends AppCompatActivity
 
     private static final int DRAWER_MENU_ITEM_PROFILE_INDEX = 0;
     private static final int DRAWER_MENU_ITEM_INBOX_INDEX = 1;
-    private static final int DRAWER_MENU_ITEM_ITENDER_REQUESTS_INDEX = 2z;
+    private static final int DRAWER_MENU_ITEM_ITENDER_REQUESTS_INDEX = 2;
 
     private ServerConnection mServerConnection;
     private GoogleApiClient mGoogleApiClient;
