@@ -12,19 +12,19 @@
         <item
             android:id="@+id/drawer_menu_item_inbox"
             android:orderInCategory="2"
-            android:title="Inbox"/>
 
         <item
             android:id="@+id/drawer_menu_item_notifications"
             android:orderInCategory="2"
             app:showAsAction="never"
             android:title="Notifications"/>
+            android:title="@string/inbox_title" />
 
         <item
             android:id="@+id/drawer_menu_item_tender_requests"
             android:orderInCategory="2"
             app:showAsAction="never"
-            android:title="Tender Requests"/>
+            android:title="@string/tender_requests_title"/>
 
     </group>
 </menu>

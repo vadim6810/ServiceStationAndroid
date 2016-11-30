@@ -19,7 +19,7 @@
         android:layout_height="match_parent"
         android:gravity="center"
         android:visibility="visible"
-        android:text="No tender requests to show."
+        android:text="@string/no_tender_requests_to_show"
         android:textSize="24sp"
         android:textColor="@color/colorSecondaryText"/>
 

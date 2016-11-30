@@ -119,4 +119,7 @@
     <string name="tender_request_title">Tender Request</string>
     <string name="send_title">Send</string>
     <string name="refresh_title">Refresh</string>
+    <string name="inbox_title">Inbox</string>
+    <string name="tender_requests_title">Tender Requests</string>
+    <string name="no_tender_requests_to_show">No tender requests to show.</string>
 </resources>
