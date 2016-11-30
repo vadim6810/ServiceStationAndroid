@@ -25,6 +25,7 @@ import java.util.Calendar;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by Max on 17/09/2016.
@@ -277,5 +278,10 @@ public class Utils {
         }
 
         return value;
+    }
+
+    public static long getDaysDifference(Calendar now, Calendar otherTime) {
+        long msDiff = Math.abs(now.getTimeInMillis() - otherTime.getTimeInMillis());
+        return TimeUnit.MILLISECONDS.toDays(msDiff);
     }
 }

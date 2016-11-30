@@ -125,4 +125,6 @@
     <string name="inbox_title">Inbox</string>
     <string name="tender_requests_title">Tender Requests</string>
     <string name="no_tender_requests_to_show">No tender requests to show.</string>
+    <string name="no_messages_to_show">No messages to show.</string>
+    <string name="message_time_format_prefix_yesterday">Yesterday,</string>
 </resources>

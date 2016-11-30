@@ -27,7 +27,6 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.Places;
 
-import java.util.List;
 import java.util.Locale;
 
 import il.co.tel_ran.carservice.LoadPlacePhotoTask;
@@ -39,6 +38,7 @@ import il.co.tel_ran.carservice.ServiceSearchResult;
 import il.co.tel_ran.carservice.ServiceStation;
 import il.co.tel_ran.carservice.User;
 import il.co.tel_ran.carservice.UserType;
+import il.co.tel_ran.carservice.fragments.ProviderInboxFragment;
 import il.co.tel_ran.carservice.fragments.RefreshingFragment;
 import il.co.tel_ran.carservice.fragments.TenderRequestsFragment;
 
@@ -51,6 +51,7 @@ public class ProviderMainActivity extends AppCompatActivity
 
     private static final int DRAWER_MENU_ITEM_PROFILE_INDEX = 0;
     private static final int DRAWER_MENU_ITEM_INBOX_INDEX = 1;
+    private static final int DRAWER_MENU_ITEM_ITENDER_REQUESTS_INDEX = 2z;
 
     private ServerConnection mServerConnection;
     private GoogleApiClient mGoogleApiClient;
@@ -64,15 +65,17 @@ public class ProviderMainActivity extends AppCompatActivity
     private SwipeRefreshLayout mSwipeRefreshLayout;
 
     private DrawerLayout mDrawerLayout;
+    private AppCompatRatingBar mDrawerServiceRatingBar;
+    private TextView mDrawerRatingCountTextView;
+
     private int mSelectedDrawerItem;
     private ImageView mDrawerServicePhotoImageView;
     private TextView mDrawerServiceNameTextView;
     private NavigationView mNavigationView;
-    private AppCompatRatingBar mDrawerServiceRatingBar;
-    private TextView mDrawerRatingCountTextView;
     private TextView mInboxItemTitleTextView;
 
     private TenderRequestsFragment mTenderRequestsFragment;
+    private ProviderInboxFragment mInboxMessagesFragment;
 
     /*
      * ServerConnection.OnServicesRetrievedListener
@@ -138,6 +141,11 @@ public class ProviderMainActivity extends AppCompatActivity
                 // That's because we are launching a different activity rather than updating a fragment.
                 return false;
             case R.id.drawer_menu_item_inbox:
+                if (mInboxMessagesFragment == null) {
+                    mInboxMessagesFragment = new ProviderInboxFragment();
+                    mInboxMessagesFragment.setOnRefreshEndListener(this);
+                }
+                replaceFragment = mInboxMessagesFragment;
                 break;
             case R.id.drawer_menu_item_tender_requests:
                 if (mTenderRequestsFragment == null) {
