@@ -129,18 +129,9 @@ public class ServerConnection {
 
         @Override
         protected ServiceSearchResult doInBackground(ServiceSearchQuery... params) {
-            HttpHandler httpHandler = new HttpHandler();
-            // Get JSON file from server
-            String jsonFile = httpHandler.makeServiceCall(SERVICES_URL);
-
             ServiceSearchResult searchResult = new ServiceSearchResult();
-
-            if (jsonFile == null || jsonFile.isEmpty())
-                return searchResult;
-
             try {
-                JSONObject servicesJSONObject = new JSONObject(jsonFile);
-                JSONArray servicesJSONArray = servicesJSONObject.getJSONArray("services");
+                JSONArray servicesJSONArray = Utils.getJSONArrayFromHttp(SERVICES_URL, "services");
 
                 if (servicesJSONArray != null) {
                     for (int i = 0; i < servicesJSONArray.length(); i++) {
@@ -211,15 +202,10 @@ public class ServerConnection {
 
         @Override
         protected List<TenderReply> doInBackground(ServiceStation... params) {
-
-            HttpHandler httpHandler = new HttpHandler();
-            // Get JSON file from server
-            String jsonFile = httpHandler.makeServiceCall(RESPOND_SERVICES_URL);
-
             List<TenderReply> tenderReplies = new ArrayList<>();
             try {
-                JSONObject repliesJSONObject = new JSONObject(jsonFile);
-                JSONArray repliesJSONArray = repliesJSONObject.getJSONArray("respond_services");
+                JSONArray repliesJSONArray = Utils.getJSONArrayFromHttp(
+                        RESPOND_SERVICES_URL, "respond_services");
 
                 if (repliesJSONArray != null) {
                     for (int i = 0; i < repliesJSONArray.length(); i++) {
@@ -275,14 +261,10 @@ public class ServerConnection {
 
         @Override
         protected List<TenderRequest> doInBackground(Void... params) {
-            HttpHandler httpHandler = new HttpHandler();
-            // Get JSON file from server
-            String jsonFile = httpHandler.makeServiceCall(REQUEST_TENDER_URL);
-
             List<TenderRequest> tenderRequests = new ArrayList<>();
             try {
-                JSONObject requestsJSONObject = new JSONObject(jsonFile);
-                JSONArray requestsJSONArray = requestsJSONObject.getJSONArray("requests");
+                JSONArray requestsJSONArray = Utils.getJSONArrayFromHttp(
+                        REQUEST_TENDER_URL, "requests");
 
                 if (requestsJSONArray != null) {
                     for (int i = 0; i < requestsJSONArray.length(); i++) {

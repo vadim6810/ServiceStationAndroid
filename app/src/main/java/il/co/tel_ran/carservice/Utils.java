@@ -19,6 +19,10 @@ import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.location.places.AutocompleteFilter;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -283,5 +287,22 @@ public class Utils {
     public static long getDaysDifference(Calendar now, Calendar otherTime) {
         long msDiff = Math.abs(now.getTimeInMillis() - otherTime.getTimeInMillis());
         return TimeUnit.MILLISECONDS.toDays(msDiff);
+    }
+
+    public static String getJSONFileFromHttp(String url) {
+        HttpHandler httpHandler = new HttpHandler();
+        // Get JSON file from url
+        return httpHandler.makeServiceCall(url);
+    }
+
+    public static JSONArray getJSONArrayFromHttp(String url, String array)
+            throws JSONException {
+        String jsonFile = getJSONFileFromHttp(url);
+        if (jsonFile != null && !jsonFile.isEmpty()) {
+            JSONObject jsonObject = new JSONObject(jsonFile);
+            return jsonObject.getJSONArray(array);
+        }
+
+        return null;
     }
 }
