@@ -1,7 +1,9 @@
 package il.co.tel_ran.carservice.fragments;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -12,16 +14,20 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import il.co.tel_ran.carservice.InboxMessage;
 import il.co.tel_ran.carservice.R;
+import il.co.tel_ran.carservice.ServerConnection;
+import il.co.tel_ran.carservice.activities.ProviderMainActivity;
 import il.co.tel_ran.carservice.adapters.InboxMessagesAdapter;
+import il.co.tel_ran.carservice.adapters.TenderRequestsAdapter;
 
 /**
  * Created by Max on 29/11/2016.
  */
 
-public class ProviderInboxFragment extends RefreshingFragment implements InboxMessagesAdapter.InboxMessageClickListener {
+public class ProviderInboxFragment extends RefreshingFragment implements InboxMessagesAdapter.InboxMessageClickListener, ServerConnection.OnProviderInboxMessagesRetrievedListener {
 
     private View mMainLayout;
 
@@ -44,10 +50,30 @@ public class ProviderInboxFragment extends RefreshingFragment implements InboxMe
 
             mLoadInboxProgressBar = (ProgressBar) mMainLayout.findViewById(R.id.inbox_progress_bar);
             mNoMessagesTextView = (TextView) mMainLayout.findViewById(R.id.no_inbox_messages_text_view);
-            mNoMessagesTextView.setVisibility(View.GONE);
 
             setupRecyclerView();
         }
+
+        List<InboxMessage> inboxMessages = null;
+        Activity containerActivity = getActivity();
+        if (containerActivity != null) {
+            try {
+                ProviderMainActivity providerActivity = (ProviderMainActivity) containerActivity;
+
+                inboxMessages = providerActivity.getRetrievedMessages();
+                if (inboxMessages != null && !inboxMessages.isEmpty()) {
+                    onProviderInboxMessagesRetrieved(inboxMessages);
+                }
+
+                // Release the resource from activity
+                providerActivity.clearRetrievedMessages();
+            } catch (ClassCastException e) {
+                e.printStackTrace();
+            }
+        }
+
+        if (inboxMessages == null)
+            loadMessages();
 
         return mMainLayout;
     }
@@ -56,8 +82,7 @@ public class ProviderInboxFragment extends RefreshingFragment implements InboxMe
     public void onRefreshStart() {
         super.onRefreshStart();
 
-        // TODO: Implement refreshing when ServerConnection is implemented for inbox messages.
-        onRefreshEnd();
+        loadMessages();
     }
 
     /*
@@ -75,9 +100,41 @@ public class ProviderInboxFragment extends RefreshingFragment implements InboxMe
         final InboxMessage message = adapter.getItem(itemPos);
 
         if (message != null) {
-            Toast.makeText(getContext(), "messageTitle=" + message.getTitle(), Toast.LENGTH_SHORT)
-                    .show();
+            showMessageDialog(message);
         }
+    }
+
+    /*
+     * ServerConnection.OnProviderInboxMessagesRetrievedListener
+     */
+
+    @Override
+    public void onProviderInboxMessagesRetrievingStarted() {
+        InboxMessagesAdapter adapter = (InboxMessagesAdapter) mInboxMessagesRecyclerView
+                .getAdapter();
+
+        // Check if we are showing any messages currently.
+        if (adapter.getItemCount() == 0) {
+            mNoMessagesTextView.setVisibility(View.GONE);
+            mLoadInboxProgressBar.setVisibility(View.VISIBLE);
+        }
+    }
+
+    @Override
+    public void onProviderInboxMessagesRetrieved(List<InboxMessage> inboxMessages) {
+        mLoadInboxProgressBar.setVisibility(View.GONE);
+
+        InboxMessagesAdapter adapter = (InboxMessagesAdapter) mInboxMessagesRecyclerView
+                .getAdapter();
+        adapter.removeAllItems();
+        if (inboxMessages != null && !inboxMessages.isEmpty()) {
+            adapter.addItems(inboxMessages);
+            mNoMessagesTextView.setVisibility(View.GONE);
+        } else {
+            mNoMessagesTextView.setVisibility(View.VISIBLE);
+        }
+
+        onRefreshEnd();
     }
 
     private void setupRecyclerView() {
@@ -86,19 +143,32 @@ public class ProviderInboxFragment extends RefreshingFragment implements InboxMe
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         mInboxMessagesRecyclerView.setLayoutManager(layoutManager);
         InboxMessagesAdapter searchResultAdapter = new InboxMessagesAdapter(
-                getMockInboxMessages(), getContext(), this);
+                new ArrayList<InboxMessage>(), getContext(), this);
         mInboxMessagesRecyclerView.setAdapter(searchResultAdapter);
     }
 
-    private ArrayList<InboxMessage> getMockInboxMessages() {
-        ArrayList<InboxMessage> messages = new ArrayList<>();
+    public void loadMessages() {
+        Activity containerActivity = getActivity();
+        if (containerActivity != null) {
+            try {
+                ProviderMainActivity providerActivity = (ProviderMainActivity) containerActivity;
 
-        long now = System.currentTimeMillis();
-        messages.add(new InboxMessage(1, "Message from customer Max", "", now - 86400000L, 1, InboxMessage.Source.USER));
-        messages.add(new InboxMessage(2, "Message from customer Viktor", "", now, 2, InboxMessage.Source.USER));
-        messages.add(new InboxMessage(3, "Message from customer Vadim", "", now - 3L * 86400000L, 3, InboxMessage.Source.USER));
-        messages.add(new InboxMessage(4, "Message from customer Alex", "", now - 32L * 86400000L, 4, InboxMessage.Source.USER));
-        messages.add(new InboxMessage(5, "Message from customer Elizabeta", "", now - 366L * 86400000L, 5, InboxMessage.Source.USER));
-        return messages;
+                ServerConnection serverConnection = providerActivity.getServerConnection();
+                // Retrieve services from server
+                if (serverConnection != null) {
+                    serverConnection.getProviderInboxMessages(this);
+                }
+            } catch (ClassCastException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void showMessageDialog(InboxMessage inboxMessage) {
+        new AlertDialog.Builder(getContext())
+                .setTitle(inboxMessage.getTitle())
+                .setMessage(inboxMessage.getMessage())
+                .setNeutralButton(R.string.dismiss, null)
+                .show();
     }
 }

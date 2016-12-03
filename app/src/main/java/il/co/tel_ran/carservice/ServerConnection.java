@@ -27,6 +27,8 @@ public class ServerConnection {
     
     private GetTenderRequestsTask mGetTenderRequestsTask;
 
+    private GetProviderInboxMessagesTask mGetProviderInboxMessagesTask;
+
 //    private static final String SERVICES_URL = "https://api.myjson.com/bins/2545c";
     private static final String SERVICES_URL = "https://jsonblob.com/api/jsonBlob/58313b84e4b0a828bd27ae30";
 
@@ -34,6 +36,8 @@ public class ServerConnection {
     private static final String RESPOND_SERVICES_URL = "https://jsonblob.com/api/jsonBlob/58313c83e4b0a828bd27ae5d";
 
     private static final String REQUEST_TENDER_URL = "https://jsonblob.com/api/jsonBlob/8d29361b-b3cb-11e6-871b-771d67f790ab";
+
+    private static final String PROVIDER_INBOX_MESSAGES_URL = "https://jsonblob.com/api/jsonBlob/dd1044ea-b726-11e6-871b-7523749b294d";
 
     public interface OnServicesRetrievedListener {
         void onServicesRetrievingStarted();
@@ -49,6 +53,12 @@ public class ServerConnection {
         void onTenderRequestRetrievingStarted();
         void onTenderRequestRetrieved(List<TenderRequest> tenderRequests);
     }
+
+    public interface OnProviderInboxMessagesRetrievedListener {
+        void onProviderInboxMessagesRetrievingStarted();
+        void onProviderInboxMessagesRetrieved(List<InboxMessage> inboxMessages);
+    }
+
 
     public void findServices(ServiceSearchQuery searchQuery, GoogleApiClient googleApiClient,
                              OnServicesRetrievedListener listener) {
@@ -93,6 +103,13 @@ public class ServerConnection {
         mGetTenderRequestsTask.execute();
     }
 
+    // TODO: when back-end available add id parameter to fetch for specific service
+    public void getProviderInboxMessages(OnProviderInboxMessagesRetrievedListener listener) {
+        cancelGetProviderInboxMessagesTask();
+        mGetProviderInboxMessagesTask = new GetProviderInboxMessagesTask(listener);
+        mGetProviderInboxMessagesTask.execute();
+    }
+
     public void cancelServiceSearchTask() {
         if (mFindServicesTask != null && mFindServicesTask.getStatus() == AsyncTask.Status.RUNNING)
             mFindServicesTask.cancel(true);
@@ -110,10 +127,17 @@ public class ServerConnection {
             mGetTenderRequestsTask.cancel(true);
     }
 
+    public void cancelGetProviderInboxMessagesTask() {
+        if (mGetProviderInboxMessagesTask != null && mGetProviderInboxMessagesTask.getStatus()
+                == AsyncTask.Status.RUNNING)
+            mGetProviderInboxMessagesTask.cancel(true);
+    }
+
     public void cancelAllTasks() {
         cancelServiceSearchTask();
         cancelGetTenderRepliesTask();
         cancelGetTenderRequestsTask();
+        cancelGetProviderInboxMessagesTask();
     }
 
     private class FindServicesTask extends AsyncTask<ServiceSearchQuery, Integer, ServiceSearchResult> {
@@ -330,6 +354,67 @@ public class ServerConnection {
             super.onPostExecute(tenderRequests);
             if (mListener != null)
                 mListener.onTenderRequestRetrieved(tenderRequests);
+        }
+    }
+
+    private class GetProviderInboxMessagesTask extends AsyncTask<Void, Void, List<InboxMessage>> {
+
+        private OnProviderInboxMessagesRetrievedListener mListener;
+
+        public GetProviderInboxMessagesTask(OnProviderInboxMessagesRetrievedListener listener) {
+            mListener = listener;
+        }
+
+        @Override
+        protected List<InboxMessage> doInBackground(Void... params) {
+            List<InboxMessage> inboxMessages = new ArrayList<>();
+            try {
+                JSONArray requestsJSONArray = Utils.getJSONArrayFromHttp(
+                        PROVIDER_INBOX_MESSAGES_URL, "provider_inbox_messages");
+
+                if (requestsJSONArray != null) {
+                    for (int i = 0; i < requestsJSONArray.length(); i++) {
+                        // Periodically check if the task was canceled.
+                        if (isCancelled())
+                            break;
+
+                        JSONObject object = requestsJSONArray.getJSONObject(i);
+
+                        // Get inbox message data
+                        long id = object.getLong("id");
+                        int sourceTypeInt = object.getInt("sourceType");
+                        long sourceId = object.getLong("sourceId");
+                        String message = object.getString("message");
+                        long timeStamp = object.getLong("submitTimestamp");
+
+                        // TODO: when back-end available retrieve user from source id to match the title.
+                        InboxMessage retrievedInboxMessage = new InboxMessage(id,
+                                "Message from user", message, timeStamp, sourceId,
+                                InboxMessage.Source.USER);
+
+                        inboxMessages.add(retrievedInboxMessage);
+
+                    }
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            return inboxMessages;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            if (mListener != null)
+                mListener.onProviderInboxMessagesRetrievingStarted();
+        }
+
+        @Override
+        protected void onPostExecute(List<InboxMessage> inboxMessages) {
+            super.onPostExecute(inboxMessages);
+            if (mListener != null)
+                mListener.onProviderInboxMessagesRetrieved(inboxMessages);
         }
     }
 

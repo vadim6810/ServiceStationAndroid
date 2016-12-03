@@ -27,8 +27,10 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.Places;
 
+import java.util.List;
 import java.util.Locale;
 
+import il.co.tel_ran.carservice.InboxMessage;
 import il.co.tel_ran.carservice.LoadPlacePhotoTask;
 import il.co.tel_ran.carservice.ProviderUser;
 import il.co.tel_ran.carservice.R;
@@ -45,7 +47,7 @@ import il.co.tel_ran.carservice.fragments.TenderRequestsFragment;
 public class ProviderMainActivity extends AppCompatActivity
         implements ServerConnection.OnServicesRetrievedListener,
         GoogleApiClient.OnConnectionFailedListener, NavigationView.OnNavigationItemSelectedListener,
-        SwipeRefreshLayout.OnRefreshListener, RefreshingFragment.RefreshingFragmentListener {
+        SwipeRefreshLayout.OnRefreshListener, RefreshingFragment.RefreshingFragmentListener, ServerConnection.OnProviderInboxMessagesRetrievedListener {
 
     private static final int REQUEST_CODE_PROFILE_CHANGED = 1;
 
@@ -76,6 +78,8 @@ public class ProviderMainActivity extends AppCompatActivity
 
     private TenderRequestsFragment mTenderRequestsFragment;
     private ProviderInboxFragment mInboxMessagesFragment;
+
+    private List<InboxMessage> mInboxMessages;
 
     /*
      * ServerConnection.OnServicesRetrievedListener
@@ -207,6 +211,9 @@ public class ProviderMainActivity extends AppCompatActivity
     public void onRefresh() {
         switch (mSelectedDrawerItem) {
             case R.id.drawer_menu_item_inbox:
+                if (mInboxMessagesFragment != null) {
+                    mInboxMessagesFragment.onRefreshStart();
+                }
                 break;
             case R.id.drawer_menu_item_tender_requests:
                 if (mTenderRequestsFragment != null) {
@@ -223,6 +230,42 @@ public class ProviderMainActivity extends AppCompatActivity
     @Override
     public void onRefreshEnd() {
         mSwipeRefreshLayout.setRefreshing(false);
+    }
+
+    /*
+     * ServerConnection.OnProviderInboxMessagesRetrievedListener
+     */
+
+    @Override
+    public void onProviderInboxMessagesRetrievingStarted() {
+        if (mInboxItemTitleTextView != null)
+            mInboxItemTitleTextView.setText(R.string.loading_message);
+    }
+
+    @Override
+    public void onProviderInboxMessagesRetrieved(List<InboxMessage> inboxMessages) {
+        if (mInboxItemTitleTextView != null) {
+            if (inboxMessages != null && !inboxMessages.isEmpty()) {
+                mInboxMessages = inboxMessages;
+                updateInboxItemCount(inboxMessages.size());
+            } else {
+                updateInboxItemCount(0);
+            }
+        }
+    }
+
+    public List<InboxMessage> getRetrievedMessages() {
+        return mInboxMessages;
+    }
+
+    public void clearRetrievedMessages() {
+        mInboxMessages = null;
+    }
+
+    public void updateInboxItemCount(int count) {
+        if (mInboxItemTitleTextView != null) {
+            mInboxItemTitleTextView.setText(String.valueOf(count));
+        }
     }
 
     @Override
@@ -282,6 +325,14 @@ public class ProviderMainActivity extends AppCompatActivity
 
             // Exit this activity.
             finish();
+        }
+
+        loadInboxMessages();
+    }
+
+    private void loadInboxMessages() {
+        if (mServerConnection != null) {
+            mServerConnection.getProviderInboxMessages(this);
         }
     }
 

@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 import il.co.tel_ran.carservice.InboxMessage;
@@ -134,5 +135,15 @@ public class InboxMessagesAdapter extends RecyclerView.Adapter<InboxMessagesAdap
 
     public InboxMessage getItem(int itemPos) {
         return mMessages.get(itemPos);
+    }
+
+    public void removeAllItems() {
+        mMessages.clear();
+    }
+
+    public void addItems(List<InboxMessage> inboxMessages) {
+        if (inboxMessages != null && !inboxMessages.isEmpty()) {
+            mMessages.addAll(inboxMessages);
+        }
     }
 }
