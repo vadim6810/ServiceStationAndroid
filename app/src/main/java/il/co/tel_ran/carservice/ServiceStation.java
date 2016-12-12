@@ -2,6 +2,7 @@ package il.co.tel_ran.carservice;
 
 import com.google.android.gms.location.places.Place;
 
+import java.util.Arrays;
 import java.util.EnumSet;
 
 /**
@@ -32,6 +33,10 @@ public class ServiceStation {
 
     private String mDirectorName;
     private String mDirectorPhonenumber;
+
+    private String mManagerName;
+
+    private String[] mServicedCarMakes;
 
     public ServiceStation() {
 
@@ -66,6 +71,8 @@ public class ServiceStation {
         mVehicleTypes = EnumSet.copyOf(otherService.getVehicleTypes());
         mDirectorName = otherService.getDirectorName();
         mDirectorPhonenumber = otherService.getDirectorPhonenumber();
+        mServicedCarMakes = otherService.getServicedCarMakes();
+        mManagerName = otherService.getManagerName();
     }
 
     public void setName(String name) {
@@ -204,6 +211,22 @@ public class ServiceStation {
         return mDirectorPhonenumber;
     }
 
+    public void setServicedCarMakes(String[] carMakes) {
+        mServicedCarMakes = carMakes;
+    }
+
+    public String[] getServicedCarMakes() {
+        return mServicedCarMakes;
+    }
+
+    public void setManagerName(String name) {
+        mManagerName = name;
+    }
+
+    public String getManagerName() {
+        return mManagerName;
+    }
+
     public boolean equals(ServiceStation otherService) {
         if (otherService == null)
             return false;
@@ -248,6 +271,12 @@ public class ServiceStation {
             return false;
 
         if (mDirectorPhonenumber != null && !mDirectorPhonenumber.equals(otherService.getDirectorPhonenumber()))
+            return false;
+
+        if (mServicedCarMakes != null && !Arrays.equals(mServicedCarMakes, otherService.getServicedCarMakes()))
+            return false;
+
+        if (mManagerName != null && !mManagerName.equals(otherService.getManagerName()))
             return false;
 
         return true;

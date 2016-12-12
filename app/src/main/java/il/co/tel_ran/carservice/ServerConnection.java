@@ -30,7 +30,7 @@ public class ServerConnection {
     private GetProviderInboxMessagesTask mGetProviderInboxMessagesTask;
 
 //    private static final String SERVICES_URL = "https://api.myjson.com/bins/2545c";
-    private static final String SERVICES_URL = "https://jsonblob.com/api/jsonBlob/58313b84e4b0a828bd27ae30";
+    private static final String SERVICES_URL = "https://secure-citadel-93919.herokuapp.com/api/masters";
 
 //    private static final String RESPOND_SERVICES_URL = "https://api.myjson.com/bins/5apnk";
     private static final String RESPOND_SERVICES_URL = "https://jsonblob.com/api/jsonBlob/58313c83e4b0a828bd27ae5d";
@@ -154,51 +154,93 @@ public class ServerConnection {
         @Override
         protected ServiceSearchResult doInBackground(ServiceSearchQuery... params) {
             ServiceSearchResult searchResult = new ServiceSearchResult();
+
+            String jsonFile = Utils.getJSONFileFromHttp(SERVICES_URL);
+            if (jsonFile == null || jsonFile.isEmpty()) {
+                // TODO: set error message in SearchResult
+                return searchResult;
+            }
+
             try {
-                JSONArray servicesJSONArray = Utils.getJSONArrayFromHttp(SERVICES_URL, "services");
+                JSONArray servicesJSONArray = new JSONArray(jsonFile);
+                for (int i = 0; i < servicesJSONArray.length(); i++) {
+                    // Periodically check if task was canceled.
+                    if (isCancelled())
+                        break;
 
-                if (servicesJSONArray != null) {
-                    for (int i = 0; i < servicesJSONArray.length(); i++) {
-                        // Periodically check if the task was canceled.
-                        if (isCancelled())
-                            break;
+                    JSONObject serviceJSONObject = servicesJSONArray.getJSONObject(i);
+                    long id = serviceJSONObject.getLong("id");
+                    String name = serviceJSONObject.getString("companyName");
 
-                        JSONObject object = servicesJSONArray.getJSONObject(i);
+                    // TODO: update service types when back-end is updated.
+                    boolean mechanics = !serviceJSONObject.isNull("mechanics") && serviceJSONObject.getBoolean("mechanics");
+                    boolean mounting = !serviceJSONObject.isNull("mounting") && serviceJSONObject.getBoolean("mounting");
+                    boolean carWash = !serviceJSONObject.isNull("carWash") && serviceJSONObject.getBoolean("carWash");
+                    boolean towTruck = !serviceJSONObject.isNull("towTruck") && serviceJSONObject.getBoolean("towTruck");
 
-                        // Get service data.
-                        String name = object.getString("serviceName");
-                        float avgRating = (float) object.getDouble("avgRating");
-                        int submittedRating = object.getInt("subRating");
-                        int availableServices = object.getInt("availServices");
-                        String placeID = object.getString("addressPlaceId");
-                        String phoneNumber = object.getString("phoneNumber");
-                        String email = object.getString("email");
+                    String companyPhonenumber = serviceJSONObject.getString("companyTelephone");
+                    String openTime = serviceJSONObject.getString("startTime");
+                    String closeTime = serviceJSONObject.getString("lastTime");
+                    String managerName = serviceJSONObject.getString("managerName");
+                    String managerPhonenumber = serviceJSONObject.getString("managerTelephone");
+                    String directorName = serviceJSONObject.getString("directorName");
 
-                        long id = object.getLong("id");
-
-                        // Convert ID to place
-                        PendingResult<PlaceBuffer> places_buffer = Places.GeoDataApi
-                                .getPlaceById(mGoogleApiClient, placeID);
-                        PlaceBuffer placeBuffer = places_buffer.await();
-                        // Object must be frozen if we want to use it after the buffer is released.
-                        Place place = placeBuffer.get(0).freeze();
-                        placeBuffer.release();
-
-                        // Parse the city name from given address (to hide information from non-registered users)
-                        String cityName = Utils.parseCityNameFromAddress(
-                                place.getAddress());
-
-                        ServiceStation resultServiceStation = new ServiceStation(name, place, avgRating, submittedRating,
-                                Utils.decodeEnumSet(ServiceType.class, availableServices),
-                                cityName, phoneNumber, email);
-                        resultServiceStation.setID(id);
-
-                        searchResult.addService(resultServiceStation);
+                    String[] servicedCarMakesArray = new String[0];
+                    if (!serviceJSONObject.isNull("cars")) {
+                        JSONArray servicedCarMakes = serviceJSONObject.getJSONArray("cars");
+                        servicedCarMakesArray = new String[servicedCarMakes.length()];
+                        for (int j = 0; j < servicedCarMakes.length(); j++) {
+                            servicedCarMakesArray[j] = servicedCarMakes.getString(j);
+                        }
                     }
+
+                    JSONObject chosenPlace = serviceJSONObject.getJSONObject("chosenPlace");
+                    String placeId = chosenPlace.getString("PlaceId");
+                    // Convert ID to place
+                    PendingResult<PlaceBuffer> places_buffer = Places.GeoDataApi
+                            .getPlaceById(mGoogleApiClient, placeId);
+                    PlaceBuffer placeBuffer = places_buffer.await();
+                    // Object must be frozen if we want to use it after the buffer is released.
+                    Place place = placeBuffer.get(0).freeze();
+                    placeBuffer.release();
+
+                    float avgRating = (float) serviceJSONObject.getInt("rate");
+
+                    JSONObject carTypes = serviceJSONObject.getJSONObject("categories");
+
+                    ServiceStation serviceStation = new ServiceStation();
+                    serviceStation.setName(name);
+                    serviceStation.setID(id);
+                    serviceStation.setLocation(place);
+                    serviceStation.setCityName(Utils.parseCityNameFromAddress(
+                            place.getAddress()));
+                    serviceStation.setOpeningTime(TimeHolder.parseTime(openTime));
+                    serviceStation.setClosingTime(TimeHolder.parseTime(closeTime));
+                    serviceStation.setAvgRating(avgRating);
+                    serviceStation.setDirectorName(directorName);
+                    serviceStation.setDirectorPhonenumber(managerPhonenumber);
+                    serviceStation.setManagerName(managerName);
+                    serviceStation.setPhonenumber(companyPhonenumber);
+                    serviceStation.setServicedCarMakes(servicedCarMakesArray);
+                    serviceStation.setSubmittedRatings(0); // TODO: update when back-end is updated
+
+                    serviceStation.toggleService(ServiceType.SERVICE_TYPE_CAR_WASH, carWash);
+                    serviceStation.toggleService(ServiceType.SERVICE_TYPE_AC_REPAIR_REFILL, mechanics); // TODO: Update to proper value when back-end is updated
+                    serviceStation.toggleService(ServiceType.SERVICE_TYPE_TUNING, towTruck); // TODO: Update to proper value when back-end is updated
+                    serviceStation.toggleService(ServiceType.SERVICE_TYPE_TYRE_REPAIR, mounting); // TODO: Update to proper value when back-end is updated
+
+                    serviceStation.toggleVehicleType(VehicleType.BUS, carTypes.has("bus") && carTypes.getBoolean("bus"));
+                    serviceStation.toggleVehicleType(VehicleType.PRIVATE, carTypes.has("passCar") && carTypes.getBoolean("passCar"));
+                    serviceStation.toggleVehicleType(VehicleType.MOTORCYCLE, carTypes.has("bicycle") && carTypes.getBoolean("bicycle"));
+                    serviceStation.toggleVehicleType(VehicleType.TRUCK, carTypes.has("lorry") && carTypes.getBoolean("lorry"));
+
+                    searchResult.addService(serviceStation);
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
+                // TODO: set error message in SearchResult
             }
+
             return filterServices(params[0], searchResult);
         }
 

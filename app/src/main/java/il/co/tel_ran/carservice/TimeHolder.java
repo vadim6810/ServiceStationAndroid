@@ -4,7 +4,6 @@ package il.co.tel_ran.carservice;
  * Created by maxim on 10/29/2016.
  */
 
-import java.util.Comparator;
 import java.util.Locale;
 
 /**
@@ -67,5 +66,13 @@ public class TimeHolder {
         }
 
         return 1;
+    }
+
+    public static TimeHolder parseTime(String time) {
+        String[] timePart = time.split(":");
+        int hour = Integer.parseInt(timePart[0]);
+        int minute = Integer.parseInt(timePart[1]);
+
+        return new TimeHolder(hour, minute);
     }
 }
