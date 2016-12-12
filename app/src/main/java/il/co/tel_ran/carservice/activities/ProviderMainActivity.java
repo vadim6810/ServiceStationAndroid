@@ -2,6 +2,8 @@ package il.co.tel_ran.carservice.activities;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -22,14 +24,19 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.Places;
 
+import org.json.JSONException;
+
 import java.util.List;
 import java.util.Locale;
 
+import il.co.tel_ran.carservice.GetPlaceFromIdTask;
 import il.co.tel_ran.carservice.InboxMessage;
 import il.co.tel_ran.carservice.LoadPlacePhotoTask;
 import il.co.tel_ran.carservice.ProviderUser;
@@ -45,9 +52,10 @@ import il.co.tel_ran.carservice.fragments.RefreshingFragment;
 import il.co.tel_ran.carservice.fragments.TenderRequestsFragment;
 
 public class ProviderMainActivity extends AppCompatActivity
-        implements ServerConnection.OnServicesRetrievedListener,
-        GoogleApiClient.OnConnectionFailedListener, NavigationView.OnNavigationItemSelectedListener,
-        SwipeRefreshLayout.OnRefreshListener, RefreshingFragment.RefreshingFragmentListener, ServerConnection.OnProviderInboxMessagesRetrievedListener {
+        implements GoogleApiClient.OnConnectionFailedListener,
+        NavigationView.OnNavigationItemSelectedListener,
+        SwipeRefreshLayout.OnRefreshListener, RefreshingFragment.RefreshingFragmentListener,
+        ServerConnection.OnProviderInboxMessagesRetrievedListener {
 
     private static final int REQUEST_CODE_PROFILE_CHANGED = 1;
 
@@ -80,43 +88,6 @@ public class ProviderMainActivity extends AppCompatActivity
     private ProviderInboxFragment mInboxMessagesFragment;
 
     private List<InboxMessage> mInboxMessages;
-
-    /*
-     * ServerConnection.OnServicesRetrievedListener
-     */
-
-    @Override
-    public void onServicesRetrievingStarted() {
-
-        mIsLoadingService = true;
-        if (mActionBar != null) {
-            mActionBar.setTitle(R.string.loading_progress_title);
-        }
-
-        if (mDrawerServiceNameTextView != null) {
-            mDrawerServiceNameTextView.setText(R.string.loading_progress_title);
-        }
-    }
-
-    @Override
-    public void onServicesRetrieved(ServiceSearchResult searchResult) {
-        mIsLoadingService = false;
-
-        ServiceStation loadedService = null;
-        for (ServiceStation service : searchResult.getSerivces()) {
-            loadedService = service;
-            // Check if this result is our service
-            if (loadedService.getID() == mUser.getService().getID()) {
-                mUser.setService(loadedService);
-                updateLayout();
-                break;
-            }
-        }
-
-        if (loadedService == null) {
-            // TODO: handle error, display error messasge.
-        }
-    }
 
     /*
      * GoogleApiClient.OnConnectionFailedListener
@@ -177,6 +148,9 @@ public class ProviderMainActivity extends AppCompatActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main_activity_menu, menu);
+
+        MenuItem signOutItem = menu.getItem(0);
+        signOutItem.getIcon().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
         return true;
     }
 
@@ -194,6 +168,9 @@ public class ProviderMainActivity extends AppCompatActivity
                 mSwipeRefreshLayout.setRefreshing(true);
                 // Start refreshing
                 onRefresh();
+                return true;
+            case R.id.menu_item_signout:
+                signOut();
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -280,7 +257,7 @@ public class ProviderMainActivity extends AppCompatActivity
                         if (anyChanges) {
                             // TODO: Reload user when back-end is available
                             // Reload service.
-                            loadUserService();
+                            loadUserService(mUser);
                         }
                     }
                     // TODO: check for any changes extra. if there are any changes, update user & service.
@@ -307,18 +284,12 @@ public class ProviderMainActivity extends AppCompatActivity
 
         Bundle extras = getIntent().getExtras();
         if (extras != null && !extras.isEmpty()) {
-            int serviceId = extras.getInt("service_id");
-
-            User user = (User) extras.get("user");
+            // Get user extra
+            ProviderUser user = (ProviderUser) extras.get("user");
             if (user != null) {
                 mUser = new ProviderUser(user);
 
-                ServiceStation userService = new ServiceStation();
-                userService.setID(serviceId);
-
-                mUser.setService(userService);
-
-                loadUserService();
+                loadUserService(mUser);
             }
         } else {
             // Show some error
@@ -328,6 +299,78 @@ public class ProviderMainActivity extends AppCompatActivity
         }
 
         loadInboxMessages();
+    }
+
+    private void signOut() {
+        finish();
+    }
+
+    private void loadUserService(final ProviderUser user) {
+        ServerConnection.getMasterById(ProviderMainActivity.this, user.getId(),
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        if (response == null || response.isEmpty()) {
+                            // Show some error
+
+                            // Exit this activity.
+                            finish();
+                        }
+                        try {
+                            ServiceStation serviceStation = ServerConnection
+                                    .parseMastersFromResponse(response)[0];
+
+                            if (serviceStation != null) {
+                                user.setService(serviceStation);
+                                serviceStation.setID(user.getId());
+
+                                loadServicePlace(user);
+
+                                updateLayout();
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // Show some error
+
+                        // Exit this activity.
+                        finish();
+                    }
+                });
+    }
+
+    private void loadServicePlace(final ProviderUser user) {
+        new GetPlaceFromIdTask(mGoogleApiClient) {
+
+            @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+
+                mIsLoadingService = true;
+                if (mActionBar != null) {
+                    mActionBar.setTitle(R.string.loading_progress_title);
+                }
+
+                if (mDrawerServiceNameTextView != null) {
+                    mDrawerServiceNameTextView.setText(R.string.loading_progress_title);
+                }
+            }
+
+            @Override
+            protected void onPostExecute(Place place) {
+                super.onPostExecute(place);
+
+                if (place != null) {
+                    user.getService().setLocation(place);
+
+                    mIsLoadingService = false;
+                }
+            }
+        }.execute(user.getService().getPlaceId());
     }
 
     private void loadInboxMessages() {
@@ -352,10 +395,6 @@ public class ProviderMainActivity extends AppCompatActivity
                 .addApi(Places.PLACE_DETECTION_API)
                 .enableAutoManage(this, this)
                 .build();
-    }
-
-    private void loadUserService() {
-        mServerConnection.findServices(new ServiceSearchQuery(), mGoogleApiClient, this);
     }
 
     private void setupActionBar() {
@@ -466,8 +505,8 @@ public class ProviderMainActivity extends AppCompatActivity
         Intent intent = new Intent(ProviderMainActivity.this, ProfileActivity.class);
         // Since we are in ClientMainActivity the user type is a client.
         intent.putExtra("user_type", UserType.USER_SERVICE_PROVIDER);
-        // Pass user's service id
-        intent.putExtra("service_id", mUser.getService().getID());
+        // Pass user's data as a simple User object since ProviderUser is not serializable.
+        intent.putExtra("user", new User(mUser));
         startActivityForResult(intent, REQUEST_CODE_PROFILE_CHANGED);
     }
 }

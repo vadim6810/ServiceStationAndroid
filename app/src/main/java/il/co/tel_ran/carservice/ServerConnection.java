@@ -1,7 +1,14 @@
 package il.co.tel_ran.carservice;
 
+import android.content.Context;
 import android.os.AsyncTask;
+import android.util.Log;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.location.places.Place;
@@ -29,8 +36,11 @@ public class ServerConnection {
 
     private GetProviderInboxMessagesTask mGetProviderInboxMessagesTask;
 
-//    private static final String SERVICES_URL = "https://api.myjson.com/bins/2545c";
-    private static final String SERVICES_URL = "https://secure-citadel-93919.herokuapp.com/api/masters";
+//    private static final String MASTERS_URL = "https://api.myjson.com/bins/2545c";
+    private static final String MASTERS_URL = "https://secure-citadel-93919.herokuapp.com/api/masters";
+    private static final String CLIENTS_URL = "https://secure-citadel-93919.herokuapp.com/api/clients";
+
+    private static final String AUTHENTICATE_URL ="https://secure-citadel-93919.herokuapp.com/api/authentic";
 
 //    private static final String RESPOND_SERVICES_URL = "https://api.myjson.com/bins/5apnk";
     private static final String RESPOND_SERVICES_URL = "https://jsonblob.com/api/jsonBlob/58313c83e4b0a828bd27ae5d";
@@ -155,7 +165,7 @@ public class ServerConnection {
         protected ServiceSearchResult doInBackground(ServiceSearchQuery... params) {
             ServiceSearchResult searchResult = new ServiceSearchResult();
 
-            String jsonFile = Utils.getJSONFileFromHttp(SERVICES_URL);
+            String jsonFile = Utils.getJSONFileFromHttp(MASTERS_URL);
             if (jsonFile == null || jsonFile.isEmpty()) {
                 // TODO: set error message in SearchResult
                 return searchResult;
@@ -169,71 +179,21 @@ public class ServerConnection {
                         break;
 
                     JSONObject serviceJSONObject = servicesJSONArray.getJSONObject(i);
-                    long id = serviceJSONObject.getLong("id");
-                    String name = serviceJSONObject.getString("companyName");
 
-                    // TODO: update service types when back-end is updated.
-                    boolean mechanics = !serviceJSONObject.isNull("mechanics") && serviceJSONObject.getBoolean("mechanics");
-                    boolean mounting = !serviceJSONObject.isNull("mounting") && serviceJSONObject.getBoolean("mounting");
-                    boolean carWash = !serviceJSONObject.isNull("carWash") && serviceJSONObject.getBoolean("carWash");
-                    boolean towTruck = !serviceJSONObject.isNull("towTruck") && serviceJSONObject.getBoolean("towTruck");
-
-                    String companyPhonenumber = serviceJSONObject.getString("companyTelephone");
-                    String openTime = serviceJSONObject.getString("startTime");
-                    String closeTime = serviceJSONObject.getString("lastTime");
-                    String managerName = serviceJSONObject.getString("managerName");
-                    String managerPhonenumber = serviceJSONObject.getString("managerTelephone");
-                    String directorName = serviceJSONObject.getString("directorName");
-
-                    String[] servicedCarMakesArray = new String[0];
-                    if (!serviceJSONObject.isNull("cars")) {
-                        JSONArray servicedCarMakes = serviceJSONObject.getJSONArray("cars");
-                        servicedCarMakesArray = new String[servicedCarMakes.length()];
-                        for (int j = 0; j < servicedCarMakes.length(); j++) {
-                            servicedCarMakesArray[j] = servicedCarMakes.getString(j);
-                        }
-                    }
+                    ServiceStation serviceStation = parseMasterFromJSONObject(serviceJSONObject);
 
                     JSONObject chosenPlace = serviceJSONObject.getJSONObject("chosenPlace");
-                    String placeId = chosenPlace.getString("PlaceId");
                     // Convert ID to place
                     PendingResult<PlaceBuffer> places_buffer = Places.GeoDataApi
-                            .getPlaceById(mGoogleApiClient, placeId);
+                            .getPlaceById(mGoogleApiClient, serviceStation.getPlaceId());
                     PlaceBuffer placeBuffer = places_buffer.await();
                     // Object must be frozen if we want to use it after the buffer is released.
                     Place place = placeBuffer.get(0).freeze();
                     placeBuffer.release();
 
-                    float avgRating = (float) serviceJSONObject.getInt("rate");
-
-                    JSONObject carTypes = serviceJSONObject.getJSONObject("categories");
-
-                    ServiceStation serviceStation = new ServiceStation();
-                    serviceStation.setName(name);
-                    serviceStation.setID(id);
                     serviceStation.setLocation(place);
                     serviceStation.setCityName(Utils.parseCityNameFromAddress(
                             place.getAddress()));
-                    serviceStation.setOpeningTime(TimeHolder.parseTime(openTime));
-                    serviceStation.setClosingTime(TimeHolder.parseTime(closeTime));
-                    serviceStation.setAvgRating(avgRating);
-                    serviceStation.setDirectorName(directorName);
-                    serviceStation.setDirectorPhonenumber(managerPhonenumber);
-                    serviceStation.setManagerName(managerName);
-                    serviceStation.setPhonenumber(companyPhonenumber);
-                    serviceStation.setServicedCarMakes(servicedCarMakesArray);
-                    serviceStation.setSubmittedRatings(0); // TODO: update when back-end is updated
-
-                    serviceStation.toggleService(ServiceType.SERVICE_TYPE_CAR_WASH, carWash);
-                    serviceStation.toggleService(ServiceType.SERVICE_TYPE_AC_REPAIR_REFILL, mechanics); // TODO: Update to proper value when back-end is updated
-                    serviceStation.toggleService(ServiceType.SERVICE_TYPE_TUNING, towTruck); // TODO: Update to proper value when back-end is updated
-                    serviceStation.toggleService(ServiceType.SERVICE_TYPE_TYRE_REPAIR, mounting); // TODO: Update to proper value when back-end is updated
-
-                    serviceStation.toggleVehicleType(VehicleType.BUS, carTypes.has("bus") && carTypes.getBoolean("bus"));
-                    serviceStation.toggleVehicleType(VehicleType.PRIVATE, carTypes.has("passCar") && carTypes.getBoolean("passCar"));
-                    serviceStation.toggleVehicleType(VehicleType.MOTORCYCLE, carTypes.has("bicycle") && carTypes.getBoolean("bicycle"));
-                    serviceStation.toggleVehicleType(VehicleType.TRUCK, carTypes.has("lorry") && carTypes.getBoolean("lorry"));
-
                     searchResult.addService(serviceStation);
                 }
             } catch (JSONException e) {
@@ -510,6 +470,158 @@ public class ServerConnection {
         }
 
         return filteredResult;
+    }
+
+    public static void authenticateUser(Context context, String email,
+                                        Response.Listener<String> responseListener,
+                                        Response.ErrorListener errorListener) {
+        doHttpGet(context, AUTHENTICATE_URL + "?email=", email, responseListener, errorListener);
+    }
+
+    public static void getMasterById(Context context, long id,
+                                     Response.Listener<String> responseListener,
+                                     Response.ErrorListener errorListener) {
+        doHttpGet(context, MASTERS_URL + "?id=", id, responseListener, errorListener);
+    }
+
+    public static void getClientById(Context context, long id,
+                                     Response.Listener<String> responseListener,
+                                     Response.ErrorListener errorListener) {
+        doHttpGet(context, CLIENTS_URL + "?id=", id, responseListener, errorListener);
+    }
+
+    public static ClientUser[] parseClientsFromResponse(String response) throws JSONException {
+        JSONArray clientsJSONArray = new JSONArray(response);
+
+        ClientUser[] users = new ClientUser[clientsJSONArray.length()];
+        for (int i = 0; i < clientsJSONArray.length(); i++) {
+            ClientUser user = parseClientFromJSONObject(clientsJSONArray.getJSONObject(i));
+            users[i] = user;
+        }
+
+        return users;
+    }
+
+    private static ClientUser parseClientFromJSONObject(JSONObject mastersJSONObject) throws JSONException {
+        long id = mastersJSONObject.getLong("id");
+        String name = mastersJSONObject.getString("name");
+
+        VehicleData[] cars = null;
+        if (!mastersJSONObject.isNull("cars")) {
+            JSONArray carsJSONArray = mastersJSONObject.getJSONArray("cars");
+            cars = new VehicleData[carsJSONArray.length()];
+            for (int j = 0; j < carsJSONArray.length(); j++) {
+                Log.d("ServerConnection", "parseClientFromJSONObject:: string=" + carsJSONArray.getString(j));
+                String[] carProperties = carsJSONArray.getString(j).split(",");
+
+                cars[j] = new VehicleData();
+                cars[j].setVehicleMake(carProperties[0]);
+                cars[j].setVehicleModel(carProperties[1]);
+                cars[j].setVehicleYear(Integer.parseInt(carProperties[2].trim()));
+                cars[j].setVehicleModifications(carProperties[3]);
+            }
+        }
+
+        ClientUser clientUser = new ClientUser();
+
+        clientUser.setName(name);
+        clientUser.setId(id);
+        if (cars != null) {
+            clientUser.setVehicleData(cars[0]); // For now support just one car.
+        }
+
+        return clientUser;
+    }
+
+    public static ServiceStation[] parseMastersFromResponse(String response) throws JSONException {
+        JSONArray servicesJSONArray = new JSONArray(response);
+
+        ServiceStation[] serviceStations = new ServiceStation[servicesJSONArray.length()];
+        for (int i = 0; i < servicesJSONArray.length(); i++) {
+            ServiceStation serviceStation = parseMasterFromJSONObject(servicesJSONArray.getJSONObject(i));
+            serviceStations[i] = serviceStation;
+        }
+
+        return serviceStations;
+    }
+
+    private static ServiceStation parseMasterFromJSONObject(JSONObject mastersJSONObject) throws JSONException {
+        long id = mastersJSONObject.getLong("id");
+        String name = mastersJSONObject.getString("companyName");
+
+        // TODO: update service types when back-end is updated.
+        boolean mechanics = !mastersJSONObject.isNull("mechanics") && mastersJSONObject.getBoolean("mechanics");
+        boolean mounting = !mastersJSONObject.isNull("mounting") && mastersJSONObject.getBoolean("mounting");
+        boolean carWash = !mastersJSONObject.isNull("carWash") && mastersJSONObject.getBoolean("carWash");
+        boolean towTruck = !mastersJSONObject.isNull("towTruck") && mastersJSONObject.getBoolean("towTruck");
+
+        String companyPhonenumber = mastersJSONObject.getString("companyTelephone");
+        String openTime = mastersJSONObject.getString("startTime");
+        String closeTime = mastersJSONObject.getString("lastTime");
+        String managerName = mastersJSONObject.getString("managerName");
+        String managerPhonenumber = mastersJSONObject.getString("managerTelephone");
+        String directorName = mastersJSONObject.getString("directorName");
+
+        String[] servicedCarMakesArray = new String[0];
+        if (!mastersJSONObject.isNull("cars")) {
+            JSONArray servicedCarMakes = mastersJSONObject.getJSONArray("cars");
+            servicedCarMakesArray = new String[servicedCarMakes.length()];
+            for (int j = 0; j < servicedCarMakes.length(); j++) {
+                servicedCarMakesArray[j] = servicedCarMakes.getString(j);
+            }
+        }
+
+        JSONObject chosenPlace = mastersJSONObject.getJSONObject("chosenPlace");
+        String placeId = chosenPlace.getString("PlaceId");
+
+        float avgRating = (float) mastersJSONObject.getInt("rate");
+
+        JSONObject carTypes = mastersJSONObject.getJSONObject("categories");
+
+        ServiceStation serviceStation = new ServiceStation();
+        serviceStation.setName(name);
+        serviceStation.setID(id);
+        serviceStation.setPlaceId(placeId);
+
+        if (mastersJSONObject.has("FormattedAddress"))
+            serviceStation.setCityName(mastersJSONObject.getString("FormattedAddress"));
+
+        serviceStation.setOpeningTime(TimeHolder.parseTime(openTime));
+        serviceStation.setClosingTime(TimeHolder.parseTime(closeTime));
+        serviceStation.setAvgRating(avgRating);
+        serviceStation.setDirectorName(directorName);
+        serviceStation.setDirectorPhonenumber(managerPhonenumber);
+        serviceStation.setManagerName(managerName);
+        serviceStation.setPhonenumber(companyPhonenumber);
+        serviceStation.setServicedCarMakes(servicedCarMakesArray);
+        serviceStation.setSubmittedRatings(0); // TODO: update when back-end is updated
+
+        serviceStation.toggleService(ServiceType.SERVICE_TYPE_CAR_WASH, carWash);
+        serviceStation.toggleService(ServiceType.SERVICE_TYPE_AC_REPAIR_REFILL, mechanics); // TODO: Update to proper value when back-end is updated
+        serviceStation.toggleService(ServiceType.SERVICE_TYPE_TUNING, towTruck); // TODO: Update to proper value when back-end is updated
+        serviceStation.toggleService(ServiceType.SERVICE_TYPE_TYRE_REPAIR, mounting); // TODO: Update to proper value when back-end is updated
+
+        serviceStation.toggleVehicleType(VehicleType.BUS, carTypes.has("bus") && carTypes.getBoolean("bus"));
+        serviceStation.toggleVehicleType(VehicleType.PRIVATE, carTypes.has("passCar") && carTypes.getBoolean("passCar"));
+        serviceStation.toggleVehicleType(VehicleType.MOTORCYCLE, carTypes.has("bicycle") && carTypes.getBoolean("bicycle"));
+        serviceStation.toggleVehicleType(VehicleType.TRUCK, carTypes.has("lorry") && carTypes.getBoolean("lorry"));
+
+        return serviceStation;
+    }
+
+    private static<T> void doHttpGet(Context context, String rootUrl, T parameter,
+                                    Response.Listener<String> responseListener,
+                                    Response.ErrorListener errorListener) {
+        RequestQueue queue = Volley.newRequestQueue(context);
+
+        String url = rootUrl + parameter.toString();
+        Log.d("ServerConnection", "doHttpGet:: url=" + url);
+
+        // Request a string response from the provided URL.
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                responseListener, errorListener);
+        // Add the request to the RequestQueue.
+        queue.add(stringRequest);
     }
 
     /*// TODO: Remove when switching to real results.

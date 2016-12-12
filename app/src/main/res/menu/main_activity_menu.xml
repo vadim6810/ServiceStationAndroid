@@ -5,6 +5,12 @@
     tools:context="com.example.menuexample.MenuExampleActivity">
 
     <item
+        android:id="@+id/menu_item_signout"
+        android:orderInCategory="0"
+        app:showAsAction="ifRoom"
+        android:icon="@drawable/ic_exit_to_app_black_24dp"
+        android:title=""/>
+    <item
         android:id="@+id/menu_item_profile"
         android:orderInCategory="1"
         app:showAsAction="never"

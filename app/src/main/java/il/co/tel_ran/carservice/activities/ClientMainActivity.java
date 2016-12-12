@@ -1,6 +1,8 @@
 package il.co.tel_ran.carservice.activities;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.AppBarLayout;
@@ -15,16 +17,23 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.places.Places;
+
+import org.json.JSONException;
 
 import il.co.tel_ran.carservice.ClientActivityRetainedData;
 import il.co.tel_ran.carservice.ClientUser;
 import il.co.tel_ran.carservice.R;
 import il.co.tel_ran.carservice.ServerConnection;
+import il.co.tel_ran.carservice.ServiceStation;
 import il.co.tel_ran.carservice.TenderRequest;
+import il.co.tel_ran.carservice.User;
 import il.co.tel_ran.carservice.UserType;
 import il.co.tel_ran.carservice.Utils;
 import il.co.tel_ran.carservice.VehicleData;
@@ -38,6 +47,7 @@ public class ClientMainActivity extends AppCompatActivity
         implements GoogleApiClient.OnConnectionFailedListener, SwipeRefreshLayout.OnRefreshListener, RefreshingFragment.RefreshingFragmentListener {
 
     public static final int REQUEST_CODE_POST_TENDER = 1;
+    public static final int REQUEST_CODE_SIGN_IN = 2;
 
     public static final String SHARED_PREFS_RECENT_SERVICES = "recent_services";
 
@@ -46,6 +56,8 @@ public class ClientMainActivity extends AppCompatActivity
     private ServerConnection mServerConnection;
 
     private View mUserAccountControlLayout;
+
+    private Menu mMenu;
 
     private static final int TAB_FRAGMENT_RECENT_SERVICES_INDEX = 0;
     private RecentServicesTabFragment mRecentServicesTabFragment;
@@ -60,6 +72,10 @@ public class ClientMainActivity extends AppCompatActivity
 
     private SwipeRefreshLayout mSwipeRefreshLayout;
 
+    private ClientUser mUser;
+    private boolean mIsSignedIn;
+    private boolean mIsLoadingUser;
+
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
         // Handle connection results.
@@ -68,6 +84,12 @@ public class ClientMainActivity extends AppCompatActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main_activity_menu, menu);
+
+        mMenu = menu;
+
+        MenuItem signOutItem = menu.getItem(0);
+        signOutItem.getIcon().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
+        signOutItem.setVisible(false);
         return true;
     }
 
@@ -76,10 +98,19 @@ public class ClientMainActivity extends AppCompatActivity
         switch (item.getItemId()) {
             case R.id.menu_item_profile:
                 // TODO: Add check for user signed-in
-                Intent intent = new Intent(ClientMainActivity.this, ProfileActivity.class);
-                // Since we are in ClientMainActivity the user type is a client.
-                intent.putExtra("user_type", UserType.USER_CLIENT);
-                startActivity(intent);
+                if (isUserSignedIn()) {
+                    if (mIsLoadingUser) {
+                        Toast.makeText(ClientMainActivity.this, R.string.loading_message,
+                                Toast.LENGTH_LONG).show();
+                        return true;
+                    }
+                    Intent intent = new Intent(ClientMainActivity.this, ProfileActivity.class);
+                    // Since we are in ClientMainActivity the user type is a client.
+                    intent.putExtra("user_type", UserType.USER_CLIENT);
+                    // Pass user object
+                    intent.putExtra("user", mUser);
+                    startActivity(intent);
+                }
                 break;
             case R.id.menu_item_about:
                 break;
@@ -88,6 +119,10 @@ public class ClientMainActivity extends AppCompatActivity
                 mSwipeRefreshLayout.setRefreshing(true);
                 // Start refreshing.
                 onRefresh();
+                break;
+            case R.id.menu_item_signout:
+                mIsSignedIn = false;
+                onSignOut();
                 break;
             default:
                 return super.onOptionsItemSelected(item);
@@ -104,7 +139,7 @@ public class ClientMainActivity extends AppCompatActivity
 
     public void showSignInForm(View view) {
         Intent intent = new Intent(ClientMainActivity.this, SignInActivity.class);
-        startActivity(intent);
+        startActivityForResult(intent, REQUEST_CODE_SIGN_IN);
     }
 
     public GoogleApiClient getGoogleApiClient() {
@@ -191,8 +226,64 @@ public class ClientMainActivity extends AppCompatActivity
                     }
                 }
                 break;
+            case REQUEST_CODE_SIGN_IN:
+                if (resultCode == RESULT_OK) {
+                    mUser = (ClientUser) data.getSerializableExtra("user");
+                    mIsSignedIn = true;
+                    onSignIn();
+                }
+                break;
         }
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    private void onSignIn() {
+        // Set sign out action enabled
+        mMenu.getItem(0).setVisible(true);
+
+        mUserAccountControlLayout.setVisibility(View.GONE);
+
+        loadClient();
+    }
+
+    private void onSignOut() {
+        // Set sign out action enabled
+        mMenu.getItem(0).setVisible(false);
+
+        mUserAccountControlLayout.setVisibility(View.VISIBLE);
+
+        mUser = null;
+
+        // TODO: remove recent services, clear request service.
+    }
+
+    private void loadClient() {
+        mIsLoadingUser = true;
+        ServerConnection.getClientById(ClientMainActivity.this, mUser.getId(), new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                if (response == null || response.isEmpty()) {
+                    // TODO: handle error
+                }
+                try {
+                    ClientUser client = ServerConnection
+                            .parseClientsFromResponse(response)[0];
+
+                    if (client != null) {
+                        mUser = client;
+                    }
+
+                    mIsLoadingUser = false;
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                // TODO: handle error
+            }
+        });
     }
 
     private void setupRefreshLayout() {
@@ -385,5 +476,9 @@ public class ClientMainActivity extends AppCompatActivity
         }
 
         return false;
+    }
+
+    private boolean isUserSignedIn() {
+        return mIsSignedIn && mUser != null;
     }
 }

@@ -14,6 +14,8 @@ public class User implements Persisted, Serializable {
     protected String mName;
     protected String mEmail;
 
+    protected long mId;
+
     public User() {
 
     }
@@ -21,6 +23,7 @@ public class User implements Persisted, Serializable {
     public User(User copyUser) {
         setName(copyUser.getName());
         setEmail(copyUser.getEmail());
+        setId(copyUser.getId());
     }
 
     public User(String name, String email) {
@@ -42,6 +45,14 @@ public class User implements Persisted, Serializable {
 
     public String getEmail() {
         return mEmail;
+    }
+
+    public void setId(long id) {
+        mId = id;
+    }
+
+    public long getId() {
+        return mId;
     }
 
     @Override

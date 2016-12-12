@@ -75,7 +75,7 @@
                 android:src="@drawable/ic_arrow_forward_white_24dp"
                 android:clickable="true"
                 android:visibility="visible"
-                android:onClick="signIn"/>
+                android:onClick="onSignInClick"/>
         </LinearLayout>
 
         <Button

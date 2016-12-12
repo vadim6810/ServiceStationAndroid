@@ -19,9 +19,13 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.places.Places;
+
+import org.json.JSONException;
 
 import java.util.List;
 
@@ -41,7 +45,8 @@ import il.co.tel_ran.carservice.fragments.RegistrationServiceDetailsFragment;
 import il.co.tel_ran.carservice.fragments.RegistrationVehicleDetailsFragment;
 
 public class ProfileActivity extends AppCompatActivity
-    implements View.OnClickListener, View.OnTouchListener, ServerConnection.OnServicesRetrievedListener, GoogleApiClient.OnConnectionFailedListener {
+    implements View.OnClickListener, View.OnTouchListener,
+        GoogleApiClient.OnConnectionFailedListener {
 
     private UserType mUserType = UserType.USER_CLIENT;
 
@@ -159,7 +164,6 @@ public class ProfileActivity extends AppCompatActivity
         }
     }
 
-    @Override
     public void onServicesRetrievingStarted() {
         if (mServiceDetailsFragment != null) {
             mServiceDetailsFragment.toggleLoadingService(true);
@@ -168,28 +172,19 @@ public class ProfileActivity extends AppCompatActivity
         mIsServiceLoading = true;
     }
 
-    @Override
-    public void onServicesRetrieved(ServiceSearchResult searchResult) {
+    public void onServicesRetrieved(ServiceStation serviceStation) {
         mIsServiceLoading = false;
 
-        ServiceStation loadedService = null;
-        for (ServiceStation service : searchResult.getSerivces()) {
-            loadedService = service;
-            if (loadedService.getID() == mServiceId) {
-                break;
-            }
-        }
-
-        if (loadedService != null) {
+        if (serviceStation != null) {
             if (mServiceDetailsFragment != null) {
                 mServiceDetailsFragment.toggleLoadingService(false);
-                mServiceDetailsFragment.setFieldsFromService(loadedService);
+                mServiceDetailsFragment.setFieldsFromService(serviceStation);
             }
 
             try {
-                ((ProviderUser) mUser).setService(loadedService);
+                ((ProviderUser) mUser).setService(serviceStation);
                 // Save as a copy
-                ((ProviderUser) mUserChanges).setService(new ServiceStation(loadedService));
+                ((ProviderUser) mUserChanges).setService(new ServiceStation(serviceStation));
             } catch (ClassCastException e) {
                 e.printStackTrace();
             }
@@ -212,13 +207,13 @@ public class ProfileActivity extends AppCompatActivity
         setupGoogleApiClient();
 
         Bundle extras = getIntent().getExtras();
-        if (extras != null && !extras.isEmpty()) {
+
+        boolean hasExtras = extras != null && !extras.isEmpty();
+        if (hasExtras) {
             UserType userType = (UserType) extras.getSerializable("user_type");
             if (userType != null) {
                 mUserType = userType;
             }
-
-            mServiceId = extras.getLong("service_id");
 
             // TODO: Get User object from extras.
         }
@@ -252,12 +247,44 @@ public class ProfileActivity extends AppCompatActivity
                 // Show the service details layout since it's hidden by default.
                 mServiceDetailsLayout.setVisibility(View.VISIBLE);
 
-                // Mock details
-                ProviderUser providerUser = new ProviderUser(mUser);
+                if (hasExtras) {
+                    mUser = (User) extras.getSerializable("user");
+                }
 
-                loadServiceDetails();
+                onServicesRetrievingStarted();
+                ServerConnection.getMasterById(ProfileActivity.this, mUser.getId(),
+                        new Response.Listener<String>() {
+                            @Override
+                            public void onResponse(String response) {
+                                if (response == null || response.isEmpty()) {
+                                    // TODO: handle error by showing an error message
 
-                mUser = providerUser;
+                                    // Exit this activity.
+                                    finish();
+                                }
+                                try {
+                                    ServiceStation serviceStation = ServerConnection
+                                            .parseMastersFromResponse(response)[0];
+
+                                    if (serviceStation != null) {
+                                        mUser = new ProviderUser(mUser);
+
+                                        onServicesRetrieved(serviceStation);
+                                    }
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }, new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                // TODO: handle error by showing an error message
+
+                                // Exit this activity.
+                                finish();
+                            }
+                        });
+
                 mUserChanges = new ProviderUser(mUser);
 
                 if (mServiceDetailsFragment != null)
@@ -269,17 +296,10 @@ public class ProfileActivity extends AppCompatActivity
             default:
                 // Service details is hidden by default.
 
-                // Mock details
-                ClientUser clientUser = new ClientUser(mUser);
+                if (hasExtras) {
+                    mUser = (ClientUser) extras.getSerializable("user");
+                }
 
-                VehicleData mockVehicleData = new VehicleData();
-                mockVehicleData.setVehicleMake("Audi");
-                mockVehicleData.setVehicleModel("R8 Coupe");
-                mockVehicleData.setVehicleYear(2016);
-                mockVehicleData.setVehicleModifications("5.2 V10 FSI (560 Hp) GT");
-
-                clientUser.setVehicleData(mockVehicleData);
-                mUser = clientUser;
                 mUserChanges = new ClientUser(mUser);
                 break;
         }
@@ -287,11 +307,6 @@ public class ProfileActivity extends AppCompatActivity
         updateFields(false);
 
         setupActionBar();
-    }
-
-    private void loadServiceDetails() {
-        ServerConnection serverConnection = new ServerConnection();
-        serverConnection.findServices(new ServiceSearchQuery(), mGoogleApiClient, this);
     }
 
     private void setupServiceDetailsFragment() {
@@ -407,7 +422,10 @@ public class ProfileActivity extends AppCompatActivity
             case NONE:
                 // FALLTHROUGH
             case USER_CLIENT:
-                mVehicleDetailsTextView.setText(((ClientUser) mUser).getVehicleData().toString());
+                VehicleData vehicleData = ((ClientUser) mUser).getVehicleData();
+                if (vehicleData != null) {
+                    mVehicleDetailsTextView.setText(vehicleData.toString());
+                }
                 break;
             case USER_SERVICE_PROVIDER:
                 if (mServiceDetailsFragment != null) {

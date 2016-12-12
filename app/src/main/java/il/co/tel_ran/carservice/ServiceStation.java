@@ -15,6 +15,7 @@ public class ServiceStation {
 
     private String mServiceName;
 
+    private String mPlaceId;
     private Place mLocation;
     private String mCityName;
 
@@ -57,8 +58,11 @@ public class ServiceStation {
 
     // Copy constructor
     public ServiceStation(ServiceStation otherService) {
+        if (otherService == null)
+            return;
         mID = otherService.getID();
         mServiceName = otherService.getName();
+        mPlaceId = otherService.getPlaceId();
         mLocation = otherService.getLocation();
         mCityName = otherService.getCityName();
         mAvgRating = otherService.getAvgRating();
@@ -227,6 +231,14 @@ public class ServiceStation {
         return mManagerName;
     }
 
+    public void setPlaceId(String placeId) {
+        mPlaceId = placeId;
+    }
+
+    public String getPlaceId() {
+        return mPlaceId;
+    }
+
     public boolean equals(ServiceStation otherService) {
         if (otherService == null)
             return false;
@@ -238,6 +250,9 @@ public class ServiceStation {
             return false;
 
         if (mLocation != null && !mLocation.equals(otherService.getLocation()))
+            return false;
+
+        if (mPlaceId != null && mPlaceId.equals(otherService.getPlaceId()))
             return false;
 
         if (mCityName != null && !mCityName.equals(otherService.getCityName()))

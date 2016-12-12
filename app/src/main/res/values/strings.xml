@@ -44,6 +44,7 @@
     <string name="register_user_details_client_vehicle_engine_displacement">Engine Displacement:</string>
     <string name="user_name_error_message">Please enter a name</string>
     <string name="user_email_error_message">Please enter a valid email address</string>
+    <string name="user_incorrect_email_error_message">Incorrect email address</string>
     <string name="user_password_error_message">Incorrect password</string>
     <string name="no_services">No services to show.</string>
     <string name="service_contat_details_dialog_title">Contact</string>
@@ -127,4 +128,5 @@
     <string name="no_tender_requests_to_show">No tender requests to show.</string>
     <string name="no_messages_to_show">No messages to show.</string>
     <string name="message_time_format_prefix_yesterday">Yesterday,</string>
+    <string name="sign_out_title">Sign Out</string>
 </resources>

@@ -18,6 +18,7 @@ public class ClientUser extends User {
     public ClientUser(User user) {
         setName(user.getName());
         setEmail(user.getEmail());
+        setId(user.getId());
     }
 
     public ClientUser(ClientUser user) {

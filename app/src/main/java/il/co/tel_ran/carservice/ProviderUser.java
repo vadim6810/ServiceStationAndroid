@@ -15,11 +15,13 @@ public class ProviderUser extends User {
     public ProviderUser(User user) {
         setName(user.getName());
         setEmail(user.getEmail());
+        setId(user.getId());
     }
 
     public ProviderUser(ProviderUser providerUser) {
         setName(providerUser.getName());
         setEmail(providerUser.getEmail());
+        setId(providerUser.getId());
         setService(new ServiceStation(providerUser.getService()));
     }
 
