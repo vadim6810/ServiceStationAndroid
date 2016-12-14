@@ -1,4 +1,4 @@
-package il.co.tel_ran.carservice;
+package il.co.tel_ran.carservice.connection;
 
 import android.content.Context;
 import android.os.AsyncTask;
@@ -21,6 +21,19 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import il.co.tel_ran.carservice.ClientUser;
+import il.co.tel_ran.carservice.InboxMessage;
+import il.co.tel_ran.carservice.ServiceSearchQuery;
+import il.co.tel_ran.carservice.ServiceSearchResult;
+import il.co.tel_ran.carservice.ServiceStation;
+import il.co.tel_ran.carservice.ServiceType;
+import il.co.tel_ran.carservice.TenderReply;
+import il.co.tel_ran.carservice.TenderRequest;
+import il.co.tel_ran.carservice.TimeHolder;
+import il.co.tel_ran.carservice.Utils;
+import il.co.tel_ran.carservice.VehicleData;
+import il.co.tel_ran.carservice.VehicleType;
 
 /**
  * Created by maxim on 9/29/2016.

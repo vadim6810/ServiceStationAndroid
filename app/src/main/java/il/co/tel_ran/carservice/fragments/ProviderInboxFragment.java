@@ -11,17 +11,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import il.co.tel_ran.carservice.InboxMessage;
 import il.co.tel_ran.carservice.R;
-import il.co.tel_ran.carservice.ServerConnection;
+import il.co.tel_ran.carservice.connection.ServerConnection;
 import il.co.tel_ran.carservice.activities.ProviderMainActivity;
 import il.co.tel_ran.carservice.adapters.InboxMessagesAdapter;
-import il.co.tel_ran.carservice.adapters.TenderRequestsAdapter;
 
 /**
  * Created by Max on 29/11/2016.

@@ -27,14 +27,10 @@ import com.google.android.gms.location.places.Places;
 
 import org.json.JSONException;
 
-import java.util.List;
-
 import il.co.tel_ran.carservice.ClientUser;
 import il.co.tel_ran.carservice.ProviderUser;
 import il.co.tel_ran.carservice.R;
-import il.co.tel_ran.carservice.ServerConnection;
-import il.co.tel_ran.carservice.ServiceSearchQuery;
-import il.co.tel_ran.carservice.ServiceSearchResult;
+import il.co.tel_ran.carservice.connection.ServerConnection;
 import il.co.tel_ran.carservice.ServiceStation;
 import il.co.tel_ran.carservice.User;
 import il.co.tel_ran.carservice.UserType;

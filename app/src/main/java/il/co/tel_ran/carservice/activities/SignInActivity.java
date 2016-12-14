@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
 import il.co.tel_ran.carservice.ClientUser;
 import il.co.tel_ran.carservice.ProviderUser;
 import il.co.tel_ran.carservice.R;
-import il.co.tel_ran.carservice.ServerConnection;
+import il.co.tel_ran.carservice.connection.ServerConnection;
 import il.co.tel_ran.carservice.User;
 
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;

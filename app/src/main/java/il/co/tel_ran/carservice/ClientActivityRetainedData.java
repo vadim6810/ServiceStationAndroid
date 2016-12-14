@@ -2,6 +2,7 @@ package il.co.tel_ran.carservice;
 
 import com.google.android.gms.common.api.GoogleApiClient;
 
+import il.co.tel_ran.carservice.connection.ServerConnection;
 import il.co.tel_ran.carservice.fragments.RecentServicesTabFragment;
 import il.co.tel_ran.carservice.fragments.RequestServiceTabFragment;
 import il.co.tel_ran.carservice.fragments.SearchServiceTabFragment;

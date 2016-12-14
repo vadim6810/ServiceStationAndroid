@@ -18,7 +18,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import il.co.tel_ran.carservice.R;
-import il.co.tel_ran.carservice.ServerConnection;
+import il.co.tel_ran.carservice.connection.ServerConnection;
 import il.co.tel_ran.carservice.ServiceSearchQuery;
 import il.co.tel_ran.carservice.ServiceSearchResult;
 import il.co.tel_ran.carservice.ServiceStation;

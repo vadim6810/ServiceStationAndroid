@@ -3,7 +3,6 @@ package il.co.tel_ran.carservice.fragments;
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -17,9 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import il.co.tel_ran.carservice.R;
-import il.co.tel_ran.carservice.ServerConnection;
+import il.co.tel_ran.carservice.connection.ServerConnection;
 import il.co.tel_ran.carservice.TenderRequest;
-import il.co.tel_ran.carservice.VehicleData;
 import il.co.tel_ran.carservice.activities.ProviderMainActivity;
 import il.co.tel_ran.carservice.adapters.TenderRequestsAdapter;
 
