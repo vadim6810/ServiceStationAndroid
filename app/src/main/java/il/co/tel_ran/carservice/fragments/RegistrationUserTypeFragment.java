@@ -88,14 +88,14 @@ public class RegistrationUserTypeFragment extends Fragment
         switch (v.getId()) {
             case R.id.client_option_layout:
                 // Animate background color and text color.
-                animateRegisterOptionsLayouts(mUserType, UserType.USER_CLIENT,
+                animateRegisterOptionsLayouts(mUserType, UserType.CLIENT,
                         android.R.color.background_light,
                         Utils.getThemeAccentColor(getActivity()), 300);
 
                 if (mListener != null) {
-                    mListener.onUserTypeChange(mUserType, UserType.USER_CLIENT);
+                    mListener.onUserTypeChange(mUserType, UserType.CLIENT);
                 }
-                mUserType = UserType.USER_CLIENT;
+                mUserType = UserType.CLIENT;
 
                 // Show the FAB if it's hidden.
                 // We keep it hidden to encourage the user to select a type, otherwise don't let the user proceed.
@@ -106,14 +106,14 @@ public class RegistrationUserTypeFragment extends Fragment
                 break;
             case R.id.service_provider_option_layout:
                 // Animate background color and text color.
-                animateRegisterOptionsLayouts(mUserType, UserType.USER_SERVICE_PROVIDER,
+                animateRegisterOptionsLayouts(mUserType, UserType.MASTER,
                         android.R.color.background_light,
                         Utils.getThemeAccentColor(getActivity()), 300);
 
                 if (mListener != null) {
-                    mListener.onUserTypeChange(mUserType, UserType.USER_SERVICE_PROVIDER);
+                    mListener.onUserTypeChange(mUserType, UserType.MASTER);
                 }
-                mUserType = UserType.USER_SERVICE_PROVIDER;
+                mUserType = UserType.MASTER;
 
                 // Show the FAB if it's hidden.
                 // We keep it hidden to encourage the user to select a type, otherwise don't let the user proceed.
@@ -122,7 +122,7 @@ public class RegistrationUserTypeFragment extends Fragment
                 }
 
                 if (mListener != null) {
-                    mUserType = UserType.USER_SERVICE_PROVIDER;
+                    mUserType = UserType.MASTER;
                 }
 
                 break;
@@ -170,7 +170,7 @@ public class RegistrationUserTypeFragment extends Fragment
             public void onAnimationUpdate(ValueAnimator valueAnimator) {
                 float fraction = valueAnimator.getAnimatedFraction();
                 switch (newType) {
-                    case USER_CLIENT:
+                    case CLIENT:
                         // Apply color to Client registration option
                         clientBackground.setColorFilter((Integer)colorEvaluator.evaluate(
                                 fraction, startColor, endColor), PorterDuff.Mode.SRC);
@@ -198,7 +198,7 @@ public class RegistrationUserTypeFragment extends Fragment
                             providerBackground.clearColorFilter();
                         }
                         break;
-                    case USER_SERVICE_PROVIDER:
+                    case MASTER:
                         // Apply color to Client registration option
                         providerBackground.setColorFilter((Integer)colorEvaluator.evaluate(
                                 fraction, startColor, endColor), PorterDuff.Mode.SRC);

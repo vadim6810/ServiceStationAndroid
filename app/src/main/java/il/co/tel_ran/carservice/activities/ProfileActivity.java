@@ -44,7 +44,7 @@ public class ProfileActivity extends AppCompatActivity
     implements View.OnClickListener, View.OnTouchListener,
         GoogleApiClient.OnConnectionFailedListener {
 
-    private UserType mUserType = UserType.USER_CLIENT;
+    private UserType mUserType = UserType.CLIENT;
 
     private Menu mMenu;
 
@@ -154,7 +154,7 @@ public class ProfileActivity extends AppCompatActivity
     }
 
     public void updateVehicleDetails(VehicleData newVehicleData) {
-        if (newVehicleData != null && mUserType == UserType.USER_CLIENT) {
+        if (newVehicleData != null && mUserType == UserType.CLIENT) {
             ((ClientUser) mUser).setVehicleData(newVehicleData);
             updateFields(false);
         }
@@ -236,7 +236,7 @@ public class ProfileActivity extends AppCompatActivity
 
         // TODO: Remove mock user later.
         switch (mUserType) {
-            case USER_SERVICE_PROVIDER:
+            case MASTER:
                 // Hide vehicle details layout since it's visible by default.
                 mVehicleDetailsLayout.setVisibility(View.GONE);
                 findViewById(R.id.update_button).setVisibility(View.GONE);
@@ -287,7 +287,7 @@ public class ProfileActivity extends AppCompatActivity
                     ((ProviderUser) mUserChanges).setService(mServiceDetailsFragment.getService());
 
                 break;
-            case USER_CLIENT:
+            case CLIENT:
                 // FALLTHROUGH
             default:
                 // Service details is hidden by default.
@@ -355,7 +355,7 @@ public class ProfileActivity extends AppCompatActivity
         mUserChanges.setName(mNameEditText.getText().toString());
         mUserChanges.setEmail(mEmailAddressEditText.getText().toString());
 
-        if (mUserType == UserType.USER_SERVICE_PROVIDER && mServiceDetailsFragment != null) {
+        if (mUserType == UserType.MASTER && mServiceDetailsFragment != null) {
             // Update Service in fragment
             mServiceDetailsFragment.updateServiceFromFields();
 
@@ -382,7 +382,7 @@ public class ProfileActivity extends AppCompatActivity
         Toast.makeText(ProfileActivity.this, getString(R.string.discarding_changes_message),
                 Toast.LENGTH_SHORT).show();
 
-        if (mUserType == UserType.USER_SERVICE_PROVIDER) {
+        if (mUserType == UserType.MASTER) {
             mUserChanges = new ProviderUser((ProviderUser) mUser);
         } else {
             mUserChanges = new ClientUser((ClientUser) mUser);
@@ -398,7 +398,7 @@ public class ProfileActivity extends AppCompatActivity
         mUser.setEmail(mEmailAddressEditText.getText().toString());
 
         try {
-            if (mUserType == UserType.USER_SERVICE_PROVIDER) {
+            if (mUserType == UserType.MASTER) {
                 // Get a copy of the internal service
                 ((ProviderUser) mUser).setService((mServiceDetailsFragment.getService()));
                 mUserChanges = new ProviderUser((ProviderUser) mUser);
@@ -417,13 +417,13 @@ public class ProfileActivity extends AppCompatActivity
         switch (mUserType) {
             case NONE:
                 // FALLTHROUGH
-            case USER_CLIENT:
+            case CLIENT:
                 VehicleData vehicleData = ((ClientUser) mUser).getVehicleData();
                 if (vehicleData != null) {
                     mVehicleDetailsTextView.setText(vehicleData.toString());
                 }
                 break;
-            case USER_SERVICE_PROVIDER:
+            case MASTER:
                 if (mServiceDetailsFragment != null) {
                     try {
                         if (undo) {

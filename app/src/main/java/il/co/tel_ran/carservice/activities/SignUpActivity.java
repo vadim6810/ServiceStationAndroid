@@ -20,7 +20,6 @@ import android.widget.Button;
 import java.util.Locale;
 
 import il.co.tel_ran.carservice.ClientUser;
-import il.co.tel_ran.carservice.HttpHandler;
 import il.co.tel_ran.carservice.ProviderUser;
 import il.co.tel_ran.carservice.R;
 import il.co.tel_ran.carservice.User;
@@ -211,14 +210,14 @@ public class SignUpActivity extends AppCompatActivity implements ViewPager.OnPag
 
                         UserType userType = mPagerAdapter.getUserType();
                         switch (userType) {
-                            case USER_CLIENT:
+                            case CLIENT:
                                 RegistrationVehicleDetailsFragment vehicleDetailsFragment
                                         = (RegistrationVehicleDetailsFragment) pageFragment;
                                 VehicleData data = vehicleDetailsFragment.getVehicleData();
                                 newUser = new ClientUser(loginDetails);
                                 ((ClientUser) newUser).setVehicleData(data);
                                 break;
-                            case USER_SERVICE_PROVIDER:
+                            case MASTER:
                                 RegistrationServiceDetailsFragment serviceDetailsFragment
                                         = (RegistrationServiceDetailsFragment) pageFragment;
                                 newUser = new ProviderUser(loginDetails);
@@ -266,7 +265,7 @@ public class SignUpActivity extends AppCompatActivity implements ViewPager.OnPag
     private static class ScreenSlidePagerAdapter extends FragmentStatePagerAdapter
             implements RegistrationUserTypeFragment.UserTypeChangeListener {
 
-        private UserType mUserType = UserType.USER_CLIENT;
+        private UserType mUserType = UserType.CLIENT;
         private boolean mIsUserTypeChanged = true;
 
         private RegistrationUserTypeFragment mUserTypeFragment;
@@ -303,7 +302,7 @@ public class SignUpActivity extends AppCompatActivity implements ViewPager.OnPag
                     // This field changes every time the user selects a different type.
                     if (mUserDetailsFragment == null || mIsUserTypeChanged) {
                         switch (mUserType) {
-                            case USER_SERVICE_PROVIDER:
+                            case MASTER:
                                 mUserDetailsFragment = new RegistrationServiceDetailsFragment();
                                 break;
                             default:

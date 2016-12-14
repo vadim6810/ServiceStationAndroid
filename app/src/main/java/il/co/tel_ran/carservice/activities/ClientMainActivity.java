@@ -104,7 +104,7 @@ public class ClientMainActivity extends AppCompatActivity
                     }
                     Intent intent = new Intent(ClientMainActivity.this, ProfileActivity.class);
                     // Since we are in ClientMainActivity the user type is a client.
-                    intent.putExtra("user_type", UserType.USER_CLIENT);
+                    intent.putExtra("user_type", UserType.CLIENT);
                     // Pass user object
                     intent.putExtra("user", mUser);
                     startActivity(intent);

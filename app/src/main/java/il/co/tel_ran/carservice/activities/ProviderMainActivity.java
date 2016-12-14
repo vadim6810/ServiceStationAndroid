@@ -502,7 +502,7 @@ public class ProviderMainActivity extends AppCompatActivity
         // TODO: Add check for user signed-in
         Intent intent = new Intent(ProviderMainActivity.this, ProfileActivity.class);
         // Since we are in ClientMainActivity the user type is a client.
-        intent.putExtra("user_type", UserType.USER_SERVICE_PROVIDER);
+        intent.putExtra("user_type", UserType.MASTER);
         // Pass user's data as a simple User object since ProviderUser is not serializable.
         intent.putExtra("user", new User(mUser));
         startActivityForResult(intent, REQUEST_CODE_PROFILE_CHANGED);
