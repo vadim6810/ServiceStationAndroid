@@ -76,7 +76,7 @@
                         android:background="@drawable/transparent_background_round_interactive"
                         android:layout_gravity="center"
                         android:clickable="true"
-                        android:src="@drawable/ic_location_on_black_24dp"/>
+                        app:srcCompat="@drawable/ic_location_on_black_24dp"/>
                     <ProgressBar
                         android:id="@+id/acquire_location_progress_bar"
                         android:layout_width="wrap_content"
