@@ -77,6 +77,14 @@
                 android:clickable="true"
                 android:visibility="visible"
                 android:onClick="onSignInClick"/>
+            <ProgressBar
+                android:id="@+id/connection_progressbar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:background="@android:color/transparent"
+                android:indeterminate="true"
+                android:visibility="gone"/>
         </LinearLayout>
 
         <Button

@@ -2,6 +2,7 @@ package il.co.tel_ran.carservice.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -11,6 +12,7 @@ import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.android.volley.Response;
@@ -38,6 +40,9 @@ public class SignInActivity extends AppCompatActivity implements TextView.OnEdit
     private EditText mPasswordEditText;
     private TextInputLayout mPasswordInputLayout;
 
+    private FloatingActionButton mLoginFAB;
+    private ProgressBar mConnectionProgressBar;
+
     private static final String EMAIL_PATTERN = "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@" + "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
     private static Pattern mEmailPattern = Pattern.compile(EMAIL_PATTERN);
 
@@ -55,6 +60,9 @@ public class SignInActivity extends AppCompatActivity implements TextView.OnEdit
         mPasswordEditText = (EditText) findViewById(R.id.login_password_edit_text);
         mPasswordEditText.setOnEditorActionListener(this);
         mPasswordInputLayout = (TextInputLayout) findViewById(R.id.login_password_input_layout);
+
+        mLoginFAB = (FloatingActionButton) findViewById(R.id.login_fab);
+        mConnectionProgressBar = (ProgressBar) findViewById(R.id.connection_progressbar);
 
         setupActionBar();
     }
@@ -235,5 +243,16 @@ public class SignInActivity extends AppCompatActivity implements TextView.OnEdit
             return false;
         // Temporary return true until password requirements are defined.
         return true;
+    }
+
+    private void toggleConenctionProgressBar(boolean toggle) {
+        if (toggle) {
+            mLoginFAB.setVisibility(View.GONE);
+            mConnectionProgressBar.setVisibility(View.VISIBLE);
+        } else {
+            mLoginFAB.setVisibility(View.VISIBLE);
+            mConnectionProgressBar.setVisibility(View.GONE);
+
+        }
     }
 }
