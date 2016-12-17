@@ -373,16 +373,16 @@ public class RegistrationServiceDetailsFragment extends RegistrationUserDetailsF
                 for (ServiceType serviceType : ServiceType.values()) {
                     boolean contains = serviceTypes.contains(serviceType);
                     switch (serviceType) {
-                        case SERVICE_TYPE_CAR_WASH:
+                        case CAR_WASH:
                             mServicesCheckBoxes[0].setChecked(contains);
                             break;
-                        case SERVICE_TYPE_TUNING:
+                        case TUNING:
                             mServicesCheckBoxes[1].setChecked(contains);
                             break;
-                        case SERVICE_TYPE_TYRE_REPAIR:
+                        case TYRE_REPAIR:
                             mServicesCheckBoxes[2].setChecked(contains);
                             break;
-                        case SERVICE_TYPE_AC_REPAIR_REFILL:
+                        case AC_REPAIR_REFILL:
                             mServicesCheckBoxes[3].setChecked(contains);
                             break;
                     }
@@ -444,10 +444,10 @@ public class RegistrationServiceDetailsFragment extends RegistrationUserDetailsF
         mService.setOpeningTime(mOpeningTime);
         mService.setClosingTime(mClosingTime);
 
-        mService.toggleService(ServiceType.SERVICE_TYPE_CAR_WASH, mServicesCheckBoxes[0].isChecked());
-        mService.toggleService(ServiceType.SERVICE_TYPE_TUNING, mServicesCheckBoxes[1].isChecked());
-        mService.toggleService(ServiceType.SERVICE_TYPE_TYRE_REPAIR, mServicesCheckBoxes[2].isChecked());
-        mService.toggleService(ServiceType.SERVICE_TYPE_AC_REPAIR_REFILL, mServicesCheckBoxes[3].isChecked());
+        mService.toggleService(ServiceType.CAR_WASH, mServicesCheckBoxes[0].isChecked());
+        mService.toggleService(ServiceType.TUNING, mServicesCheckBoxes[1].isChecked());
+        mService.toggleService(ServiceType.TYRE_REPAIR, mServicesCheckBoxes[2].isChecked());
+        mService.toggleService(ServiceType.AC_REPAIR_REFILL, mServicesCheckBoxes[3].isChecked());
 
         mService.toggleVehicleType(VehicleType.PRIVATE, mVehicleTypeCheckBoxes[0].isChecked());
         mService.toggleVehicleType(VehicleType.TRUCK, mVehicleTypeCheckBoxes[1].isChecked());

@@ -609,10 +609,10 @@ public class ServerConnection {
         serviceStation.setServicedCarMakes(servicedCarMakesArray);
         serviceStation.setSubmittedRatings(0); // TODO: update when back-end is updated
 
-        serviceStation.toggleService(ServiceType.SERVICE_TYPE_CAR_WASH, carWash);
-        serviceStation.toggleService(ServiceType.SERVICE_TYPE_AC_REPAIR_REFILL, mechanics); // TODO: Update to proper value when back-end is updated
-        serviceStation.toggleService(ServiceType.SERVICE_TYPE_TUNING, towTruck); // TODO: Update to proper value when back-end is updated
-        serviceStation.toggleService(ServiceType.SERVICE_TYPE_TYRE_REPAIR, mounting); // TODO: Update to proper value when back-end is updated
+        serviceStation.toggleService(ServiceType.CAR_WASH, carWash);
+        serviceStation.toggleService(ServiceType.AC_REPAIR_REFILL, mechanics); // TODO: Update to proper value when back-end is updated
+        serviceStation.toggleService(ServiceType.TUNING, towTruck); // TODO: Update to proper value when back-end is updated
+        serviceStation.toggleService(ServiceType.TYRE_REPAIR, mounting); // TODO: Update to proper value when back-end is updated
 
         serviceStation.toggleVehicleType(VehicleType.BUS, carTypes.has("bus") && carTypes.getBoolean("bus"));
         serviceStation.toggleVehicleType(VehicleType.PRIVATE, carTypes.has("passCar") && carTypes.getBoolean("passCar"));

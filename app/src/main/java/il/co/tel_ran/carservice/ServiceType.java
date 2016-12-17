@@ -5,8 +5,8 @@ package il.co.tel_ran.carservice;
  */
 
 public enum ServiceType {
-    SERVICE_TYPE_CAR_WASH,
-    SERVICE_TYPE_TUNING,
-    SERVICE_TYPE_TYRE_REPAIR,
-    SERVICE_TYPE_AC_REPAIR_REFILL;
+    CAR_WASH,
+    TUNING,
+    TYRE_REPAIR,
+    AC_REPAIR_REFILL;
 }

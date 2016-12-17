@@ -91,16 +91,16 @@ public class ServiceSearchResultAdapter
         int count = 0;
         for (ServiceType serviceType : serviceStation.getAvailableServices()) {
             switch (serviceType) {
-                case SERVICE_TYPE_CAR_WASH:
+                case CAR_WASH:
                     servicesText = servicesText + mServiceCarWashStr;
                     break;
-                case SERVICE_TYPE_TUNING:
+                case TUNING:
                     servicesText = servicesText + mServiceTuningStr;
                     break;
-                case SERVICE_TYPE_TYRE_REPAIR:
+                case TYRE_REPAIR:
                     servicesText = servicesText + mServiceTyreRepairStr;
                     break;
-                case SERVICE_TYPE_AC_REPAIR_REFILL:
+                case AC_REPAIR_REFILL:
                     servicesText = servicesText + mServiceACRepairRefillStr;
                     break;
             }

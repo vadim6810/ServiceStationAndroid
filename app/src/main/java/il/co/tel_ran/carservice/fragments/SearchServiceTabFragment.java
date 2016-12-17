@@ -223,19 +223,19 @@ public class SearchServiceTabFragment extends RefreshingFragment
                     switch (SERVICE_CHECKBOX_IDS[i]) {
                         case R.id.service_checkbox_air_cond:
                             mSearchQuery.toggleServiceType(
-                                    ServiceType.SERVICE_TYPE_AC_REPAIR_REFILL, true);
+                                    ServiceType.AC_REPAIR_REFILL, true);
                             break;
                         case R.id.service_checkbox_car_wash:
                             mSearchQuery.toggleServiceType(
-                                    ServiceType.SERVICE_TYPE_CAR_WASH, true);
+                                    ServiceType.CAR_WASH, true);
                             break;
                         case R.id.service_checkbox_tuning:
                             mSearchQuery.toggleServiceType(
-                                    ServiceType.SERVICE_TYPE_TUNING, true);
+                                    ServiceType.TUNING, true);
                             break;
                         case R.id.service_checkbox_tyre_repair:
                             mSearchQuery.toggleServiceType(
-                                    ServiceType.SERVICE_TYPE_TYRE_REPAIR, true);
+                                    ServiceType.TYRE_REPAIR, true);
                             break;
                     }
                 }

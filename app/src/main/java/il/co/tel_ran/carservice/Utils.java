@@ -222,16 +222,16 @@ public class Utils {
         List<String> serviceTypeStrings = new ArrayList<>();
         for (ServiceType serviceType : serviceTypes) {
             switch (serviceType) {
-                case SERVICE_TYPE_CAR_WASH:
+                case CAR_WASH:
                     serviceTypeStrings.add(context.getString(R.string.required_service_car_wash));
                     break;
-                case SERVICE_TYPE_TUNING:
+                case TUNING:
                     serviceTypeStrings.add(context.getString(R.string.required_service_tuning));
                     break;
-                case SERVICE_TYPE_TYRE_REPAIR:
+                case TYRE_REPAIR:
                     serviceTypeStrings.add(context.getString(R.string.required_service_tyre_repair));
                     break;
-                case SERVICE_TYPE_AC_REPAIR_REFILL:
+                case AC_REPAIR_REFILL:
                     serviceTypeStrings.add(context.getString(R.string.required_service_air_cond_refill));
                     break;
             }
