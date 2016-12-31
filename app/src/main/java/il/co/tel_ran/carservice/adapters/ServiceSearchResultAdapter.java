@@ -11,10 +11,11 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 
 import il.co.tel_ran.carservice.R;
 import il.co.tel_ran.carservice.ServiceStation;
-import il.co.tel_ran.carservice.ServiceType;
+import il.co.tel_ran.carservice.ServiceSubWorkType;
 
 /**
  * Created by maxim on 9/29/2016.
@@ -23,10 +24,10 @@ import il.co.tel_ran.carservice.ServiceType;
 public class ServiceSearchResultAdapter
         extends RecyclerView.Adapter<ServiceSearchResultAdapter.ViewHolder> implements View.OnClickListener {
 
-    private final String mServiceCarWashStr;
-    private final String mServiceTuningStr;
-    private final String mServiceACRepairRefillStr;
-    private final String mServiceTyreRepairStr;
+    // How many work types should we display before reaching overflow and displaying a string for it.
+    private static final int WORK_TYPE_OVERFLOW_THRESHOLD = 4;
+
+    private final String mWorkTypesOverflowString;
 
     private final boolean mIsRecentServices;
 
@@ -43,10 +44,7 @@ public class ServiceSearchResultAdapter
                                       ServiceSearchResultClickListener listener, boolean isRecentServices) {
         mSearchResults = services;
 
-        mServiceCarWashStr = context.getString(R.string.required_service_car_wash);
-        mServiceTuningStr = context.getString(R.string.required_service_tuning);
-        mServiceTyreRepairStr = context.getString(R.string.required_service_tyre_repair);
-        mServiceACRepairRefillStr = context.getString(R.string.required_service_air_cond_refill);
+        mWorkTypesOverflowString = context.getString(R.string.work_types_overflow);
 
         mListener = listener;
 
@@ -86,31 +84,26 @@ public class ServiceSearchResultAdapter
     public void onBindViewHolder(ViewHolder holder, int position) {
         ServiceStation serviceStation = mSearchResults.get(position);
 
-        String servicesText = "";
-        int count = 0;
-        for (ServiceType serviceType : serviceStation.getAvailableServices()) {
-            switch (serviceType) {
-                case CAR_WASH:
-                    servicesText = servicesText + mServiceCarWashStr;
-                    break;
-                case TUNING:
-                    servicesText = servicesText + mServiceTuningStr;
-                    break;
-                case TYRE_REPAIR:
-                    servicesText = servicesText + mServiceTyreRepairStr;
-                    break;
-                case AC_REPAIR_REFILL:
-                    servicesText = servicesText + mServiceACRepairRefillStr;
-                    break;
-            }
+        ArrayList<ServiceSubWorkType> subWorkTypes = serviceStation.getSubWorkTypes();
 
-            // Add a separating comma as long as this is not the last serviceStation.
-            if ((count++ + 1) < serviceStation.getAvailableServices().size())
-                servicesText = servicesText + ", ";
+        String workTypesText = "";
+
+        int subWorkTypesCount = subWorkTypes.size();
+        int maxIterations = Math.min(WORK_TYPE_OVERFLOW_THRESHOLD, subWorkTypesCount);
+        for (int i = 0; i < maxIterations; i++) {
+            if (i > 0)
+                workTypesText += ", ";
+
+            workTypesText += subWorkTypes.get(i).toString();
+        }
+
+        if (subWorkTypesCount > WORK_TYPE_OVERFLOW_THRESHOLD) {
+            workTypesText = String.format(Locale.getDefault(), mWorkTypesOverflowString,
+                    workTypesText, subWorkTypesCount - WORK_TYPE_OVERFLOW_THRESHOLD);
         }
 
         holder.serviceNameTextView.setText(serviceStation.getName());
-        holder.availableServicesTextView.setText(servicesText);
+        holder.availableServicesTextView.setText(workTypesText);
         holder.locationTextView.setText(serviceStation.getCityName());
     }
 

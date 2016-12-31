@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources >
     <item name="tag_chip_place" type="id"/>
+    <item name="tag_chip_sub_work_type" type="id"/>
+    <item name="tag_chip_car_make" type="id"/>
 </resources>

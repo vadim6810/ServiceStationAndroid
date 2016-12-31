@@ -26,9 +26,6 @@ import il.co.tel_ran.carservice.activities.SignUpActivity;
 public class RegistrationLoginDetailsFragment extends RegistrationPageFragment
         implements TextView.OnEditorActionListener {
 
-    private EditText mNameEditText;
-    private TextInputLayout mNameInputLayout;
-
     private EditText mEmailEditText;
     private TextInputLayout mEmailInputLayout;
 
@@ -50,31 +47,9 @@ public class RegistrationLoginDetailsFragment extends RegistrationPageFragment
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View mLayout = inflater.inflate(R.layout.fragment_registration_step_logininfo, null);
 
-        mNameEditText = (EditText) mLayout.findViewById(R.id.user_name_edit_text);
-        mNameEditText.setOnEditorActionListener(this);
-        mNameInputLayout = (TextInputLayout) mLayout.findViewById(R.id.user_name_input_layout);
         mEmailEditText = (EditText) mLayout.findViewById(R.id.user_email_edit_text);
         mEmailEditText.setOnEditorActionListener(this);
         mEmailInputLayout = (TextInputLayout) mLayout.findViewById(R.id.user_email_input_layout);
-
-        mNameEditText.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                isNameValid();
-
-                mUser.setName(s.toString());
-            }
-        });
 
         mEmailEditText.addTextChangedListener(new TextWatcher() {
             @Override
@@ -98,11 +73,6 @@ public class RegistrationLoginDetailsFragment extends RegistrationPageFragment
     @Override
     public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
         switch (v.getId()) {
-            case R.id.user_name_edit_text:
-                if (actionId == EditorInfo.IME_ACTION_NEXT && !isNameValid()) {
-                    return true;
-                }
-                break;
             case R.id.user_email_edit_text:
                 if (actionId == EditorInfo.IME_ACTION_DONE && !isEmailValid()) {
                     return true;
@@ -120,26 +90,13 @@ public class RegistrationLoginDetailsFragment extends RegistrationPageFragment
     public boolean isNextStepEnabled() {
         // We don't call the methods in the return statement since it's a logical AND.
         // This guarantees that both methods are called.
-        boolean isNameValid = isNameValid();
         boolean isEmailValid = isEmailValid();
 
-        return isNameValid && isEmailValid;
+        return isEmailValid;
     }
 
     public User getUser() {
         return mUser;
-    }
-
-    private boolean isNameValid() {
-        boolean isValid = (mNameEditText != null && !(mNameEditText.getText().toString().isEmpty()));
-
-        if (!isValid) {
-            mNameInputLayout.setError(getString(R.string.user_name_error_message));
-        } else {
-            mNameInputLayout.setError(null);
-        }
-
-        return isValid;
     }
 
     private boolean isEmailValid() {

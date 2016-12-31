@@ -376,13 +376,13 @@ public class RegistrationServiceDetailsFragment extends RegistrationUserDetailsF
                         case CAR_WASH:
                             mServicesCheckBoxes[0].setChecked(contains);
                             break;
-                        case TUNING:
+                        case TOWING:
                             mServicesCheckBoxes[1].setChecked(contains);
                             break;
                         case TYRE_REPAIR:
                             mServicesCheckBoxes[2].setChecked(contains);
                             break;
-                        case AC_REPAIR_REFILL:
+                        case AUTO_SERVICE:
                             mServicesCheckBoxes[3].setChecked(contains);
                             break;
                     }
@@ -428,7 +428,7 @@ public class RegistrationServiceDetailsFragment extends RegistrationUserDetailsF
             else
                 mDirectorNameEditText.setText("");
 
-            String directorPhonenumber = service.getDirectorPhonenumber();
+            String directorPhonenumber = service.getManagerPhonenumber();
             if (directorPhonenumber != null)
                 mDirectorPhonenumberEditText.setText(directorPhonenumber);
             else
@@ -445,9 +445,9 @@ public class RegistrationServiceDetailsFragment extends RegistrationUserDetailsF
         mService.setClosingTime(mClosingTime);
 
         mService.toggleService(ServiceType.CAR_WASH, mServicesCheckBoxes[0].isChecked());
-        mService.toggleService(ServiceType.TUNING, mServicesCheckBoxes[1].isChecked());
+        mService.toggleService(ServiceType.TOWING, mServicesCheckBoxes[1].isChecked());
         mService.toggleService(ServiceType.TYRE_REPAIR, mServicesCheckBoxes[2].isChecked());
-        mService.toggleService(ServiceType.AC_REPAIR_REFILL, mServicesCheckBoxes[3].isChecked());
+        mService.toggleService(ServiceType.AUTO_SERVICE, mServicesCheckBoxes[3].isChecked());
 
         mService.toggleVehicleType(VehicleType.PRIVATE, mVehicleTypeCheckBoxes[0].isChecked());
         mService.toggleVehicleType(VehicleType.TRUCK, mVehicleTypeCheckBoxes[1].isChecked());
@@ -455,7 +455,7 @@ public class RegistrationServiceDetailsFragment extends RegistrationUserDetailsF
         mService.toggleVehicleType(VehicleType.MOTORCYCLE, mVehicleTypeCheckBoxes[3].isChecked());
 
         mService.setDirectorName(mDirectorNameEditText.getText().toString());
-        mService.setDirectorPhonenumber(mDirectorPhonenumberEditText.getText().toString());
+        mService.setManagerPhonenumber(mDirectorPhonenumberEditText.getText().toString());
     }
 
     public ServiceStation getService() {

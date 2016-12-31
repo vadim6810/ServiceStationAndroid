@@ -1,0 +1,16 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="190dp"
+    android:background="@drawable/img_client_profile_background"
+    android:id="@+id/client_drawer_header">
+    <TextView
+        android:id="@+id/client_name_text_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="@dimen/item_spacing"
+        android:gravity="bottom"
+        android:text="@string/not_signed_in_title"
+        android:textColor="@android:color/white"
+        android:textAppearance="@style/TextAppearance.AppCompat.Title" />
+
+</LinearLayout>

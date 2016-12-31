@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -17,6 +18,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatRatingBar;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -24,27 +26,29 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.Places;
 
-import org.json.JSONException;
-
 import java.util.List;
 import java.util.Locale;
 
-import il.co.tel_ran.carservice.GetPlaceFromIdTask;
 import il.co.tel_ran.carservice.InboxMessage;
 import il.co.tel_ran.carservice.LoadPlacePhotoTask;
+import il.co.tel_ran.carservice.LoadPlaceTask;
 import il.co.tel_ran.carservice.ProviderUser;
 import il.co.tel_ran.carservice.R;
-import il.co.tel_ran.carservice.connection.ServerConnection;
+import il.co.tel_ran.carservice.connection.ServiceStationDataRequest;
 import il.co.tel_ran.carservice.ServiceStation;
-import il.co.tel_ran.carservice.User;
 import il.co.tel_ran.carservice.UserType;
+import il.co.tel_ran.carservice.Utils;
+import il.co.tel_ran.carservice.connection.DataRequest;
+import il.co.tel_ran.carservice.connection.DataResult;
+import il.co.tel_ran.carservice.connection.RequestMaker;
+import il.co.tel_ran.carservice.connection.ServerConnection;
+import il.co.tel_ran.carservice.connection.ServerResponseError;
+import il.co.tel_ran.carservice.connection.ServiceStationRequestMaker;
 import il.co.tel_ran.carservice.fragments.ProviderInboxFragment;
 import il.co.tel_ran.carservice.fragments.RefreshingFragment;
 import il.co.tel_ran.carservice.fragments.TenderRequestsFragment;
@@ -53,7 +57,7 @@ public class ProviderMainActivity extends AppCompatActivity
         implements GoogleApiClient.OnConnectionFailedListener,
         NavigationView.OnNavigationItemSelectedListener,
         SwipeRefreshLayout.OnRefreshListener, RefreshingFragment.RefreshingFragmentListener,
-        ServerConnection.OnProviderInboxMessagesRetrievedListener {
+        ServerConnection.OnProviderInboxMessagesRetrievedListener, RequestMaker.OnDataRetrieveListener {
 
     private static final int REQUEST_CODE_PROFILE_CHANGED = 1;
 
@@ -66,6 +70,7 @@ public class ProviderMainActivity extends AppCompatActivity
     private boolean mIsLoadingService;
 
     ProviderUser mUser;
+    private ServiceStation mService;
 
     private Toolbar mToolbar;
     private ActionBar mActionBar;
@@ -229,6 +234,53 @@ public class ProviderMainActivity extends AppCompatActivity
         }
     }
 
+    /*
+     * RequestMaker.OnDataRetrieveListener
+     */
+
+    @Override
+    public void onDataRetrieveSuccess(DataRequest dataRequest, DataResult result) {
+        if (result.getDataType() == DataResult.Type.SERVICE_STATION) {
+            final ServiceStation[] serviceStations = (ServiceStation[]) result.getData();
+            if (serviceStations == null || serviceStations.length == 0) {
+                // TODO: handle error
+                finish();
+                return;
+            }
+
+            new LoadPlaceTask(mGoogleApiClient) {
+                @Override
+                protected void onPostExecute(Place[] places) {
+                    if (places != null && places.length >= 0) {
+                        // Retrieve place from place id
+                        serviceStations[0].setLocation(places[0]);
+                        // Check if formatted address is correct
+                        if (serviceStations[0].getCityName() == null) {
+                            serviceStations[0].setCityName(
+                                    Utils.parseCityNameFromAddress(places[0].getAddress()));
+                        }
+                    }
+
+                    mIsLoadingService = false;
+                }
+            }.execute(serviceStations[0].getPlaceId());
+
+            mService = serviceStations[0];
+
+            updateLayout();
+        }
+    }
+
+    @Override
+    public void onDataRetrieveFailed(DataRequest dataRequest, DataResult.Type resultType,
+                                     ServerResponseError error, @Nullable String message) {
+        if (resultType == DataResult.Type.SERVICE_STATION) {
+            // TODO: handle error
+            finish();
+        }
+
+    }
+
     public List<InboxMessage> getRetrievedMessages() {
         return mInboxMessages;
     }
@@ -290,6 +342,7 @@ public class ProviderMainActivity extends AppCompatActivity
                 loadUserService(mUser);
             }
         } else {
+            Log.d("PMA", "onCreate:: extras is null/empty");
             // Show some error
 
             // Exit this activity.
@@ -304,71 +357,11 @@ public class ProviderMainActivity extends AppCompatActivity
     }
 
     private void loadUserService(final ProviderUser user) {
-        ServerConnection.getMasterById(ProviderMainActivity.this, user.getId(),
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        if (response == null || response.isEmpty()) {
-                            // Show some error
+        mIsLoadingService = true;
 
-                            // Exit this activity.
-                            finish();
-                        }
-                        try {
-                            ServiceStation serviceStation = ServerConnection
-                                    .parseMastersFromResponse(response)[0];
-
-                            if (serviceStation != null) {
-                                user.setService(serviceStation);
-                                serviceStation.setID(user.getId());
-
-                                loadServicePlace(user);
-
-                                updateLayout();
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }, new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        // Show some error
-
-                        // Exit this activity.
-                        finish();
-                    }
-                });
-    }
-
-    private void loadServicePlace(final ProviderUser user) {
-        new GetPlaceFromIdTask(mGoogleApiClient) {
-
-            @Override
-            protected void onPreExecute() {
-                super.onPreExecute();
-
-                mIsLoadingService = true;
-                if (mActionBar != null) {
-                    mActionBar.setTitle(R.string.loading_progress_title);
-                }
-
-                if (mDrawerServiceNameTextView != null) {
-                    mDrawerServiceNameTextView.setText(R.string.loading_progress_title);
-                }
-            }
-
-            @Override
-            protected void onPostExecute(Place place) {
-                super.onPostExecute(place);
-
-                if (place != null) {
-                    user.getService().setLocation(place);
-
-                    mIsLoadingService = false;
-                }
-            }
-        }.execute(user.getService().getPlaceId());
+        ServiceStationDataRequest serviceRequest = new ServiceStationDataRequest(user.getMasterId());
+        ServiceStationRequestMaker requestMaker = new ServiceStationRequestMaker(this);
+        requestMaker.makeRequest(ProviderMainActivity.this, serviceRequest);
     }
 
     private void loadInboxMessages() {
@@ -445,16 +438,15 @@ public class ProviderMainActivity extends AppCompatActivity
         if (mUser == null)
             return;
 
-        ServiceStation userService = mUser.getService();
-        if (userService == null)
+        if (mService == null)
             return;
 
         if (mActionBar != null) {
             // Update action bar title to display service's name
-            mActionBar.setTitle(userService.getName());
+            mActionBar.setTitle(mService.getName());
         }
 
-        Place location = userService.getLocation();
+        Place location = mService.getLocation();
         if (mDrawerServicePhotoImageView != null && location != null) {
             mDrawerServicePhotoImageView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
             // Update service photo in drawer layout
@@ -476,18 +468,18 @@ public class ProviderMainActivity extends AppCompatActivity
 
         if (mDrawerServiceNameTextView != null) {
             // Update service name title in drawer layout
-            mDrawerServiceNameTextView.setText(userService.getName());
+            mDrawerServiceNameTextView.setText(mService.getName());
         }
 
         if (mDrawerServiceRatingBar != null) {
             // Update rating stars.
-            mDrawerServiceRatingBar.setRating(userService.getAvgRating());
+            mDrawerServiceRatingBar.setRating(mService.getAvgRating());
         }
 
         if (mDrawerRatingCountTextView != null) {
             // Update rating submitted count.
             mDrawerRatingCountTextView.setText(String.format(Locale.getDefault(),
-                    "(%d)", userService.getSubmittedRatings()));
+                    "(%d)", mService.getSubmittedRatings()));
         }
     }
 
@@ -504,7 +496,9 @@ public class ProviderMainActivity extends AppCompatActivity
         // Since we are in ClientMainActivity the user type is a client.
         intent.putExtra("user_type", UserType.MASTER);
         // Pass user's data as a simple User object since ProviderUser is not serializable.
-        intent.putExtra("user", new User(mUser));
+        intent.putExtra("user", mUser);
+        // Pass user's service
+        intent.putExtra("service", mService);
         startActivityForResult(intent, REQUEST_CODE_PROFILE_CHANGED);
     }
 }

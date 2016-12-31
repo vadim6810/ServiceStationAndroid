@@ -1,28 +1,29 @@
 package il.co.tel_ran.carservice;
 
+import java.io.Serializable;
+
 /**
  * Created by maxim on 10/28/2016.
  */
 
-public class ProviderUser extends User {
-
-    private ServiceStation mService;
+public class ProviderUser extends User implements Serializable {
 
     public ProviderUser() {
 
     }
 
+    public ProviderUser(long id) {
+        mMasterId = id;
+    }
+
     public ProviderUser(User user) {
-        setName(user.getName());
-        setEmail(user.getEmail());
-        setId(user.getId());
+        super(user);
     }
 
     public ProviderUser(ProviderUser providerUser) {
-        setName(providerUser.getName());
-        setEmail(providerUser.getEmail());
-        setId(providerUser.getId());
-        setService(new ServiceStation(providerUser.getService()));
+        super(providerUser);
+
+        setMasterId(providerUser.getMasterId());
     }
 
     @Override
@@ -36,20 +37,26 @@ public class ProviderUser extends User {
             return false;
         }
 
-        if (mService != ((ProviderUser) otherUser).getService())
-            return false;
-
-        if (mService != null && !mService.equals(((ProviderUser) otherUser).getService()))
+        if (mMasterId != ((ProviderUser) otherUser).getMasterId())
             return false;
 
         return true;
     }
 
+    public void setMasterId(long id) {
+        mMasterId = id;
+    }
+
+    public long getMasterId() {
+        return mMasterId;
+    }
+
+    private long mMasterId;
+
     public void setService(ServiceStation serviceStation) {
-        mService = serviceStation;
     }
 
     public ServiceStation getService() {
-        return mService;
+        return null;
     }
 }

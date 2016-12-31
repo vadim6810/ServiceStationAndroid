@@ -2,6 +2,8 @@ package il.co.tel_ran.carservice;
 
 import com.google.android.gms.location.places.Place;
 
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
 
@@ -9,14 +11,14 @@ import java.util.EnumSet;
  * Created by maxim on 13-Nov-16.
  */
 
-public class ServiceStation {
+public class ServiceStation implements Serializable {
 
-    private long mID; // Service ID number
+    private long mID; // Service id
 
     private String mServiceName;
 
     private String mPlaceId;
-    private Place mLocation;
+    private transient Place mLocation; // Declared transient because we can't serialize/deserialize Place objects.
     private String mCityName;
 
     private float mAvgRating; // Based on rating sum (each rating 0-5) divided by number of ratings submitted;
@@ -33,11 +35,14 @@ public class ServiceStation {
     private EnumSet<VehicleType> mVehicleTypes = EnumSet.noneOf(VehicleType.class);
 
     private String mDirectorName;
-    private String mDirectorPhonenumber;
 
     private String mManagerName;
+    private String mManagerPhonenumber;
 
     private String[] mServicedCarMakes;
+
+    private ArrayList<ServiceWorkType> mServiceWorkTypes = new ArrayList<>();
+    private ArrayList<ServiceSubWorkType> mServiceSubWorkTypes = new ArrayList<>();
 
     public ServiceStation() {
 
@@ -74,9 +79,11 @@ public class ServiceStation {
         mClosingTime = otherService.getClosingTime();
         mVehicleTypes = EnumSet.copyOf(otherService.getVehicleTypes());
         mDirectorName = otherService.getDirectorName();
-        mDirectorPhonenumber = otherService.getDirectorPhonenumber();
+        mManagerPhonenumber = otherService.getManagerPhonenumber();
         mServicedCarMakes = otherService.getServicedCarMakes();
         mManagerName = otherService.getManagerName();
+        mServiceWorkTypes = otherService.getWorkTypes();
+        mServiceSubWorkTypes = otherService.getSubWorkTypes();
     }
 
     public void setName(String name) {
@@ -207,12 +214,12 @@ public class ServiceStation {
         return mDirectorName;
     }
 
-    public void setDirectorPhonenumber(String phonenumber) {
-        mDirectorPhonenumber = phonenumber;
+    public void setManagerPhonenumber(String phonenumber) {
+        mManagerPhonenumber = phonenumber;
     }
 
-    public String getDirectorPhonenumber() {
-        return mDirectorPhonenumber;
+    public String getManagerPhonenumber() {
+        return mManagerPhonenumber;
     }
 
     public void setServicedCarMakes(String[] carMakes) {
@@ -237,6 +244,22 @@ public class ServiceStation {
 
     public String getPlaceId() {
         return mPlaceId;
+    }
+
+    public void setWorkTypes(ArrayList<ServiceWorkType> workTypes) {
+        mServiceWorkTypes = workTypes;
+    }
+
+    public ArrayList<ServiceWorkType> getWorkTypes() {
+        return mServiceWorkTypes;
+    }
+
+    public void setSubWorkTypes(ArrayList<ServiceSubWorkType> subWorkTypes) {
+        mServiceSubWorkTypes = subWorkTypes;
+    }
+
+    public ArrayList<ServiceSubWorkType> getSubWorkTypes() {
+        return mServiceSubWorkTypes;
     }
 
     public boolean equals(ServiceStation otherService) {
@@ -285,7 +308,7 @@ public class ServiceStation {
         if (mDirectorName != null && !mDirectorName.equals(otherService.getDirectorName()))
             return false;
 
-        if (mDirectorPhonenumber != null && !mDirectorPhonenumber.equals(otherService.getDirectorPhonenumber()))
+        if (mManagerPhonenumber != null && !mManagerPhonenumber.equals(otherService.getManagerPhonenumber()))
             return false;
 
         if (mServicedCarMakes != null && !Arrays.equals(mServicedCarMakes, otherService.getServicedCarMakes()))

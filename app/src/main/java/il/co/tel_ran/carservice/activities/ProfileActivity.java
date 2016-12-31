@@ -19,18 +19,17 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.Places;
 
-import org.json.JSONException;
+import java.util.List;
 
 import il.co.tel_ran.carservice.ClientUser;
+import il.co.tel_ran.carservice.LoadPlaceTask;
 import il.co.tel_ran.carservice.ProviderUser;
 import il.co.tel_ran.carservice.R;
-import il.co.tel_ran.carservice.connection.ServerConnection;
 import il.co.tel_ran.carservice.ServiceStation;
 import il.co.tel_ran.carservice.User;
 import il.co.tel_ran.carservice.UserType;
@@ -67,6 +66,7 @@ public class ProfileActivity extends AppCompatActivity
     private View mServiceDetailsLayout;
     private RegistrationServiceDetailsFragment mServiceDetailsFragment;
     private long mServiceId;
+    private ServiceStation mService;
     private GoogleApiClient mGoogleApiClient;
 
     private boolean mIsServiceLoading = false;
@@ -155,7 +155,8 @@ public class ProfileActivity extends AppCompatActivity
 
     public void updateVehicleDetails(VehicleData newVehicleData) {
         if (newVehicleData != null && mUserType == UserType.CLIENT) {
-            ((ClientUser) mUser).setVehicleData(newVehicleData);
+            List<VehicleData> vehicles = ((ClientUser) mUser).getVehicles();
+            vehicles.set(0, newVehicleData);
             updateFields(false);
         }
     }
@@ -211,7 +212,9 @@ public class ProfileActivity extends AppCompatActivity
                 mUserType = userType;
             }
 
-            // TODO: Get User object from extras.
+            mUser = (User) extras.getSerializable("user");
+
+            mService = (ServiceStation) extras.getSerializable("service");
         }
 
         mLayout = findViewById(R.id.activity_profile);
@@ -230,10 +233,6 @@ public class ProfileActivity extends AppCompatActivity
 
         setupChangesSnackbar();
 
-        // Mock details
-        mUser.setName("Max");
-        mUser.setEmail("maximglukhov@hotmail.com");
-
         // TODO: Remove mock user later.
         switch (mUserType) {
             case MASTER:
@@ -243,58 +242,18 @@ public class ProfileActivity extends AppCompatActivity
                 // Show the service details layout since it's hidden by default.
                 mServiceDetailsLayout.setVisibility(View.VISIBLE);
 
-                if (hasExtras) {
-                    mUser = (User) extras.getSerializable("user");
-                }
-
-                onServicesRetrievingStarted();
-                ServerConnection.getMasterById(ProfileActivity.this, mUser.getId(),
-                        new Response.Listener<String>() {
-                            @Override
-                            public void onResponse(String response) {
-                                if (response == null || response.isEmpty()) {
-                                    // TODO: handle error by showing an error message
-
-                                    // Exit this activity.
-                                    finish();
-                                }
-                                try {
-                                    ServiceStation serviceStation = ServerConnection
-                                            .parseMastersFromResponse(response)[0];
-
-                                    if (serviceStation != null) {
-                                        mUser = new ProviderUser(mUser);
-
-                                        onServicesRetrieved(serviceStation);
-                                    }
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        }, new Response.ErrorListener() {
-                            @Override
-                            public void onErrorResponse(VolleyError error) {
-                                // TODO: handle error by showing an error message
-
-                                // Exit this activity.
-                                finish();
-                            }
-                        });
+                getGooglePlaceForService();
 
                 mUserChanges = new ProviderUser(mUser);
 
-                if (mServiceDetailsFragment != null)
-                    ((ProviderUser) mUserChanges).setService(mServiceDetailsFragment.getService());
+                /*if (mServiceDetailsFragment != null)
+                    ((ProviderUser) mUserChanges).setService(mServiceDetailsFragment.getService());*/
 
                 break;
             case CLIENT:
                 // FALLTHROUGH
             default:
                 // Service details is hidden by default.
-
-                if (hasExtras) {
-                    mUser = (ClientUser) extras.getSerializable("user");
-                }
 
                 mUserChanges = new ClientUser(mUser);
                 break;
@@ -352,7 +311,6 @@ public class ProfileActivity extends AppCompatActivity
 
     private void finishEditing() {
         // Save changes
-        mUserChanges.setName(mNameEditText.getText().toString());
         mUserChanges.setEmail(mEmailAddressEditText.getText().toString());
 
         if (mUserType == UserType.MASTER && mServiceDetailsFragment != null) {
@@ -394,7 +352,6 @@ public class ProfileActivity extends AppCompatActivity
     private void saveChanges() {
         mChangesMade = true;
 
-        mUser.setName(mNameEditText.getText().toString());
         mUser.setEmail(mEmailAddressEditText.getText().toString());
 
         try {
@@ -411,14 +368,13 @@ public class ProfileActivity extends AppCompatActivity
     }
 
     private void updateFields(boolean undo) {
-        mNameEditText.setText(mUser.getName());
         mEmailAddressEditText.setText(mUser.getEmail());
 
         switch (mUserType) {
             case NONE:
                 // FALLTHROUGH
             case CLIENT:
-                VehicleData vehicleData = ((ClientUser) mUser).getVehicleData();
+                VehicleData vehicleData = ((ClientUser) mUser).getVehicles().get(0);
                 if (vehicleData != null) {
                     mVehicleDetailsTextView.setText(vehicleData.toString());
                 }
@@ -426,10 +382,11 @@ public class ProfileActivity extends AppCompatActivity
             case MASTER:
                 if (mServiceDetailsFragment != null) {
                     try {
+                        // TODO: fix this
                         if (undo) {
-                            mServiceDetailsFragment.setFieldsFromService(((ProviderUser) mUser).getService());
+                            mServiceDetailsFragment.setFieldsFromService(mService);
                         } else {
-                            mServiceDetailsFragment.setFieldsFromService(((ProviderUser) mUserChanges).getService());
+                            mServiceDetailsFragment.setFieldsFromService(mService);
                         }
                     } catch (ClassCastException e) {
                         e.printStackTrace();
@@ -497,7 +454,7 @@ public class ProfileActivity extends AppCompatActivity
     }
 
     private void showUpdateVehicleDetailsDialog() {
-        VehicleData vehicleData = ((ClientUser) mUser).getVehicleData();
+        VehicleData vehicleData = ((ClientUser) mUser).getVehicles().get(0);
         RegistrationVehicleDetailsFragment vehicleDetailsFragment =
                 RegistrationVehicleDetailsFragment.getInstance(vehicleData);
         Utils.showDialogFragment(getSupportFragmentManager(), vehicleDetailsFragment,
@@ -511,5 +468,30 @@ public class ProfileActivity extends AppCompatActivity
                 .addApi(Places.PLACE_DETECTION_API)
                 .enableAutoManage(this, this)
                 .build();
+    }
+
+    private void getGooglePlaceForService() {
+        if (mService != null && mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
+            final String placeId = mService.getPlaceId();
+            if (placeId != null && !placeId.isEmpty()) {
+                new LoadPlaceTask(mGoogleApiClient) {
+                    @Override
+                    protected void onPreExecute() {
+                        mIsServiceLoading = true;
+                    }
+
+                    @Override
+                    protected void onPostExecute(Place[] places) {
+                        mIsServiceLoading = false;
+
+                        if (places != null && places.length > 0) {
+                            mService.setLocation(places[0]);
+                        } else {
+                            // TODO: handle error.
+                        }
+                    }
+                }.execute(placeId);
+            }
+        }
     }
 }

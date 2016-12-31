@@ -21,14 +21,15 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 
 import il.co.tel_ran.carservice.LoadPlacePhotoTask;
 import il.co.tel_ran.carservice.R;
-import il.co.tel_ran.carservice.ServiceSearchResult;
 import il.co.tel_ran.carservice.ServiceStation;
+import il.co.tel_ran.carservice.ServiceSubWorkType;
 import il.co.tel_ran.carservice.Utils;
 import il.co.tel_ran.carservice.activities.ClientMainActivity;
 
@@ -37,19 +38,15 @@ import il.co.tel_ran.carservice.activities.ClientMainActivity;
  */
 
 public class ServiceDetailsDialog extends DialogFragment implements View.OnClickListener,
-        ServiceSubmitRatingDialog.SubmitRatingDialogListener,
-        ServiceLeaveMessageDialog.LeaveMessageDialogListener
+        ServiceSubmitRatingDialog.SubmitRatingDialogListener
 {
 
     private ServiceStation mServiceStation;
-    private CharSequence mServicesText;
-
     private Fragment mCallingFragment;
 
     public enum ITEM_TYPE {
         ITEM_FAB,
         ITEM_CONTACT_DETAILS,
-        ITEM_LEAVE_MESSAGE,
         ITEM_LEAVE_RATING,
         ITEM_DISMISS
     }
@@ -59,19 +56,13 @@ public class ServiceDetailsDialog extends DialogFragment implements View.OnClick
                          ServiceStation serviceStation, View view);
     }
 
-    public static ServiceDetailsDialog getInstance(CharSequence servicesText,
-                                                   ServiceStation service) {
-        return getInstance(servicesText, service, null);
+    public static ServiceDetailsDialog getInstance(ServiceStation service) {
+        return getInstance(service, null);
     }
 
-    public static ServiceDetailsDialog getInstance(CharSequence servicesText,
-                                                   ServiceStation service,
+    public static ServiceDetailsDialog getInstance(ServiceStation service,
                                                    @Nullable Fragment callingFragment) {
         ServiceDetailsDialog serviceDetailsDialog = new ServiceDetailsDialog();
-
-        Bundle args = new Bundle();
-        args.putCharSequence("services_text", servicesText);
-        serviceDetailsDialog.setArguments(args);
 
         serviceDetailsDialog.setSearchResult(service);
         serviceDetailsDialog.setCallingFragment(callingFragment);
@@ -97,10 +88,6 @@ public class ServiceDetailsDialog extends DialogFragment implements View.OnClick
             case R.id.contact_details_image_view:
                 itemType = ITEM_TYPE.ITEM_CONTACT_DETAILS;
                 showContactDetailsDialog();
-                break;
-            case R.id.leave_message_image_view:
-                itemType = ITEM_TYPE.ITEM_LEAVE_MESSAGE;
-                showLeaveMessageDialog();
                 break;
             case R.id.leave_rating_image_view:
                 itemType = ITEM_TYPE.ITEM_LEAVE_RATING;
@@ -135,11 +122,6 @@ public class ServiceDetailsDialog extends DialogFragment implements View.OnClick
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
-
-        Bundle args = getArguments();
-        if (args != null && !args.isEmpty()) {
-            mServicesText = getArguments().getCharSequence("services_text");
-        }
     }
 
     @NonNull
@@ -148,7 +130,7 @@ public class ServiceDetailsDialog extends DialogFragment implements View.OnClick
         Log.d("RSTF", "onCreateDialog :: called");
         if (mServiceStation != null) {
             ServiceStation serviceStation = mServiceStation;
-            // Cast the ID to string because SharedPreferences only supports String sets by default.
+            // Cast the ROLE to string because SharedPreferences only supports String sets by default.
             String serviceIdString = String.valueOf(serviceStation.getID());
 
             Context context = getContext();
@@ -198,13 +180,9 @@ public class ServiceDetailsDialog extends DialogFragment implements View.OnClick
                 .findViewById(R.id.service_details_address);
         serviceAddressTextView.setText(serviceStation.getLocation().getAddress());
 
-        // Get the text from the search result view (from the adapter).
-        // This is done because the EnumSet<ServiceType> types were already parsed to string.
-        // It is easier to simply extract it from the TextView.
         final TextView serviceTypesTextView = (TextView) layout
                 .findViewById(R.id.service_details_services);
-        serviceTypesTextView.setText(
-                getString(R.string.service_details_available_services, mServicesText));
+        serviceTypesTextView.setText(getSubWorkTypesString());
 
         // Set avg rating & submitted rating count.
         final TextView ratingSubmitTextView = (TextView) layout
@@ -239,10 +217,6 @@ public class ServiceDetailsDialog extends DialogFragment implements View.OnClick
                 R.id.contact_details_image_view);
         contactDetails.setOnClickListener(this);
 
-        final ImageView leaveMessage = (ImageView) layout.findViewById(
-                R.id.leave_message_image_view);
-        leaveMessage.setOnClickListener(this);
-
         final ImageView leaveRating = (ImageView) layout.findViewById(
                 R.id.leave_rating_image_view);
         leaveRating.setOnClickListener(this);
@@ -274,11 +248,6 @@ public class ServiceDetailsDialog extends DialogFragment implements View.OnClick
         // TODO: update the search result rating card (after back-end receives update)
     }
 
-    @Override
-    public void onMessageSubmitted(CharSequence message, ServiceStation serviceStation) {
-        // TODO: send submitted message to back-end
-    }
-
     private void showContactDetailsDialog() {
         ServiceStation serviceStation = mServiceStation;
         ServiceContactDetailsDialog contactDetailsDialog = ServiceContactDetailsDialog.getInstance(
@@ -295,10 +264,19 @@ public class ServiceDetailsDialog extends DialogFragment implements View.OnClick
                 "submit_rating_dialog");
     }
 
-    private void showLeaveMessageDialog() {
-        ServiceLeaveMessageDialog submitRatingDialog = ServiceLeaveMessageDialog.getInstance(mServiceStation,
-                this);
-        Utils.showDialogFragment(getFragmentManager(), submitRatingDialog,
-                "leave_message_dialog");
+    private String getSubWorkTypesString() {
+        String subWorkTypesString = "";
+        if (mServiceStation != null) {
+            ArrayList<ServiceSubWorkType> subWorkTypes = mServiceStation.getSubWorkTypes();
+            if (subWorkTypes != null) {
+                for (ServiceSubWorkType subWorkType : mServiceStation.getSubWorkTypes()) {
+                    subWorkTypesString += subWorkType.toString() + ", ";
+                }
+            }
+
+            subWorkTypesString = subWorkTypesString.substring(0, subWorkTypesString.length() - 2);
+        }
+
+        return subWorkTypesString;
     }
 }

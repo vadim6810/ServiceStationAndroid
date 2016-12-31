@@ -32,6 +32,7 @@ import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -228,13 +229,13 @@ public class Utils {
                 case CAR_WASH:
                     serviceTypeStrings.add(context.getString(R.string.required_service_car_wash));
                     break;
-                case TUNING:
+                case TOWING:
                     serviceTypeStrings.add(context.getString(R.string.required_service_tuning));
                     break;
                 case TYRE_REPAIR:
                     serviceTypeStrings.add(context.getString(R.string.required_service_tyre_repair));
                     break;
-                case AC_REPAIR_REFILL:
+                case AUTO_SERVICE:
                     serviceTypeStrings.add(context.getString(R.string.required_service_air_cond_refill));
                     break;
             }
@@ -320,5 +321,19 @@ public class Utils {
                 Locale.getDefault());
 
         return dateFormat.format(date);
+    }
+
+    public static String generateRandomString(int length) {
+        String result = "";
+
+        String words = "0123456789qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM";
+        int wordsLength = words.length();
+
+        Random random = new Random();
+        for (int i = 0; i < length; i++) {
+            result += words.charAt(random.nextInt(wordsLength));
+        }
+
+        return result;
     }
 }

@@ -111,4 +111,5 @@
     <string name="deadline_with_date">Крайний Срок: %1$s</string>
     <string name="date_too_early_message">Срок не может быть раньше, чем сегодня</string>
     <string name="loading_progress_title">Загрузка...</string>
+    <string name="not_signed_in_title">Not Signed In</string>
 </resources>

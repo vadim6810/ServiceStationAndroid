@@ -12,6 +12,16 @@ public class VehicleData implements Serializable {
     private String mVehicleModifications;
     private int mVehicleYear = -1;
 
+    public VehicleData(VehicleData otherVehicle) {
+        setVehicleMake(otherVehicle.getVehicleMake());
+        setVehicleModel(otherVehicle.getVehicleModel());
+        setVehicleModifications(otherVehicle.getVehicleModifications());
+        setVehicleYear(otherVehicle.getVehicleYear());
+    }
+
+    public VehicleData() {
+    }
+
     public void setVehicleMake(String make) {
         mVehicleMake = make;
     }
@@ -63,5 +73,9 @@ public class VehicleData implements Serializable {
     @Override
     public String toString() {
         return mVehicleMake + ' ' + mVehicleModel + ' ' + Integer.toString(mVehicleYear) + ' ' + mVehicleModifications;
+    }
+
+    public String toPersistedString() {
+        return mVehicleMake + ", " + mVehicleModel + ", " + Integer.toString(mVehicleYear) + ", " + mVehicleModifications;
     }
 }

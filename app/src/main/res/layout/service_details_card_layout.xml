@@ -86,15 +86,6 @@
                     android:background="@drawable/transparent_background_round_interactive"
                     android:clickable="true"/>
                 <ImageView
-                    android:id="@+id/leave_message_image_view"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:src="@mipmap/ic_message"
-                    android:paddingLeft="@dimen/item_spacing"
-                    android:paddingRight="@dimen/item_spacing"
-                    android:background="@drawable/transparent_background_round_interactive"
-                    android:clickable="true"/>
-                <ImageView
                     android:id="@+id/leave_rating_image_view"
                     android:layout_width="48dp"
                     android:layout_height="48dp"

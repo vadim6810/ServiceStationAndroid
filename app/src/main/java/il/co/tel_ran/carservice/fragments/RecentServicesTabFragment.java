@@ -18,9 +18,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import il.co.tel_ran.carservice.R;
-import il.co.tel_ran.carservice.connection.ServerConnection;
-import il.co.tel_ran.carservice.ServiceSearchQuery;
-import il.co.tel_ran.carservice.ServiceSearchResult;
 import il.co.tel_ran.carservice.ServiceStation;
 import il.co.tel_ran.carservice.Utils;
 import il.co.tel_ran.carservice.activities.ClientMainActivity;
@@ -31,7 +28,7 @@ import il.co.tel_ran.carservice.dialogs.ServiceDetailsDialog;
  * Created by Max on 16/09/2016.
  */
 public class RecentServicesTabFragment extends RefreshingFragment
-        implements ServerConnection.OnServicesRetrievedListener, ServiceSearchResultAdapter.ServiceSearchResultClickListener {
+        implements ServiceSearchResultAdapter.ServiceSearchResultClickListener {
 
     private Set<Long> mServiceIds = new HashSet<>();
 
@@ -112,7 +109,7 @@ public class RecentServicesTabFragment extends RefreshingFragment
         onRefreshEnd();
     }
 
-    @Override
+    /*@Override
     public void onServicesRetrievingStarted() {
         Log.d("RSTF", "onServicesRetrievingStarted :: called");
     }
@@ -142,7 +139,7 @@ public class RecentServicesTabFragment extends RefreshingFragment
         }
 
         onRefreshEnd();
-    }
+    }*/
 
     @Override
     public void onClickSearchResult(View view) {
@@ -159,7 +156,7 @@ public class RecentServicesTabFragment extends RefreshingFragment
         CharSequence servicesText = ((TextView)view
                 .findViewById(R.id.result_available_services_text_view)).getText();
 
-        showServiceDetailsDialog(service, servicesText);
+        showServiceDetailsDialog(service);
     }
 
     @Override
@@ -194,18 +191,18 @@ public class RecentServicesTabFragment extends RefreshingFragment
     private void loadServices() {
         Activity containerActivity = getActivity();
         if (containerActivity != null) {
-            try {
+            /*try {
                 ClientMainActivity clientMainActivity = (ClientMainActivity) containerActivity;
                 ServerConnection connection = clientMainActivity.getServerConnection();
                 // Retrieve services from server
                 if (connection != null) {
-                    connection.findServices(new ServiceSearchQuery(),
+                    connection.findServices(new ServiceStationDataRequest(),
                             clientMainActivity.getGoogleApiClient(),
                             this);
                 }
             } catch (ClassCastException e) {
                 e.printStackTrace();
-            }
+            }*/
         }
     }
 
@@ -238,9 +235,8 @@ public class RecentServicesTabFragment extends RefreshingFragment
         }
     }
 
-    private void showServiceDetailsDialog(ServiceStation service,
-                                          CharSequence servicesText) {
-        ServiceDetailsDialog serviceDetailsDialog = ServiceDetailsDialog.getInstance(servicesText, service,
+    private void showServiceDetailsDialog(ServiceStation service) {
+        ServiceDetailsDialog serviceDetailsDialog = ServiceDetailsDialog.getInstance(service,
                 this);
         Utils.showDialogFragment(getFragmentManager(), serviceDetailsDialog,
                 "service_details_dialog");

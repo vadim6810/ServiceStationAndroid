@@ -3,6 +3,7 @@ package il.co.tel_ran.carservice.activities;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
@@ -17,23 +18,43 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 
+import com.android.volley.Request;
+import com.android.volley.toolbox.JsonObjectRequest;
+
+import org.json.JSONObject;
+
+import java.util.List;
 import java.util.Locale;
 
 import il.co.tel_ran.carservice.ClientUser;
 import il.co.tel_ran.carservice.ProviderUser;
 import il.co.tel_ran.carservice.R;
+import il.co.tel_ran.carservice.ServiceStation;
+import il.co.tel_ran.carservice.ServiceSubWorkType;
+import il.co.tel_ran.carservice.ServiceWorkType;
 import il.co.tel_ran.carservice.User;
 import il.co.tel_ran.carservice.UserType;
 import il.co.tel_ran.carservice.Utils;
 import il.co.tel_ran.carservice.VehicleData;
+import il.co.tel_ran.carservice.connection.DataRequest;
+import il.co.tel_ran.carservice.connection.DataResult;
+import il.co.tel_ran.carservice.connection.NewAuthenticationRequest;
+import il.co.tel_ran.carservice.connection.NewAuthenticationRequestMaker;
+import il.co.tel_ran.carservice.connection.NewClientUserRequest;
+import il.co.tel_ran.carservice.connection.NewProviderUserRequest;
+import il.co.tel_ran.carservice.connection.NewUserRequestMaker;
+import il.co.tel_ran.carservice.connection.RequestMaker;
+import il.co.tel_ran.carservice.connection.RequestQueueSingleton;
+import il.co.tel_ran.carservice.connection.ServerConnection;
+import il.co.tel_ran.carservice.connection.ServerResponseError;
+import il.co.tel_ran.carservice.fragments.RegistrationClientDetailsFragment;
 import il.co.tel_ran.carservice.fragments.RegistrationLoginDetailsFragment;
 import il.co.tel_ran.carservice.fragments.RegistrationPageFragment;
 import il.co.tel_ran.carservice.fragments.RegistrationServiceDetailsFragment;
 import il.co.tel_ran.carservice.fragments.RegistrationUserDetailsFragment;
 import il.co.tel_ran.carservice.fragments.RegistrationUserTypeFragment;
-import il.co.tel_ran.carservice.fragments.RegistrationVehicleDetailsFragment;
 
-public class SignUpActivity extends AppCompatActivity implements ViewPager.OnPageChangeListener, View.OnClickListener {
+public class SignUpActivity extends AppCompatActivity implements ViewPager.OnPageChangeListener, View.OnClickListener, RequestMaker.OnDataRetrieveListener {
 
     // Number of pages in ViewPager.
     // Each step has it's own page.
@@ -180,6 +201,53 @@ public class SignUpActivity extends AppCompatActivity implements ViewPager.OnPag
         }
     }
 
+    /*
+     * RequestMaker.OnDataRetrieveListener
+     */
+
+    @Override
+    public void onDataRetrieveSuccess(DataRequest dataRequest, DataResult result) {
+        JSONObject[] parsedJSON;
+        switch (result.getDataType()) {
+            case NEW_USER:
+                parsedJSON = (JSONObject[]) result.getData();
+                if (parsedJSON != null && parsedJSON.length > 0) {
+                    // Make new request with the parsed JSON we receive
+                    NewAuthenticationRequest authenticationRequest = new NewAuthenticationRequest(
+                            parsedJSON[0]);
+                    // Send the new JSON for authentication.
+                    new NewAuthenticationRequestMaker(this).makeRequest(getApplicationContext(),
+                            authenticationRequest);
+                }
+                break;
+            case NEW_AUTHENTICATION:
+                parsedJSON = (JSONObject[]) result.getData();
+                if (parsedJSON != null && parsedJSON.length > 0) {
+                    // Make new request with the parsed JSON we receive - this is for email authentication.
+                    // We don't use listeners because we don't handle the response.
+                    JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST,
+                            ServerConnection.MESSAGES_URL, parsedJSON[0], null, null);
+
+                    // Add the request to the queue.
+                    RequestQueueSingleton requestQueueSingleton = RequestQueueSingleton
+                            .getInstance(getApplicationContext());
+                    requestQueueSingleton.addToRequestQueue(request);
+
+                    // TODO: navigate to sign in
+                    // TODO: add feed-back to let the user know registration is complete.
+
+                    finish();
+                }
+                break;
+        }
+    }
+
+    @Override
+    public void onDataRetrieveFailed(DataRequest dataRequest, DataResult.Type resultType,
+                                     ServerResponseError error, @Nullable String message) {
+        // TODO: handle error
+    }
+
     // This is public so ViewPager's fragments can request page changes under their own terms
     // (such as ime action buttons)
     public void requestPageChange(boolean backwards) {
@@ -198,32 +266,7 @@ public class SignUpActivity extends AppCompatActivity implements ViewPager.OnPag
 
                     // Finish registration.
                     if (reversedCurrentItem == PAGE_USER_DETAILS) {
-                        RegistrationLoginDetailsFragment loginDetailsFragment =
-                                (RegistrationLoginDetailsFragment) mPagerAdapter.getItem(
-                                        PAGE_LOGIN_DETAILS);
-
-                        // Get login details, they are stored in a User object.
-                        User loginDetails = loginDetailsFragment.getUser();
-
-                        // New created user.
-                        User newUser;
-
-                        UserType userType = mPagerAdapter.getUserType();
-                        switch (userType) {
-                            case CLIENT:
-                                RegistrationVehicleDetailsFragment vehicleDetailsFragment
-                                        = (RegistrationVehicleDetailsFragment) pageFragment;
-                                VehicleData data = vehicleDetailsFragment.getVehicleData();
-                                newUser = new ClientUser(loginDetails);
-                                ((ClientUser) newUser).setVehicleData(data);
-                                break;
-                            case MASTER:
-                                RegistrationServiceDetailsFragment serviceDetailsFragment
-                                        = (RegistrationServiceDetailsFragment) pageFragment;
-                                newUser = new ProviderUser(loginDetails);
-                                // TODO: add service details for this user.
-                                break;
-                        }
+                        finishRegistration(pageFragment);
                     }
                 }
             } else {
@@ -306,7 +349,7 @@ public class SignUpActivity extends AppCompatActivity implements ViewPager.OnPag
                                 mUserDetailsFragment = new RegistrationServiceDetailsFragment();
                                 break;
                             default:
-                                mUserDetailsFragment = new RegistrationVehicleDetailsFragment();
+                                mUserDetailsFragment = new RegistrationClientDetailsFragment();
                                 break;
                         }
                     }
@@ -436,5 +479,80 @@ public class SignUpActivity extends AppCompatActivity implements ViewPager.OnPag
                 }
             }
         }
+    }
+
+    private void finishRegistration(RegistrationPageFragment pageFragment) {
+        RegistrationLoginDetailsFragment loginDetailsFragment =
+                (RegistrationLoginDetailsFragment) mPagerAdapter.getItem(
+                        PAGE_LOGIN_DETAILS);
+
+        // Get login details, they are stored in a User object.
+        User loginDetails = loginDetailsFragment.getUser();
+
+        UserType userType = mPagerAdapter.getUserType();
+        switch (userType) {
+            case CLIENT:
+                RegistrationClientDetailsFragment clientDetailsFragment
+                        = (RegistrationClientDetailsFragment) pageFragment;
+                ClientUser userFromFragment = clientDetailsFragment.getUser();
+
+                ClientUser clientUser = new ClientUser(loginDetails);
+
+                if (userFromFragment != null) {
+                    String name = userFromFragment.getName();
+                    if (name != null && !name.isEmpty()) {
+                        clientUser.setName(name);
+                    }
+
+                    List<VehicleData> vehicles = userFromFragment.getVehicles();
+                    if (vehicles != null && !vehicles.isEmpty()) {
+                        clientUser.setVehicles(vehicles);
+                    }
+                }
+
+                // Disable the finish button to prevent users from sending additional requests.
+                mNextPageButton.setEnabled(false);
+
+                // TODO: add some feedback to let the user know registration is in progress - perhaps a dialog with a progressbar.
+
+                sendCreateNewClientUserRequest(clientUser);
+                break;
+            case MASTER:
+                RegistrationServiceDetailsFragment serviceDetailsFragment
+                        = (RegistrationServiceDetailsFragment) pageFragment;
+
+                ProviderUser providerUser = new ProviderUser(loginDetails);
+
+                serviceDetailsFragment.updateServiceFromFields();
+                ServiceStation newService = serviceDetailsFragment.getService();
+
+                // TODO: update registration fragment to support missing fields.
+                addMissingFieldsForService(newService);
+                sendCreateNewProviderUserRequest(providerUser, newService);
+                break;
+        }
+    }
+
+    private void sendCreateNewClientUserRequest(ClientUser newUser) {
+        // Build the request
+        NewClientUserRequest request = new NewClientUserRequest(newUser);
+        // Send the request.
+        new NewUserRequestMaker(this).makeRequest(getApplicationContext(), request);
+    }
+
+    private void addMissingFieldsForService(ServiceStation serviceStation) {
+        // Temporary to make sure we can complete registration
+        serviceStation.setManagerName("TestManagerName");
+        serviceStation.getWorkTypes().add(ServiceWorkType.BODY_WORK);
+        serviceStation.getSubWorkTypes().add(ServiceSubWorkType.BODY_REPAIR);
+        String[] carMakes = new String[]{ "AC" };
+        serviceStation.setServicedCarMakes(carMakes);
+    }
+
+    private void sendCreateNewProviderUserRequest(ProviderUser newUser, ServiceStation service) {
+        // Build the request
+        NewProviderUserRequest request = new NewProviderUserRequest(newUser, service);
+        // Send the request.
+        new NewUserRequestMaker(this).makeRequest(getApplicationContext(), request);
     }
 }

@@ -26,6 +26,7 @@ import java.util.List;
 
 import il.co.tel_ran.carservice.ClientUser;
 import il.co.tel_ran.carservice.R;
+import il.co.tel_ran.carservice.VehicleData;
 import il.co.tel_ran.carservice.connection.ServerConnection;
 import il.co.tel_ran.carservice.ServiceStation;
 import il.co.tel_ran.carservice.TenderReply;
@@ -127,9 +128,10 @@ public class RequestServiceTabFragment extends RefreshingFragment
             case R.id.post_tender_request_fab:
                 // FALLTHROUGH
             case R.id.active_tender_request_details_layout:
-                if (mUser != null && mUser.getVehicleData() != null) {
+                List<VehicleData> vehicles = mUser.getVehicles();
+                if (mUser != null && vehicles != null && !vehicles.isEmpty()) {
                     if (mTenderRequest != null) {
-                        mTenderRequest.setVehicleData(mUser.getVehicleData());
+                        mTenderRequest.setVehicleData(vehicles.get(0));
                     }
                     Intent intent = new Intent(getContext(), PostTenderActivity.class);
                     intent.putExtra("tender_request", mTenderRequest);
@@ -189,7 +191,7 @@ public class RequestServiceTabFragment extends RefreshingFragment
                 mDeadlineTextView.setVisibility(View.GONE);
             }
 
-            getTenderReplies();
+//            getTenderReplies();
         }
     }
 
@@ -231,18 +233,8 @@ public class RequestServiceTabFragment extends RefreshingFragment
         final TenderReply tenderReply = repliesAdapter.getItem(itemPos);
         ServiceStation serviceStation = tenderReply.getReplyingService();
 
-        List<String> serviceTypeStrings = Utils.parseServiceTypes(getContext(),
-                serviceStation.getAvailableServices());
-        String servicesText = "";
-        for (String serviceString : serviceTypeStrings) {
-            servicesText += serviceString + ", ";
-        }
-
-        // Remove last comma.
-        servicesText = servicesText.substring(0, servicesText.length() - 2);
-
         ServiceDetailsDialog serviceDetailsDialog = ServiceDetailsDialog.getInstance(
-                servicesText, serviceStation, this);
+                serviceStation, this);
         Utils.showDialogFragment(getFragmentManager(), serviceDetailsDialog,
                 "service_details_dialog");
     }
@@ -288,7 +280,7 @@ public class RequestServiceTabFragment extends RefreshingFragment
 
         // Make sure we only request for replies once we show the active request (meaning the user has posted a request)
         if (mTenderRequestCard.getVisibility() == View.VISIBLE) {
-            getTenderReplies();
+//            getTenderReplies();
         } else {
             onRefreshEnd();
         }
@@ -316,7 +308,7 @@ public class RequestServiceTabFragment extends RefreshingFragment
         removeButton.setOnClickListener(this);
     }
 
-    private void getTenderReplies() {
+    /*private void getTenderReplies() {
         Log.d("RSTF", "getTenderReplies :: called.");
         if (mServerConnection != null) {
             Log.d("RSTF", "getTenderReplies :: mServerConnection not null.");
@@ -341,5 +333,5 @@ public class RequestServiceTabFragment extends RefreshingFragment
         }
 
         onRefreshEnd();
-    }
+    }*/
 }
