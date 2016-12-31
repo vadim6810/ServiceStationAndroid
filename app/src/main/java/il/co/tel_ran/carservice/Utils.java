@@ -24,8 +24,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
@@ -304,5 +307,18 @@ public class Utils {
         }
 
         return null;
+    }
+
+    public static Date parseDateTime(String datetime) throws ParseException {
+        String TIMEZONE_DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
+        return new SimpleDateFormat(TIMEZONE_DATE_TIME_FORMAT, Locale.getDefault()).parse(datetime);
+    }
+
+    public static String convertDateToDateTime(Date date) {
+        String TIMEZONE_DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
+        SimpleDateFormat dateFormat =  new SimpleDateFormat(TIMEZONE_DATE_TIME_FORMAT,
+                Locale.getDefault());
+
+        return dateFormat.format(date);
     }
 }
