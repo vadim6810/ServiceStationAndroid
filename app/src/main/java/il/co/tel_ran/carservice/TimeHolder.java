@@ -4,12 +4,13 @@ package il.co.tel_ran.carservice;
  * Created by maxim on 10/29/2016.
  */
 
+import java.io.Serializable;
 import java.util.Locale;
 
 /**
  * Simple class to keep hour & minute.
  */
-public class TimeHolder {
+public class TimeHolder implements Serializable {
 
     private int mHour;
     private int mMinute;
