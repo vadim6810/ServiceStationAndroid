@@ -69,9 +69,22 @@ public class TimeHolder {
     }
 
     public static TimeHolder parseTime(String time) {
+        int hour    = 0;
+        int minute  = 0;
+
         String[] timePart = time.split(":");
-        int hour = Integer.parseInt(timePart[0]);
-        int minute = Integer.parseInt(timePart[1]);
+        switch (timePart.length) {
+            case 1:
+                hour = Integer.parseInt(timePart[0]);
+                break;
+            case 2:
+                minute = Integer.parseInt(timePart[1]);
+                break;
+            default:
+                hour = 0;
+                minute = 0;
+                break;
+        }
 
         return new TimeHolder(hour, minute);
     }
