@@ -81,7 +81,7 @@ public class RegistrationServiceDetailsFragment extends RegistrationUserDetailsF
     private AppCompatCheckBox[] mVehicleTypeCheckBoxes = new AppCompatCheckBox[VEHICLE_TYPE_CHECKBOX_IDS.length];
 
     private EditText mDirectorNameEditText;
-    private EditText mDirectorPhonenumberEditText;
+    private EditText mManagerPhonenumberEditText;
 
     private TextView mTitle;
     private TextView mCaption;
@@ -119,7 +119,7 @@ public class RegistrationServiceDetailsFragment extends RegistrationUserDetailsF
 
         mDirectorNameEditText = (EditText) layout.findViewById(R.id.director_name_edit_text);
 
-        mDirectorPhonenumberEditText = (EditText) layout.findViewById(R.id.director_phonenumber_edit_text);
+        mManagerPhonenumberEditText = (EditText) layout.findViewById(R.id.manager_phonenumber_edit_text);
 
         mOpeningTimeButton = (Button) layout.findViewById(R.id.set_start_hour_button);
         mOpeningTimeButton.setOnClickListener(this);
@@ -320,7 +320,7 @@ public class RegistrationServiceDetailsFragment extends RegistrationUserDetailsF
             mVehicleTypeCheckBoxes[i].setEnabled(toggle);
         }
         mDirectorNameEditText.setEnabled(toggle);
-        mDirectorPhonenumberEditText.setEnabled(toggle);
+        mManagerPhonenumberEditText.setEnabled(toggle);
         mBrowsePhotoButton.setEnabled(toggle);
         mRemovePhotoButton.setEnabled(toggle);
     }
@@ -428,11 +428,11 @@ public class RegistrationServiceDetailsFragment extends RegistrationUserDetailsF
             else
                 mDirectorNameEditText.setText("");
 
-            String directorPhonenumber = service.getManagerPhonenumber();
-            if (directorPhonenumber != null)
-                mDirectorPhonenumberEditText.setText(directorPhonenumber);
+            String managerPhonenumber = service.getManagerPhonenumber();
+            if (managerPhonenumber != null)
+                mManagerPhonenumberEditText.setText(managerPhonenumber);
             else
-                mDirectorPhonenumberEditText.setText("");
+                mManagerPhonenumberEditText.setText("");
 
             // TODO: add code for image loading
         }
@@ -455,7 +455,7 @@ public class RegistrationServiceDetailsFragment extends RegistrationUserDetailsF
         mService.toggleVehicleType(VehicleType.MOTORCYCLE, mVehicleTypeCheckBoxes[3].isChecked());
 
         mService.setDirectorName(mDirectorNameEditText.getText().toString());
-        mService.setManagerPhonenumber(mDirectorPhonenumberEditText.getText().toString());
+        mService.setManagerPhonenumber(mManagerPhonenumberEditText.getText().toString());
     }
 
     public ServiceStation getService() {

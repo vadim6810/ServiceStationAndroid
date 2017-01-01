@@ -222,4 +222,5 @@
     <string name="vehicle_model_not_set_error_message">Please select vehicle model</string>
     <string name="invalid_year_error_message">Invalid year.</string>
     <string name="invalid_engine_displacement_error_message">Please enter a valid engine displacement</string>
+    <string name="manager_phone_number_title">Manager Phone Number</string>
 </resources>
