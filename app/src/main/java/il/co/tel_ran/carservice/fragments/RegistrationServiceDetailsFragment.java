@@ -66,9 +66,9 @@ public class RegistrationServiceDetailsFragment extends RegistrationUserDetailsF
 
     private final static int[] SERVICE_CHECKBOX_IDS = {
             R.id.service_checkbox_car_wash,
-            R.id.service_checkbox_tuning,
+            R.id.service_checkbox_towing,
             R.id.service_checkbox_tyre_repair,
-            R.id.service_checkbox_air_cond
+            R.id.service_checkbox_auto_service
     };
     private AppCompatCheckBox[] mServicesCheckBoxes = new AppCompatCheckBox[SERVICE_CHECKBOX_IDS.length];
 

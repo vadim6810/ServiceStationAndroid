@@ -133,17 +133,17 @@
                     android:id="@+id/service_checkbox_car_wash"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/required_service_car_wash"/>
+                    android:text="@string/car_wash_title"/>
                 <android.support.v7.widget.AppCompatCheckBox
-                    android:id="@+id/service_checkbox_tuning"
+                    android:id="@+id/service_checkbox_towing"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/required_service_tuning"/>
+                    android:text="@string/towing_title"/>
                 <android.support.v7.widget.AppCompatCheckBox
                     android:id="@+id/service_checkbox_tyre_repair"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/required_service_tyre_repair"/>
+                    android:text="@string/tyre_repair_title"/>
             </LinearLayout>
             <LinearLayout
                 android:layout_width="match_parent"
@@ -151,10 +151,10 @@
                 android:paddingTop="@dimen/item_spacing"
                 android:orientation="horizontal">
                 <android.support.v7.widget.AppCompatCheckBox
-                    android:id="@+id/service_checkbox_air_cond"
+                    android:id="@+id/service_checkbox_auto_service"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/required_service_air_cond_refill"/>
+                    android:text="@string/auto_service_title"/>
             </LinearLayout>
             <TextView
                 android:layout_width="match_parent"
@@ -254,6 +254,7 @@
                 android:textAllCaps="false"/>
         </LinearLayout>
     </ScrollView>
+
     <LinearLayout
         android:id="@+id/loading_service_layout"
         android:layout_width="match_parent"

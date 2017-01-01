@@ -90,7 +90,7 @@
                         android:layout_height="wrap_content"
                         android:text="@string/required_service_car_wash"/>
                     <android.support.v7.widget.AppCompatCheckBox
-                        android:id="@+id/service_checkbox_tuning"
+                        android:id="@+id/service_checkbox_towing"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/required_service_tuning"/>
@@ -106,7 +106,7 @@
                     android:paddingTop="@dimen/item_spacing"
                     android:orientation="horizontal">
                     <android.support.v7.widget.AppCompatCheckBox
-                        android:id="@+id/service_checkbox_air_cond"
+                        android:id="@+id/service_checkbox_auto_service"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/required_service_air_cond_refill"/>
