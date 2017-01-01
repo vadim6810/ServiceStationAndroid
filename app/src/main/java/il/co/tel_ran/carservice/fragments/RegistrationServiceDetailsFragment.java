@@ -24,11 +24,14 @@ import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 
+import java.util.ArrayList;
 import java.util.EnumSet;
 
 import il.co.tel_ran.carservice.R;
 import il.co.tel_ran.carservice.ServiceStation;
+import il.co.tel_ran.carservice.ServiceSubWorkType;
 import il.co.tel_ran.carservice.ServiceType;
+import il.co.tel_ran.carservice.ServiceWorkType;
 import il.co.tel_ran.carservice.TimeHolder;
 import il.co.tel_ran.carservice.Utils;
 import il.co.tel_ran.carservice.VehicleType;
@@ -42,7 +45,9 @@ import static android.app.Activity.RESULT_OK;
  */
 
 public class RegistrationServiceDetailsFragment extends RegistrationUserDetailsFragment
-        implements View.OnClickListener, TimePickerDialog.OnTimeSetListener {
+        implements View.OnClickListener, TimePickerDialog.OnTimeSetListener,
+        WorkTypesFragment.SelectWorkTypesDialogListener,
+        VehicleMakesFragment.SelectVehicleMakesDialogListener {
 
     private static final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
     private static final int SELECT_PHOTO_FROM_GALLERY_REQUEST_CODE = 2;
@@ -81,6 +86,8 @@ public class RegistrationServiceDetailsFragment extends RegistrationUserDetailsF
     private AppCompatCheckBox[] mVehicleTypeCheckBoxes = new AppCompatCheckBox[VEHICLE_TYPE_CHECKBOX_IDS.length];
 
     private EditText mDirectorNameEditText;
+
+    private EditText mManagerNameEditText;
     private EditText mManagerPhonenumberEditText;
 
     private TextView mTitle;
@@ -112,13 +119,18 @@ public class RegistrationServiceDetailsFragment extends RegistrationUserDetailsF
                     .findViewById(SERVICE_CHECKBOX_IDS[i]);
         }
 
+        layout.findViewById(R.id.show_work_types_button).setOnClickListener(this);
+
         for (int i = 0; i< mVehicleTypeCheckBoxes.length; i++) {
             mVehicleTypeCheckBoxes[i] = (AppCompatCheckBox) layout
                     .findViewById(VEHICLE_TYPE_CHECKBOX_IDS[i]);
         }
 
+        layout.findViewById(R.id.show_vehicle_makes_button).setOnClickListener(this);
+
         mDirectorNameEditText = (EditText) layout.findViewById(R.id.director_name_edit_text);
 
+        mManagerNameEditText = (EditText) layout.findViewById(R.id.manager_name_edit_text);
         mManagerPhonenumberEditText = (EditText) layout.findViewById(R.id.manager_phonenumber_edit_text);
 
         mOpeningTimeButton = (Button) layout.findViewById(R.id.set_start_hour_button);
@@ -187,6 +199,44 @@ public class RegistrationServiceDetailsFragment extends RegistrationUserDetailsF
                 mServicePhotoImageView.setVisibility(View.GONE);
                 mRemovePhotoButton.setVisibility(View.GONE);
                 break;
+            case R.id.show_work_types_button:
+                showWorkTypesSelectionDialog();
+                break;
+            case R.id.show_vehicle_makes_button:
+                showVehicleMakesSelectionDialog();
+                break;
+        }
+    }
+
+    /*
+     * WorkTypesFragment.SelectWorkTypesDialogListener
+     */
+
+    @Override
+    public void onWorkTypeSelected(ServiceWorkType[] workTypes, ServiceSubWorkType[] subWorkTypes) {
+        ArrayList<ServiceWorkType> selectedWorkTypes = mService.getWorkTypes();
+        ArrayList<ServiceSubWorkType> selectedSubWorkTypes = mService.getSubWorkTypes();
+
+        for (ServiceWorkType workType : workTypes) {
+            selectedWorkTypes.add(workType);
+        }
+
+        for (ServiceSubWorkType subWorkType : subWorkTypes) {
+            selectedSubWorkTypes.add(subWorkType);
+        }
+    }
+
+    /*
+     * VehicleMakesFragment.SelectVehicleMakesDialogListener
+     */
+
+    @Override
+    public void onVehicleMakesSelected(ArrayList<String> vehicleMakes) {
+        if (vehicleMakes != null && !vehicleMakes.isEmpty()) {
+            String[] vehicleMakesArr = new String[vehicleMakes.size()];
+            vehicleMakes.toArray(vehicleMakesArr);
+
+            mService.setServicedCarMakes(vehicleMakesArr);
         }
     }
 
@@ -455,10 +505,37 @@ public class RegistrationServiceDetailsFragment extends RegistrationUserDetailsF
         mService.toggleVehicleType(VehicleType.MOTORCYCLE, mVehicleTypeCheckBoxes[3].isChecked());
 
         mService.setDirectorName(mDirectorNameEditText.getText().toString());
+
+        mService.setManagerName(mManagerNameEditText.getText().toString());
         mService.setManagerPhonenumber(mManagerPhonenumberEditText.getText().toString());
     }
 
     public ServiceStation getService() {
         return new ServiceStation(mService);
+    }
+
+    private void showWorkTypesSelectionDialog() {
+        WorkTypesFragment workTypesFragment = WorkTypesFragment.getInstance(false,
+                mService.getSubWorkTypes());
+        workTypesFragment.setOnWorkTypesSelectedListener(this);
+        Utils.showDialogFragment(getFragmentManager(), workTypesFragment,
+                "work_type_fragment");
+    }
+
+    private void showVehicleMakesSelectionDialog() {
+        ArrayList<String> servicesCarMakes = new ArrayList<>();
+
+        String[] servicedCarMakesArr = mService.getServicedCarMakes();
+        if (servicedCarMakesArr != null && servicedCarMakesArr.length > 0) {
+            for (String carMake : mService.getServicedCarMakes()) {
+                servicesCarMakes.add(carMake);
+            }
+        }
+
+        VehicleMakesFragment vehicleMakesFragment = VehicleMakesFragment.getInstance(
+                servicesCarMakes, false);
+        vehicleMakesFragment.setOnVehicleMakesSelectedListener(this);
+        Utils.showDialogFragment(getFragmentManager(),
+                vehicleMakesFragment, "vehicle_make_fragment");
     }
 }

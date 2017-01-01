@@ -158,6 +158,16 @@
                     android:layout_height="wrap_content"
                     android:text="@string/auto_service_title"/>
             </LinearLayout>
+            <Button
+                android:id="@+id/show_work_types_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/transparent_background_interactive"
+                android:gravity="start|center_vertical"
+                android:text="@string/tap_to_view_work_types_button"
+                android:textColor="?attr/colorAccent"
+                android:textAllCaps="false"
+                android:textSize="20sp"/>
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -190,6 +200,16 @@
                     android:layout_height="wrap_content"
                     android:text="@string/vehicle_type_motorcycle"/>
             </LinearLayout>
+            <Button
+                android:id="@+id/show_vehicle_makes_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/transparent_background_interactive"
+                android:gravity="start|center_vertical"
+                android:text="@string/tap_to_view_vehicle_makes_button"
+                android:textColor="?attr/colorAccent"
+                android:textAllCaps="false"
+                android:textSize="20sp"/>
             <android.support.design.widget.TextInputLayout
                 android:id="@+id/director_name_input_layout"
                 android:layout_width="match_parent"
@@ -203,6 +223,22 @@
                     android:inputType="textPersonName"
                     android:imeOptions="actionNext"
                     android:hint="@string/director_name"
+                    android:textSize="20sp"
+                    android:maxLines="1"/>
+            </android.support.design.widget.TextInputLayout>
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/manager_name_input_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/item_spacing" >
+
+                <EditText
+                    android:id="@+id/manager_name_edit_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textPersonName"
+                    android:imeOptions="actionNext"
+                    android:hint="@string/manager_name_title"
                     android:textSize="20sp"
                     android:maxLines="1"/>
             </android.support.design.widget.TextInputLayout>

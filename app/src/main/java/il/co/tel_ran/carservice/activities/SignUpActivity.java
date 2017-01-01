@@ -526,8 +526,6 @@ public class SignUpActivity extends AppCompatActivity implements ViewPager.OnPag
                 serviceDetailsFragment.updateServiceFromFields();
                 ServiceStation newService = serviceDetailsFragment.getService();
 
-                // TODO: update registration fragment to support missing fields.
-                addMissingFieldsForService(newService);
                 sendCreateNewProviderUserRequest(providerUser, newService);
                 break;
         }
@@ -538,15 +536,6 @@ public class SignUpActivity extends AppCompatActivity implements ViewPager.OnPag
         NewClientUserRequest request = new NewClientUserRequest(newUser);
         // Send the request.
         new NewUserRequestMaker(this).makeRequest(getApplicationContext(), request);
-    }
-
-    private void addMissingFieldsForService(ServiceStation serviceStation) {
-        // Temporary to make sure we can complete registration
-        serviceStation.setManagerName("TestManagerName");
-        serviceStation.getWorkTypes().add(ServiceWorkType.BODY_WORK);
-        serviceStation.getSubWorkTypes().add(ServiceSubWorkType.BODY_REPAIR);
-        String[] carMakes = new String[]{ "AC" };
-        serviceStation.setServicedCarMakes(carMakes);
     }
 
     private void sendCreateNewProviderUserRequest(ProviderUser newUser, ServiceStation service) {
