@@ -50,6 +50,7 @@
                     android:inputType="textPersonName"
                     android:imeOptions="actionNext"
                     android:hint="@string/service_name"
+                    android:textSize="20sp"
                     android:maxLines="1"/>
             </android.support.design.widget.TextInputLayout>
             <TextView
@@ -82,6 +83,7 @@
                     android:inputType="phone"
                     android:imeOptions="actionNext"
                     android:hint="@string/phone_number"
+                    android:textSize="20sp"
                     android:maxLines="1"/>
             </android.support.design.widget.TextInputLayout>
             <TextView
@@ -201,6 +203,7 @@
                     android:inputType="textPersonName"
                     android:imeOptions="actionNext"
                     android:hint="@string/director_name"
+                    android:textSize="20sp"
                     android:maxLines="1"/>
             </android.support.design.widget.TextInputLayout>
             <android.support.design.widget.TextInputLayout
@@ -216,6 +219,7 @@
                     android:inputType="phone"
                     android:imeOptions="actionNext"
                     android:hint="@string/manager_phone_number_title"
+                    android:textSize="20sp"
                     android:maxLines="1"/>
             </android.support.design.widget.TextInputLayout>
             <TextView
