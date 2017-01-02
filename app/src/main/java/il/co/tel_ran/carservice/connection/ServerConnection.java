@@ -133,7 +133,7 @@ public class ServerConnection {
                         int statusInt = object.getInt("status");
                         String location = object.getString("location");
                         String placeId = object.getString("placeId");
-                        String services = object.getString("services");
+                        float price = (float) object.getDouble("price");
                         String vehicleMake = object.getString("vehicleMake");
                         String vehicleModel = object.getString("vehicleModel");
                         int vehicleYear = object.getInt("vehicleYear");
@@ -154,7 +154,7 @@ public class ServerConnection {
                         request.setLocation(location);
                         request.setPlaceID(placeId);
                         request.setVehicleData(vehicleData);
-                        request.setServices(services);
+                        request.setPrice(price);
                         request.setDeadlineDate(deadlineDay, deadlineMonth, deadlineYear);
                         request.setStatus(statusInt == 0 ? TenderRequest.Status.CLOSED
                                 : statusInt == 1 ? TenderRequest.Status.OPENED : TenderRequest.Status.RESOLVED);

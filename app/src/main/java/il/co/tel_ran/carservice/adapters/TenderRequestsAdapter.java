@@ -124,7 +124,7 @@ public class TenderRequestsAdapter
 
             // Set message text
             holder.messageTextView.setText(String.format(Locale.getDefault(), mTenderRequestString,
-                    tenderRequest.getServices(), tenderRequest.getVehicleData()));
+                    tenderRequest.getPrice(), tenderRequest.getVehicleData()));
 
             // Set location text
             holder.locationTextView.setText(tenderRequest.getLocation());

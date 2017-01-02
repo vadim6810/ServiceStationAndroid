@@ -44,6 +44,7 @@ import java.util.Collection;
 
 import il.co.tel_ran.carservice.ClientUser;
 import il.co.tel_ran.carservice.R;
+import il.co.tel_ran.carservice.TenderRequest;
 import il.co.tel_ran.carservice.connection.ServiceStationDataRequest;
 import il.co.tel_ran.carservice.ServiceSubWorkType;
 import il.co.tel_ran.carservice.ServiceType;
@@ -624,14 +625,15 @@ public class ClientMainActivity extends AppCompatActivity
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
             case REQUEST_CODE_POST_TENDER:
-                /*if (resultCode == RESULT_OK) {
-                    if (mRequestServiceTabFragment != null) {
+                if (resultCode == RESULT_OK) {
+                    if (mTenderRequestsFragment != null) {
                         // Get data from PostTenderActivity
                         TenderRequest tenderRequest = (TenderRequest) data
                                 .getSerializableExtra("tender_request");
-                        mRequestServiceTabFragment.onTenderRequestUpdate(tenderRequest);
+                        // Update tender fragment
+                        mTenderRequestsFragment.onTenderRequestUpdate(tenderRequest);
                     }
-                }*/
+                }
                 break;
             case REQUEST_CODE_SIGN_IN:
                 if (resultCode == RESULT_OK) {

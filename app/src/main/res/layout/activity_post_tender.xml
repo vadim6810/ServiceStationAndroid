@@ -108,13 +108,37 @@
                     android:layout_height="wrap_content"
                     android:text="@string/vehicle_details"
                     android:textSize="20sp"/>
-                <TextView
-                    android:id="@+id/vehicle_details_text_view"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/item_spacing"
-                    android:textColor="@color/colorPrimaryText"
-                    android:textSize="16sp"/>
+                    android:paddingTop="@dimen/item_spacing"
+                    android:orientation="horizontal">
+                    <android.support.v7.widget.AppCompatCheckBox
+                        android:id="@+id/service_vehicle_type_private"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/vehicle_type_private"/>
+                    <android.support.v7.widget.AppCompatCheckBox
+                        android:id="@+id/service_vehicle_type_truck"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/vehicle_type_truck"/>
+                    <android.support.v7.widget.AppCompatCheckBox
+                        android:id="@+id/service_vehicle_type_bus"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/vehicle_type_bus"/>
+                    <android.support.v7.widget.AppCompatCheckBox
+                        android:id="@+id/service_vehicle_type_motorcycles"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/vehicle_type_motorcycle"/>
+                </LinearLayout>
+                <android.support.v7.widget.AppCompatSpinner
+                    android:id="@+id/user_vehicles_spinner"
+                    android:paddingTop="@dimen/item_spacing"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
             </LinearLayout>
             <LinearLayout
                 android:layout_width="match_parent"
@@ -131,18 +155,80 @@
                     android:layout_height="wrap_content"
                     android:text="@string/services"
                     android:textSize="20sp"/>
+                <Button
+                    android:id="@+id/show_work_types_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/transparent_background_interactive"
+                    android:gravity="start|center_vertical"
+                    android:text="@string/tap_to_view_work_types_button"
+                    android:textColor="?attr/colorAccent"
+                    android:textAllCaps="false"
+                    android:textSize="20sp"/>
+                <com.hotmail.maximglukhov.arrangedlayout.ArrangedLayout
+                    android:id="@+id/services_arranged_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="@dimen/item_spacing"
+                android:paddingRight="@dimen/item_spacing"
+                android:paddingTop="@dimen/item_spacing"
+                android:paddingBottom="@dimen/item_spacing"
+                android:layout_marginTop="@dimen/activity_horizontal_margin"
+                android:orientation="vertical"
+                android:background="@drawable/profile_section_background">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/price_title"
+                    android:textSize="20sp"/>
                 <android.support.design.widget.TextInputLayout
-                    android:id="@+id/tender_services_input_layout"
+                    android:id="@+id/tender_price_input_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/item_spacing" >
 
                     <EditText
-                        android:id="@+id/tender_services_edit_text"
+                        android:id="@+id/tender_price_edit_text"
+                        android:background="@drawable/custom_edit_text_background"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="numberDecimal"
+                        android:hint="@string/price_in_nis_hint"
+                        android:maxLines="10"/>
+                </android.support.design.widget.TextInputLayout>
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="@dimen/item_spacing"
+                android:paddingRight="@dimen/item_spacing"
+                android:paddingTop="@dimen/item_spacing"
+                android:paddingBottom="@dimen/item_spacing"
+                android:layout_marginTop="@dimen/activity_horizontal_margin"
+                android:orientation="vertical"
+                android:background="@drawable/profile_section_background">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/message_title"
+                    android:textSize="20sp"/>
+                <android.support.design.widget.TextInputLayout
+                    android:id="@+id/tender_message_input_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/item_spacing" >
+
+                    <EditText
+                        android:id="@+id/tender_message_edit_text"
+                        android:background="@drawable/custom_edit_text_background"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:inputType="textMultiLine"
-                        android:hint="@string/required_services"
+                        android:hint="@string/enter_a_message_hint"
                         android:maxLines="10"/>
                 </android.support.design.widget.TextInputLayout>
             </LinearLayout>

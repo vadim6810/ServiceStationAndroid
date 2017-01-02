@@ -10,11 +10,15 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.AppCompatCheckBox;
+import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.DatePicker;
@@ -38,16 +42,30 @@ import com.google.android.gms.location.places.PlaceLikelihood;
 import com.google.android.gms.location.places.PlaceLikelihoodBuffer;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
+import com.hotmail.maximglukhov.arrangedlayout.ArrangedLayout;
+import com.hotmail.maximglukhov.chipview.ChipView;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Locale;
 
+import il.co.tel_ran.carservice.ClientUser;
 import il.co.tel_ran.carservice.R;
+import il.co.tel_ran.carservice.ServiceSubWorkType;
+import il.co.tel_ran.carservice.ServiceWorkType;
 import il.co.tel_ran.carservice.TenderRequest;
 import il.co.tel_ran.carservice.Utils;
 import il.co.tel_ran.carservice.VehicleData;
+import il.co.tel_ran.carservice.VehicleType;
 import il.co.tel_ran.carservice.dialogs.DatePickerDialogFragment;
+import il.co.tel_ran.carservice.fragments.WorkTypesFragment;
 
-public class PostTenderActivity extends AppCompatActivity implements View.OnClickListener, GoogleApiClient.OnConnectionFailedListener, DatePickerDialog.OnDateSetListener, CompoundButton.OnCheckedChangeListener {
+public class PostTenderActivity extends AppCompatActivity implements View.OnClickListener,
+        GoogleApiClient.OnConnectionFailedListener, DatePickerDialog.OnDateSetListener,
+        CompoundButton.OnCheckedChangeListener, WorkTypesFragment.SelectWorkTypesDialogListener, ChipView.OnChipDeleteClickListener {
 
     private static final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 2;
@@ -60,7 +78,9 @@ public class PostTenderActivity extends AppCompatActivity implements View.OnClic
     private ImageView mCurrentLocationImageView;
     private ProgressBar mAcquireLocationProgressbar;
 
-    private EditText mServicesEditText;
+    private EditText mPriceEditText;
+
+    private EditText mMessageEditText;
 
     private GoogleApiClient mGoogleApiClient;
 
@@ -71,6 +91,19 @@ public class PostTenderActivity extends AppCompatActivity implements View.OnClic
     private RadioButton mTenderResolvedStatusRadioButton;
     private RadioButton mTenderClosedStatusRadioButton;
     private RadioButton mTenderOpenedStatusRadioButton;
+
+    private ArrangedLayout mWorkTypesArrangedLayout;
+
+    private final static int[] VEHICLE_TYPE_CHECKBOX_IDS = {
+            R.id.service_vehicle_type_private,
+            R.id.service_vehicle_type_truck,
+            R.id.service_vehicle_type_bus,
+            R.id.service_vehicle_type_motorcycles
+    };
+    private AppCompatCheckBox[] mVehicleTypeCheckBoxes
+            = new AppCompatCheckBox[VEHICLE_TYPE_CHECKBOX_IDS.length];
+
+    private ClientUser mClientUser;
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -159,7 +192,52 @@ public class PostTenderActivity extends AppCompatActivity implements View.OnClic
                         });
                     }
                 }
+            case R.id.show_work_types_button:
+                showWorkTypesSelectionDialog();
                 break;
+        }
+    }
+
+    /*
+     * WorkTypesFragment.SelectWorkTypesDialogListener
+     */
+
+    @Override
+    public void onWorkTypeSelected(ServiceWorkType[] workTypes, ServiceSubWorkType[] subWorkTypes) {
+        ArrayList<ServiceWorkType> serviceWorkTypes = mTenderRequest.getWorkTypes();
+        ArrayList<ServiceSubWorkType> serviceSubWorkTypes = mTenderRequest.getSubWorkTypes();
+
+        serviceWorkTypes.clear();
+        serviceSubWorkTypes.clear();
+
+        Collections.addAll(serviceWorkTypes, workTypes);
+        Collections.addAll(serviceSubWorkTypes, subWorkTypes);
+
+        updateWorkTypesArrangedLayout();
+    }
+
+    /*
+     * ChipView.OnChipDeleteClickListener
+     */
+
+    @Override
+    public void onChipDelete(ChipView chipView) {
+        Object tag = chipView.getTag(R.id.tag_chip_sub_work_type);
+        if (tag != null) {
+            ServiceSubWorkType subWorkType = (ServiceSubWorkType) tag;
+
+            ArrayList<ServiceSubWorkType> subWorkTypes = mTenderRequest.getSubWorkTypes();
+            if (subWorkTypes != null) {
+                subWorkTypes.remove(subWorkType);
+
+                int arrangedLayoutChildCount = mWorkTypesArrangedLayout.getChildCount();
+                for (int i = 0; i < arrangedLayoutChildCount; i++) {
+                    if (mWorkTypesArrangedLayout.getChildAt(i).equals(chipView)) {
+                        mWorkTypesArrangedLayout.removeView(chipView);
+                        break;
+                    }
+                }
+            }
         }
     }
 
@@ -211,7 +289,7 @@ public class PostTenderActivity extends AppCompatActivity implements View.OnClic
                         .show();
                 return;
             }
-            mTenderRequest.setServices(mServicesEditText.getText().toString());
+            mTenderRequest.setPrice(Float.valueOf(mPriceEditText.getText().toString()));
 
             if (mTenderRequest.getSubmitTimeStamp() == -1) {
                 // Posting for the first time
@@ -278,30 +356,39 @@ public class PostTenderActivity extends AppCompatActivity implements View.OnClic
         Bundle extras = getIntent().getExtras();
         if (extras != null && !extras.isEmpty()) {
             mTenderRequest = (TenderRequest) extras.getSerializable("tender_request");
+            if (mTenderRequest == null) {
+                mTenderRequest = new TenderRequest();
+            }
+            mClientUser = (ClientUser) extras.getSerializable("user");
         } else {
-            mTenderRequest = new TenderRequest();
+            // TODO: handle error
+            finish();
         }
 
         mLayout = (ScrollView) findViewById(R.id.activity_post_tender);
 
-        TextView vehicleDetailsTextView = (TextView) findViewById(R.id.vehicle_details_text_view);
-
-        // Check if we are updating an existing tender request.
-        VehicleData vehicleData = mTenderRequest.getVehicleData();
-        if (vehicleData != null) {
-            vehicleDetailsTextView.setText(vehicleData.toString());
-        }
-
         mAcquireLocationProgressbar = (ProgressBar) findViewById(R.id.acquire_location_progress_bar);
 
-        mServicesEditText = (EditText) findViewById(R.id.tender_services_edit_text);
-        // Check if we are updating an existing tender request.
-        String message = mTenderRequest.getServices();
+        mPriceEditText = (EditText) findViewById(R.id.tender_price_edit_text);
+
+        float price = mTenderRequest.getPrice();
+        mPriceEditText.setText(String.format(Locale.getDefault(), "%.2f", price));
+
+        mMessageEditText = (EditText) findViewById(R.id.tender_message_edit_text);
+        String message = mTenderRequest.getMessage();
         if (message != null && !message.isEmpty()) {
-            mServicesEditText.setText(message);
+            mMessageEditText.setText(message);
         }
 
         mThirdPartyAttributionsTextView = (TextView) findViewById(R.id.third_party_attributions_text_view);
+
+        findViewById(R.id.show_work_types_button).setOnClickListener(this);
+        mWorkTypesArrangedLayout = (ArrangedLayout) findViewById(R.id.services_arranged_layout);
+        updateWorkTypesArrangedLayout();
+
+        setupVehicleTypeCheckboxes();
+
+        setupUserVehiclesSpinner(mTenderRequest.getVehicleData());
 
         setupStatusRadioGroup();
 
@@ -312,6 +399,31 @@ public class PostTenderActivity extends AppCompatActivity implements View.OnClic
         setupActionBar();
 
         setupGoogleApiClient();
+    }
+
+    private void updateWorkTypesArrangedLayout() {
+        ArrayList<ServiceSubWorkType> subWorkTypes = mTenderRequest.getSubWorkTypes();
+        if (subWorkTypes == null || subWorkTypes.isEmpty()) {
+            mWorkTypesArrangedLayout.removeAllViews();
+        } else {
+            // Remove current views (ChipView).
+            mWorkTypesArrangedLayout.removeAllViews();
+
+            int itemSpacing = getResources().getDimensionPixelSize(R.dimen.item_spacing);
+
+            for (ServiceSubWorkType subWorkType : subWorkTypes) {
+                // Create a ChipView for every sub work type
+                ChipView subWorkTypeChip = new ChipView(PostTenderActivity.this);
+                ViewCompat.setPaddingRelative(subWorkTypeChip, itemSpacing, 0, 0,
+                        itemSpacing);
+                subWorkTypeChip.setDeletable(true);
+                subWorkTypeChip.setText(subWorkType.toString());
+                subWorkTypeChip.addOnChipDeleteClickListener(this);
+                subWorkTypeChip.setTag(R.id.tag_chip_sub_work_type, subWorkType);
+
+                mWorkTypesArrangedLayout.addView(subWorkTypeChip);
+            }
+        }
     }
 
     @Override
@@ -332,6 +444,42 @@ public class PostTenderActivity extends AppCompatActivity implements View.OnClic
                 break;
         }
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    private void setupVehicleTypeCheckboxes() {
+        for (int i = 0; i < mVehicleTypeCheckBoxes.length; i++) {
+            mVehicleTypeCheckBoxes[i] = (AppCompatCheckBox) mLayout
+                    .findViewById(VEHICLE_TYPE_CHECKBOX_IDS[i]);
+        }
+
+        EnumSet<VehicleType> vehicleTypes = mTenderRequest.getVehicleTypes();
+        if (vehicleTypes != null && !vehicleTypes.isEmpty()) {
+            mVehicleTypeCheckBoxes[0].setChecked(vehicleTypes.contains(VehicleType.PRIVATE));
+            mVehicleTypeCheckBoxes[1].setChecked(vehicleTypes.contains(VehicleType.TRUCK));
+            mVehicleTypeCheckBoxes[2].setChecked(vehicleTypes.contains(VehicleType.BUS));
+            mVehicleTypeCheckBoxes[3].setChecked(vehicleTypes.contains(VehicleType.MOTORCYCLE));
+        }
+    }
+
+    private void setupUserVehiclesSpinner(VehicleData vehicleData) {
+        List<String> vehicleStrings = new ArrayList<>();
+        for (VehicleData vehicle : mClientUser.getVehicles()) {
+            vehicleStrings.add(vehicle.toString());
+        }
+
+        AppCompatSpinner vehiclesSpinner = (AppCompatSpinner) mLayout
+                .findViewById(R.id.user_vehicles_spinner);
+        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(PostTenderActivity.this,
+                android.R.layout.simple_spinner_item, vehicleStrings);
+
+        vehiclesSpinner.setAdapter(arrayAdapter);
+
+        if (vehicleData != null) {
+            int index = vehicleStrings.indexOf(vehicleData.toString());
+            if (index != -1) {
+                vehiclesSpinner.setSelection(index);
+            }
+        }
     }
 
     private void setupLocationSearchButton() {
@@ -461,7 +609,7 @@ public class PostTenderActivity extends AppCompatActivity implements View.OnClic
     private boolean checkFields() {
         boolean isLocationSet = mTenderRequest.getLocation() != null
                 && !mTenderRequest.getLocation().isEmpty();
-        boolean isServicesTextField = !mServicesEditText.getText().toString().trim().isEmpty();
+        boolean isServicesTextField = !mPriceEditText.getText().toString().trim().isEmpty();
         boolean isDeadlineSet = mTenderRequest.getDeadline(Calendar.YEAR) != 0;
 
         if (isLocationSet && isServicesTextField && isDeadlineSet)
@@ -469,4 +617,14 @@ public class PostTenderActivity extends AppCompatActivity implements View.OnClic
 
         return false;
     }
+
+    private void showWorkTypesSelectionDialog() {
+        WorkTypesFragment workTypesFragment = WorkTypesFragment.getInstance(false,
+                mTenderRequest.getSubWorkTypes());
+        workTypesFragment.setOnWorkTypesSelectedListener(this);
+        Utils.showDialogFragment(getSupportFragmentManager(), workTypesFragment,
+                "work_type_fragment");
+    }
+
+
 }

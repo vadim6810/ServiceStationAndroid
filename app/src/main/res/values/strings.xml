@@ -224,4 +224,8 @@
     <string name="invalid_engine_displacement_error_message">Please enter a valid engine displacement</string>
     <string name="manager_phone_number_title">Manager Phone Number</string>
     <string name="manager_name_title">Manager Name</string>
+    <string name="price_title">Price</string>
+    <string name="price_in_nis_hint">Price in NIS:</string>
+    <string name="message_title">Message</string>
+    <string name="enter_a_message_hint">Enter a message:</string>
 </resources>

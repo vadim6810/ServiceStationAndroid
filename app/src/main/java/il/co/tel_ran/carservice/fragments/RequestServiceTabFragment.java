@@ -18,8 +18,6 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import com.google.android.gms.common.api.GoogleApiClient;
-
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -128,13 +126,10 @@ public class RequestServiceTabFragment extends RefreshingFragment
             case R.id.post_tender_request_fab:
                 // FALLTHROUGH
             case R.id.active_tender_request_details_layout:
-                List<VehicleData> vehicles = mUser.getVehicles();
-                if (mUser != null && vehicles != null && !vehicles.isEmpty()) {
-                    if (mTenderRequest != null) {
-                        mTenderRequest.setVehicleData(vehicles.get(0));
-                    }
+                if (mUser != null) {
                     Intent intent = new Intent(getContext(), PostTenderActivity.class);
                     intent.putExtra("tender_request", mTenderRequest);
+                    intent.putExtra("user", mUser);
 
                     if (clientMainActivity != null) {
                         clientMainActivity.startActivityForResult(intent,
@@ -162,9 +157,9 @@ public class RequestServiceTabFragment extends RefreshingFragment
             mTenderRequest = request;
 
             // Update the message.
-            mRequestMessageTextView.setText(getString(
-                    R.string.tender_request_message, request.getServices(),
-                    request.getVehicleData().toString()));
+            /*mRequestMessageTextView.setText(getString(
+                    R.string.tender_request_message, Float.toString(request.getPrice()),
+                    request.getVehicleData().toString()));*/
 
             // Update the location.
             if (request.getLocation() != null)
