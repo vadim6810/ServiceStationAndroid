@@ -17,7 +17,7 @@ public class NewAuthenticationRequestMaker extends RequestMaker {
     private static final String JSON_FIELD_PASS = "pass";
 
     public NewAuthenticationRequestMaker(OnDataRetrieveListener listener) {
-        super(listener, DataResult.Type.NEW_AUTHENTICATION);
+        super(listener, DataResult.Type.AUTHENTICATION);
     }
 
     @Override

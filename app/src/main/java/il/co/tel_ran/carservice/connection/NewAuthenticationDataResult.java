@@ -8,6 +8,6 @@ import org.json.JSONObject;
 
 public class NewAuthenticationDataResult extends DataResult<JSONObject> {
     public NewAuthenticationDataResult(JSONObject[] data) {
-        super(Type.NEW_AUTHENTICATION, data);
+        super(Type.AUTHENTICATION, data);
     }
 }

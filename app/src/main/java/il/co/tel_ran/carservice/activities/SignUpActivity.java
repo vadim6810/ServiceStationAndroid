@@ -30,8 +30,6 @@ import il.co.tel_ran.carservice.ClientUser;
 import il.co.tel_ran.carservice.ProviderUser;
 import il.co.tel_ran.carservice.R;
 import il.co.tel_ran.carservice.ServiceStation;
-import il.co.tel_ran.carservice.ServiceSubWorkType;
-import il.co.tel_ran.carservice.ServiceWorkType;
 import il.co.tel_ran.carservice.User;
 import il.co.tel_ran.carservice.UserType;
 import il.co.tel_ran.carservice.Utils;
@@ -220,7 +218,7 @@ public class SignUpActivity extends AppCompatActivity implements ViewPager.OnPag
                             authenticationRequest);
                 }
                 break;
-            case NEW_AUTHENTICATION:
+            case AUTHENTICATION:
                 parsedJSON = (JSONObject[]) result.getData();
                 if (parsedJSON != null && parsedJSON.length > 0) {
                     // Make new request with the parsed JSON we receive - this is for email authentication.

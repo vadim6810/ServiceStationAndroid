@@ -14,7 +14,7 @@ public class DataResult<T> {
         SERVICE_STATION,
         REVIEW,
         NEW_USER,
-        NEW_AUTHENTICATION,
+        AUTHENTICATION,
         VEHICLE_API,
         CLIENT_USER
     }
