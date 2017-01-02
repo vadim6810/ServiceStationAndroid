@@ -133,7 +133,7 @@ public class SignInActivity extends AppCompatActivity implements TextView.OnEdit
 
                 if (resultJSONs != null && resultJSONs.length > 0) {
                     JSONObject resultJSON = resultJSONs[0];
-                    handleAuthentication(resultJSON, result.getExtras());
+                    handleAuthentication(resultJSON);
                 } else {
                     // TODO: handle error
                     Log.e(LOG_TAG, "onDataRetrieveSuccess :: failed to retrieve authentication results");
@@ -251,18 +251,12 @@ public class SignInActivity extends AppCompatActivity implements TextView.OnEdit
         }
     }
 
-    private void handleAuthentication(JSONObject resultJSON, Bundle extras) {
+    private void handleAuthentication(JSONObject resultJSON) {
         String inputPassword = mPasswordEditText.getText().toString();
         String comparePassword = resultJSON.optString(
-                AuthenticationRequestMaker.JSON_FIELD_PASS);
+                AuthenticationRequestMaker.JSON_FIELD_PASSWORD);
 
-        String role = "";
-        if (extras != null && !extras.isEmpty()) {
-            String extraRole = extras.getString("user_type");
-            if (extraRole != null) {
-                role = extraRole;
-            }
-        }
+        String role = resultJSON.optString(AuthenticationRequestMaker.JSON_FIELD_TYPE);
 
         boolean authenticationSuccess = checkPassword(inputPassword, comparePassword);
         if (authenticationSuccess) {

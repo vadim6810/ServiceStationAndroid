@@ -213,6 +213,11 @@ public class SignUpActivity extends AppCompatActivity implements ViewPager.OnPag
                     // Make new request with the parsed JSON we receive
                     AuthenticationRequest authenticationRequest = new AuthenticationRequest(
                             parsedJSON[0]);
+
+                    Bundle extras = new Bundle();
+                    extras.putBoolean("is_new_user", true);
+                    authenticationRequest.putExtras(extras);
+
                     // Send the new JSON for authentication.
                     new AuthenticationRequestMaker(this).makeRequest(getApplicationContext(),
                             authenticationRequest);

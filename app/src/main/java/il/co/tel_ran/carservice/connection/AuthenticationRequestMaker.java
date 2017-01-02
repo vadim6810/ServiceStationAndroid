@@ -61,24 +61,28 @@ public class AuthenticationRequestMaker extends RequestMaker {
                 listener.onDataRetrieveFailed(request, getResultType(),
                         ServerResponseError.INVALID_PARAMETER, null);
             } else {
-
                 JSONObject resultJSON = new JSONObject();
-                try {
-                    resultJSON.put(AuthenticationRequestMaker.JSON_FIELD_EMAIL,
-                            response.getString(AuthenticationRequestMaker.JSON_FIELD_EMAIL));
-                    resultJSON.put(JSON_FIELD_PASS,
-                            response.getString(AuthenticationRequestMaker.JSON_FIELD_PASSWORD));
 
-                } catch (JSONException e) {
-                    e.printStackTrace();
+                boolean isNewUser = false;
+
+                Bundle requestExtras = request.getExtras();
+                if (requestExtras != null && !requestExtras.isEmpty()) {
+                    isNewUser = requestExtras.getBoolean("is_new_user");
+                }
+
+                if (isNewUser) {
+                    try {
+                        resultJSON.put(JSON_FIELD_EMAIL, response.getString(JSON_FIELD_EMAIL));
+                        resultJSON.put(JSON_FIELD_PASS, response.getString(JSON_FIELD_PASSWORD));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    resultJSON = response;
                 }
 
                 JSONObject[] resultsArray = {resultJSON};
                 AuthenticationDataResult result = new AuthenticationDataResult(resultsArray);
-
-                Bundle extras = new Bundle();
-                extras.putString("user_type",
-                        response.optString(AuthenticationRequestMaker.JSON_FIELD_TYPE));
 
                 listener.onDataRetrieveSuccess(request, result);
             }
