@@ -128,10 +128,12 @@ public class SignInActivity extends AppCompatActivity implements TextView.OnEdit
         long id = 0;
         long idUser = 0;
         String email = "";
+        String password = "";
         try {
             // Refers to id in authentication JSON
             id = Long.parseLong(authenticationJSON.getString(UserAuthentication.JSON_FIELD_ID));
             email = authenticationJSON.getString(UserAuthentication.JSON_FIELD_EMAIL);
+            password = authenticationJSON.getString(UserAuthentication.JSON_FIELD_PASSWORD);
 
             idUser = Long.parseLong(authenticationJSON.getString(
                     UserAuthentication.JSON_FIELD_IDUSER));
@@ -153,6 +155,7 @@ public class SignInActivity extends AppCompatActivity implements TextView.OnEdit
 
         user.setId(id);
         user.setEmail(email);
+        user.setPassword(password);
 
         Intent intent;
         switch (userType) {
