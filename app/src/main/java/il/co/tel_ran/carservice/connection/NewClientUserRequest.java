@@ -51,6 +51,8 @@ public class NewClientUserRequest extends DataRequest {
 
         requestJSON.put(ClientUserDataRequestMaker.JSON_FIELD_CARS, new JSONArray(vehicleStrings));
 
+        requestJSON.put(ClientUserDataRequestMaker.JSON_FIELD_LOGO, mClientUser.getLogo());
+
         return requestJSON;
     }
 
