@@ -893,7 +893,6 @@ public class ClientMainActivity extends AppCompatActivity
             intent.putExtra("user_type", UserType.CLIENT);
             // Pass user object
             intent.putExtra("user", mUser);
-            startActivity(intent);
             startActivityForResult(intent, REQUEST_CODE_PROFILE_CHANGED);
         }
     }
