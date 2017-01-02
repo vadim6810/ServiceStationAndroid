@@ -9,13 +9,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.lang.reflect.Method;
-
 /**
  * Created by maxim on 30-Dec-16.
  */
 
-public class NewAuthenticationRequestMaker extends RequestMaker {
+public class AuthenticationRequestMaker extends RequestMaker {
 
     public static final String JSON_FIELD_ID = "id";
     public static final String JSON_FIELD_IDUSER = "idUser";
@@ -28,7 +26,7 @@ public class NewAuthenticationRequestMaker extends RequestMaker {
     public static final String JSON_FIELD_UPDATE_DATETIME = "updatedAt";
     public static final String JSON_FIELD_PASS = "pass";
 
-    public NewAuthenticationRequestMaker(OnDataRetrieveListener listener) {
+    public AuthenticationRequestMaker(OnDataRetrieveListener listener) {
         super(listener, DataResult.Type.AUTHENTICATION);
     }
 
@@ -66,21 +64,21 @@ public class NewAuthenticationRequestMaker extends RequestMaker {
 
                 JSONObject resultJSON = new JSONObject();
                 try {
-                    resultJSON.put(NewAuthenticationRequestMaker.JSON_FIELD_EMAIL,
-                            response.getString(NewAuthenticationRequestMaker.JSON_FIELD_EMAIL));
+                    resultJSON.put(AuthenticationRequestMaker.JSON_FIELD_EMAIL,
+                            response.getString(AuthenticationRequestMaker.JSON_FIELD_EMAIL));
                     resultJSON.put(JSON_FIELD_PASS,
-                            response.getString(NewAuthenticationRequestMaker.JSON_FIELD_PASSWORD));
+                            response.getString(AuthenticationRequestMaker.JSON_FIELD_PASSWORD));
 
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
 
                 JSONObject[] resultsArray = {resultJSON};
-                NewAuthenticationDataResult result = new NewAuthenticationDataResult(resultsArray);
+                AuthenticationDataResult result = new AuthenticationDataResult(resultsArray);
 
                 Bundle extras = new Bundle();
                 extras.putString("user_type",
-                        response.optString(NewAuthenticationRequestMaker.JSON_FIELD_TYPE));
+                        response.optString(AuthenticationRequestMaker.JSON_FIELD_TYPE));
 
                 listener.onDataRetrieveSuccess(request, result);
             }

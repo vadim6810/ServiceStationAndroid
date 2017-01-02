@@ -12,29 +12,29 @@ import il.co.tel_ran.carservice.User;
  * Created by maxim on 30-Dec-16.
  */
 
-public class NewAuthenticationRequest extends DataRequest {
+public class AuthenticationRequest extends DataRequest {
 
     private final JSONObject mRequestJSON;
     private final String mEmail;
     private final User mUser;
 
     // Used for POST method
-    public NewAuthenticationRequest(JSONObject requestJSON) {
+    public AuthenticationRequest(JSONObject requestJSON) {
         this(Request.Method.POST, ServerConnection.AUTHENTICATE_URL, requestJSON, null, null);
     }
 
     // Used for GET method
-    public NewAuthenticationRequest(String email) {
+    public AuthenticationRequest(String email) {
         this(Request.Method.GET, ServerConnection.AUTHENTICATE_URL, null, email, null);
     }
 
     // Used for PUT method.
-    public NewAuthenticationRequest(User user) {
+    public AuthenticationRequest(User user) {
         this(Request.Method.PUT, ServerConnection.AUTHENTICATE_URL, null, null, user);
     }
 
-    private NewAuthenticationRequest(int requestMethod, String url,
-                                     JSONObject requestJSON, String email, User user) {
+    private AuthenticationRequest(int requestMethod, String url,
+                                  JSONObject requestJSON, String email, User user) {
         super(requestMethod, url);
 
         mRequestJSON = requestJSON;
@@ -50,7 +50,7 @@ public class NewAuthenticationRequest extends DataRequest {
             case Request.Method.GET:
                 if (mEmail != null && !mEmail.isEmpty()) {
                     // Add email parameter
-                    parameters += '?' + NewAuthenticationRequestMaker.JSON_FIELD_EMAIL + '=' + mEmail;
+                    parameters += '?' + AuthenticationRequestMaker.JSON_FIELD_EMAIL + '=' + mEmail;
                 }
                 break;
             case Request.Method.PUT:
@@ -72,14 +72,14 @@ public class NewAuthenticationRequest extends DataRequest {
         if (getRequestMethod() == Request.Method.PUT && mRequestJSON == null) {
             JSONObject requestJSON = new JSONObject();
 
-            requestJSON.put(NewAuthenticationRequestMaker.JSON_FIELD_EMAIL, mUser.getEmail());
-            requestJSON.put(NewAuthenticationRequestMaker.JSON_FIELD_PASSWORD, mUser.getPassword());
+            requestJSON.put(AuthenticationRequestMaker.JSON_FIELD_EMAIL, mUser.getEmail());
+            requestJSON.put(AuthenticationRequestMaker.JSON_FIELD_PASSWORD, mUser.getPassword());
             if (mUser instanceof ClientUser) {
-                requestJSON.put(NewAuthenticationRequestMaker.JSON_FIELD_TYPE,
-                        NewAuthenticationRequestMaker.JSON_FIELD_TYPE_CLIENT);
+                requestJSON.put(AuthenticationRequestMaker.JSON_FIELD_TYPE,
+                        AuthenticationRequestMaker.JSON_FIELD_TYPE_CLIENT);
             } else {
-                requestJSON.put(NewAuthenticationRequestMaker.JSON_FIELD_TYPE,
-                        NewAuthenticationRequestMaker.JSON_FIELD_TYPE_MASTER);
+                requestJSON.put(AuthenticationRequestMaker.JSON_FIELD_TYPE,
+                        AuthenticationRequestMaker.JSON_FIELD_TYPE_MASTER);
             }
 
             return requestJSON;

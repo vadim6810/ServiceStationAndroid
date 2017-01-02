@@ -28,10 +28,10 @@ import il.co.tel_ran.carservice.R;
 import il.co.tel_ran.carservice.UserType;
 import il.co.tel_ran.carservice.Utils;
 import il.co.tel_ran.carservice.User;
+import il.co.tel_ran.carservice.connection.AuthenticationRequestMaker;
 import il.co.tel_ran.carservice.connection.DataRequest;
 import il.co.tel_ran.carservice.connection.DataResult;
-import il.co.tel_ran.carservice.connection.NewAuthenticationRequest;
-import il.co.tel_ran.carservice.connection.NewAuthenticationRequestMaker;
+import il.co.tel_ran.carservice.connection.AuthenticationRequest;
 import il.co.tel_ran.carservice.connection.RequestMaker;
 import il.co.tel_ran.carservice.connection.ServerResponseError;
 
@@ -210,8 +210,8 @@ public class SignInActivity extends AppCompatActivity implements TextView.OnEdit
         // Show the progress bar.
         toggleConenctionProgressBar(true);
 
-        NewAuthenticationRequest request = new NewAuthenticationRequest(email);
-        new NewAuthenticationRequestMaker(this).makeRequest(SignInActivity.this, request);
+        AuthenticationRequest request = new AuthenticationRequest(email);
+        new AuthenticationRequestMaker(this).makeRequest(SignInActivity.this, request);
     }
 
     private void setupActionBar() {
@@ -254,7 +254,7 @@ public class SignInActivity extends AppCompatActivity implements TextView.OnEdit
     private void handleAuthentication(JSONObject resultJSON, Bundle extras) {
         String inputPassword = mPasswordEditText.getText().toString();
         String comparePassword = resultJSON.optString(
-                NewAuthenticationRequestMaker.JSON_FIELD_PASS);
+                AuthenticationRequestMaker.JSON_FIELD_PASS);
 
         String role = "";
         if (extras != null && !extras.isEmpty()) {
@@ -266,10 +266,10 @@ public class SignInActivity extends AppCompatActivity implements TextView.OnEdit
 
         boolean authenticationSuccess = checkPassword(inputPassword, comparePassword);
         if (authenticationSuccess) {
-            if (role.equals(NewAuthenticationRequestMaker.JSON_FIELD_TYPE_MASTER)) {
+            if (role.equals(AuthenticationRequestMaker.JSON_FIELD_TYPE_MASTER)) {
                 // User is authenticated as master
                 onAuthenticationSuccess(UserType.MASTER, resultJSON);
-            } else if (role.equals(NewAuthenticationRequestMaker.JSON_FIELD_TYPE_CLIENT)) {
+            } else if (role.equals(AuthenticationRequestMaker.JSON_FIELD_TYPE_CLIENT)) {
                 // User is authenticated as client
                 onAuthenticationSuccess(UserType.CLIENT, resultJSON);
             } else {
@@ -295,17 +295,17 @@ public class SignInActivity extends AppCompatActivity implements TextView.OnEdit
         String password = "";
         try {
             // Refers to id in authentication JSON
-            id = Long.parseLong(authenticationJSON.getString(NewAuthenticationRequestMaker.JSON_FIELD_ID));
-            email = authenticationJSON.getString(NewAuthenticationRequestMaker.JSON_FIELD_EMAIL);
-            password = authenticationJSON.getString(NewAuthenticationRequestMaker.JSON_FIELD_PASSWORD);
+            id = Long.parseLong(authenticationJSON.getString(AuthenticationRequestMaker.JSON_FIELD_ID));
+            email = authenticationJSON.getString(AuthenticationRequestMaker.JSON_FIELD_EMAIL);
+            password = authenticationJSON.getString(AuthenticationRequestMaker.JSON_FIELD_PASSWORD);
 
             idUser = Long.parseLong(authenticationJSON.getString(
-                    NewAuthenticationRequestMaker.JSON_FIELD_IDUSER));
+                    AuthenticationRequestMaker.JSON_FIELD_IDUSER));
 
             String createdAt = authenticationJSON.getString(
-                    NewAuthenticationRequestMaker.JSON_FIELD_CREATE_DATETIME);
+                    AuthenticationRequestMaker.JSON_FIELD_CREATE_DATETIME);
             String updatedAt = authenticationJSON.getString(
-                    NewAuthenticationRequestMaker.JSON_FIELD_UPDATE_DATETIME);
+                    AuthenticationRequestMaker.JSON_FIELD_UPDATE_DATETIME);
 
             try {
                 user.setCreationDate(Utils.parseDateTime(updatedAt));

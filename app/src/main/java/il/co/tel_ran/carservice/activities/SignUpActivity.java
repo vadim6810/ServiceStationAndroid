@@ -34,10 +34,10 @@ import il.co.tel_ran.carservice.User;
 import il.co.tel_ran.carservice.UserType;
 import il.co.tel_ran.carservice.Utils;
 import il.co.tel_ran.carservice.VehicleData;
+import il.co.tel_ran.carservice.connection.AuthenticationRequest;
+import il.co.tel_ran.carservice.connection.AuthenticationRequestMaker;
 import il.co.tel_ran.carservice.connection.DataRequest;
 import il.co.tel_ran.carservice.connection.DataResult;
-import il.co.tel_ran.carservice.connection.NewAuthenticationRequest;
-import il.co.tel_ran.carservice.connection.NewAuthenticationRequestMaker;
 import il.co.tel_ran.carservice.connection.NewClientUserRequest;
 import il.co.tel_ran.carservice.connection.NewProviderUserRequest;
 import il.co.tel_ran.carservice.connection.NewUserRequestMaker;
@@ -211,10 +211,10 @@ public class SignUpActivity extends AppCompatActivity implements ViewPager.OnPag
                 parsedJSON = (JSONObject[]) result.getData();
                 if (parsedJSON != null && parsedJSON.length > 0) {
                     // Make new request with the parsed JSON we receive
-                    NewAuthenticationRequest authenticationRequest = new NewAuthenticationRequest(
+                    AuthenticationRequest authenticationRequest = new AuthenticationRequest(
                             parsedJSON[0]);
                     // Send the new JSON for authentication.
-                    new NewAuthenticationRequestMaker(this).makeRequest(getApplicationContext(),
+                    new AuthenticationRequestMaker(this).makeRequest(getApplicationContext(),
                             authenticationRequest);
                 }
                 break;
