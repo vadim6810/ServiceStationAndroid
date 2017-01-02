@@ -38,7 +38,7 @@ public class NewClientUserRequest extends DataRequest {
     public JSONObject getRequestJSON() throws JSONException {
         JSONObject requestJSON = new JSONObject();
 
-        requestJSON.put("name", mClientUser.getName());
+        requestJSON.put(ClientUserDataRequestMaker.JSON_FIELD_NAME, mClientUser.getName());
 
         ArrayList<String> vehicleStrings = new ArrayList<>();
 
@@ -49,7 +49,7 @@ public class NewClientUserRequest extends DataRequest {
             }
         }
 
-        requestJSON.put("cars" , new JSONArray(vehicleStrings));
+        requestJSON.put(ClientUserDataRequestMaker.JSON_FIELD_CARS, new JSONArray(vehicleStrings));
 
         return requestJSON;
     }
