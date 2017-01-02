@@ -6,7 +6,7 @@ import org.json.JSONObject;
 import java.io.Serializable;
 import java.util.Date;
 
-import il.co.tel_ran.carservice.connection.UserAuthentication;
+import il.co.tel_ran.carservice.connection.NewAuthenticationRequestMaker;
 
 /**
  * Created by maxim on 10/28/2016.
@@ -87,11 +87,11 @@ public class User implements Persisted, Serializable {
         JSONObject data = new JSONObject();
 
         try {
-            data.put(UserAuthentication.JSON_FIELD_EMAIL, mEmail);
-            data.put(UserAuthentication.JSON_FIELD_PASSWORD, mPassword);
-            data.put(UserAuthentication.JSON_FIELD_CREATE_DATETIME,
+            data.put(NewAuthenticationRequestMaker.JSON_FIELD_EMAIL, mEmail);
+            data.put(NewAuthenticationRequestMaker.JSON_FIELD_PASSWORD, mPassword);
+            data.put(NewAuthenticationRequestMaker.JSON_FIELD_CREATE_DATETIME,
                     Utils.convertDateToDateTime(mCreationDate));
-            data.put(UserAuthentication.JSON_FIELD_UPDATE_DATETIME,
+            data.put(NewAuthenticationRequestMaker.JSON_FIELD_UPDATE_DATETIME,
                     Utils.convertDateToDateTime(mUpdateDate));
         } catch (JSONException e) {
             e.printStackTrace();

@@ -44,7 +44,7 @@ public class NewUserRequestMaker extends RequestMaker {
 
                 JSONObject resultJSON = new JSONObject();
                 try {
-                    int idUser = response.getInt(UserAuthentication.JSON_FIELD_ID);
+                    int idUser = response.getInt(NewAuthenticationRequestMaker.JSON_FIELD_ID);
 
                     User user;
                     String role;
@@ -52,21 +52,21 @@ public class NewUserRequestMaker extends RequestMaker {
                         user = ((NewClientUserRequest) request)
                                 .getClientUser();
 
-                        role = UserAuthentication.JSON_FIELD_TYPE_CLIENT;
+                        role = NewAuthenticationRequestMaker.JSON_FIELD_TYPE_CLIENT;
                     } else {
                         // Create master user
                         user = ((NewProviderUserRequest) request)
                                 .getProviderUser();
 
-                        role = UserAuthentication.JSON_FIELD_TYPE_MASTER;
+                        role = NewAuthenticationRequestMaker.JSON_FIELD_TYPE_MASTER;
                     }
 
                     String password = Utils.generateRandomString(8);
 
-                    resultJSON.put(UserAuthentication.JSON_FIELD_IDUSER, idUser);
-                    resultJSON.put(UserAuthentication.JSON_FIELD_EMAIL, user.getEmail());
-                    resultJSON.put(UserAuthentication.JSON_FIELD_PASSWORD, password);
-                    resultJSON.put(UserAuthentication.JSON_FIELD_TYPE, role);
+                    resultJSON.put(NewAuthenticationRequestMaker.JSON_FIELD_IDUSER, idUser);
+                    resultJSON.put(NewAuthenticationRequestMaker.JSON_FIELD_EMAIL, user.getEmail());
+                    resultJSON.put(NewAuthenticationRequestMaker.JSON_FIELD_PASSWORD, password);
+                    resultJSON.put(NewAuthenticationRequestMaker.JSON_FIELD_TYPE, role);
 
                 } catch (JSONException e) {
                     e.printStackTrace();

@@ -50,7 +50,7 @@ public class NewAuthenticationRequest extends DataRequest {
             case Request.Method.GET:
                 if (mEmail != null && !mEmail.isEmpty()) {
                     // Add email parameter
-                    parameters += '?' + UserAuthentication.JSON_FIELD_EMAIL + '=' + mEmail;
+                    parameters += '?' + NewAuthenticationRequestMaker.JSON_FIELD_EMAIL + '=' + mEmail;
                 }
                 break;
             case Request.Method.PUT:
@@ -72,14 +72,14 @@ public class NewAuthenticationRequest extends DataRequest {
         if (getRequestMethod() == Request.Method.PUT && mRequestJSON == null) {
             JSONObject requestJSON = new JSONObject();
 
-            requestJSON.put(UserAuthentication.JSON_FIELD_EMAIL, mUser.getEmail());
-            requestJSON.put(UserAuthentication.JSON_FIELD_PASSWORD, mUser.getPassword());
+            requestJSON.put(NewAuthenticationRequestMaker.JSON_FIELD_EMAIL, mUser.getEmail());
+            requestJSON.put(NewAuthenticationRequestMaker.JSON_FIELD_PASSWORD, mUser.getPassword());
             if (mUser instanceof ClientUser) {
-                requestJSON.put(UserAuthentication.JSON_FIELD_TYPE,
-                        UserAuthentication.JSON_FIELD_TYPE_CLIENT);
+                requestJSON.put(NewAuthenticationRequestMaker.JSON_FIELD_TYPE,
+                        NewAuthenticationRequestMaker.JSON_FIELD_TYPE_CLIENT);
             } else {
-                requestJSON.put(UserAuthentication.JSON_FIELD_TYPE,
-                        UserAuthentication.JSON_FIELD_TYPE_MASTER);
+                requestJSON.put(NewAuthenticationRequestMaker.JSON_FIELD_TYPE,
+                        NewAuthenticationRequestMaker.JSON_FIELD_TYPE_MASTER);
             }
 
             return requestJSON;
