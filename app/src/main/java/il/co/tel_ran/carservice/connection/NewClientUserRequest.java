@@ -30,8 +30,15 @@ public class NewClientUserRequest extends DataRequest {
 
     @Override
     public String getRequestParameters() {
-        // Currently we don't require any request parameters.
-        return "";
+        String parameters = "";
+
+        if (getRequestMethod() == Request.Method.PUT) {
+            if (mClientUser != null) {
+                parameters += '/' + Long.toString(mClientUser.getClientId());
+            }
+        }
+
+        return parameters;
     }
 
     @Override
