@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
+import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.AppCompatCheckBox;
 import android.view.LayoutInflater;
@@ -63,8 +64,10 @@ public class RegistrationServiceDetailsFragment extends RegistrationUserDetailsF
     private ImageView mServicePhotoImageView;
     private Button mRemovePhotoButton;
 
+    private TextInputLayout mServiceNameInputLayout;
     private EditText mServiceNameEditText;
 
+    private TextInputLayout mPhonenumberInputLayout;
     private EditText mPhonenumberEditText;
 
     private ServiceStation mService = new ServiceStation();
@@ -85,9 +88,13 @@ public class RegistrationServiceDetailsFragment extends RegistrationUserDetailsF
     };
     private AppCompatCheckBox[] mVehicleTypeCheckBoxes = new AppCompatCheckBox[VEHICLE_TYPE_CHECKBOX_IDS.length];
 
+    private TextInputLayout mDirectorNameInputLayout;
     private EditText mDirectorNameEditText;
 
+    private TextInputLayout mManagerNameInputLayout;
     private EditText mManagerNameEditText;
+
+    private TextInputLayout mManagerPhonenumberInputLayout;
     private EditText mManagerPhonenumberEditText;
 
     private TextView mTitle;
@@ -107,11 +114,15 @@ public class RegistrationServiceDetailsFragment extends RegistrationUserDetailsF
 
         mServiceDetailsLayout = layout.findViewById(R.id.service_details_layout);
 
+        mServiceNameInputLayout = (TextInputLayout) layout.findViewById(
+                R.id.service_name_input_layout);
         mServiceNameEditText = (EditText) layout.findViewById(R.id.service_name_edit_text);
 
         mAddressSearchButton = (Button) layout.findViewById(R.id.search_address_button);
         mAddressSearchButton.setOnClickListener(this);
 
+        mPhonenumberInputLayout = (TextInputLayout) layout.findViewById(
+                R.id.service_phonenumber_input_layout);
         mPhonenumberEditText = (EditText) layout.findViewById(R.id.service_phonenumber_edit_text);
 
         for (int i = 0; i < mServicesCheckBoxes.length; i++) {
@@ -128,10 +139,18 @@ public class RegistrationServiceDetailsFragment extends RegistrationUserDetailsF
 
         layout.findViewById(R.id.show_vehicle_makes_button).setOnClickListener(this);
 
+        mDirectorNameInputLayout = (TextInputLayout) layout.findViewById(
+                R.id.director_name_input_layout);
         mDirectorNameEditText = (EditText) layout.findViewById(R.id.director_name_edit_text);
 
+        mManagerNameInputLayout = (TextInputLayout) layout.findViewById(
+                R.id.manager_name_input_layout);
         mManagerNameEditText = (EditText) layout.findViewById(R.id.manager_name_edit_text);
-        mManagerPhonenumberEditText = (EditText) layout.findViewById(R.id.manager_phonenumber_edit_text);
+
+        mManagerPhonenumberInputLayout = (TextInputLayout) layout.findViewById(
+                R.id.manager_phonenumber_input_layout);
+        mManagerPhonenumberEditText = (EditText) layout.findViewById(
+                R.id.manager_phonenumber_edit_text);
 
         mOpeningTimeButton = (Button) layout.findViewById(R.id.set_start_hour_button);
         mOpeningTimeButton.setOnClickListener(this);
@@ -153,6 +172,109 @@ public class RegistrationServiceDetailsFragment extends RegistrationUserDetailsF
 
     @Override
     public boolean isNextStepEnabled() {
+        return checkFieldsReady();
+    }
+
+    private boolean checkFieldsReady() {
+        boolean isValidName = isValidServiceName();
+
+        if (!isValidName) {
+            mServiceNameInputLayout.setError(getString(R.string.invalid_name_error_message));
+            return false;
+        } else {
+            mServiceNameInputLayout.setError(null);
+        }
+
+        boolean isValidAddress = isValidAddress();
+
+        if (!isValidAddress) {
+            Toast.makeText(getContext(), R.string.address_field_empty_error_message,
+                    Toast.LENGTH_LONG).show();
+            return false;
+        }
+
+        boolean isValidPhonenumber = isValidPhonenumber();
+
+        if (!isValidPhonenumber) {
+            mPhonenumberInputLayout.setError(
+                    getString(R.string.invalid_phone_number_error_message));
+            return false;
+        } else {
+            mPhonenumberInputLayout.setError(null);
+
+        }
+
+        boolean isValidActiveTime = isValidActiveTime();
+
+        if (!isValidActiveTime) {
+            Toast.makeText(getContext(), R.string.invalid_active_time_error_message,
+                    Toast.LENGTH_LONG).show();
+            return false;
+        }
+
+        boolean isValidServices = isValidServiceTypes();
+
+        if (!isValidServices) {
+            Toast.makeText(getContext(), R.string.empty_service_types_error_message,
+                    Toast.LENGTH_LONG).show();
+            return false;
+        }
+
+        boolean isValidWorkTypes = isValidWorkTypes();
+
+        if (!isValidWorkTypes) {
+            Toast.makeText(getContext(), R.string.empty_work_types_error_message,
+                    Toast.LENGTH_LONG).show();
+            return false;
+        }
+
+        boolean isValidVehicleTypes = isValidVehicleTypes();
+
+        if (!isValidVehicleTypes) {
+            Toast.makeText(getContext(), R.string.empty_vehicle_types_error_message,
+                    Toast.LENGTH_LONG).show();
+            return false;
+        }
+
+        boolean isValidVehicleMakes = isValidVehicleMakes();
+
+        if (!isValidVehicleMakes) {
+            Toast.makeText(getContext(), R.string.empty_vehicle_makes_error_message,
+                    Toast.LENGTH_LONG).show();
+            return false;
+        }
+
+
+        boolean isValidDirectorName = isValidDirectorName();
+
+        if (!isValidDirectorName) {
+            mDirectorNameInputLayout.setError(
+                    getString(R.string.invalid_name_error_message));
+            return false;
+        } else {
+            mDirectorNameInputLayout.setError(null);
+        }
+
+        boolean isValidManagerName = isValidManagerName();
+
+        if (!isValidManagerName) {
+            mManagerNameInputLayout.setError(
+                    getString(R.string.invalid_name_error_message));
+            return false;
+        } else {
+            mManagerNameInputLayout.setError(null);
+        }
+
+        boolean isValidManagerPhonenumber = isValidManagerPhonenumber();
+
+        if (!isValidManagerPhonenumber) {
+            mManagerPhonenumberInputLayout.setError(
+                    getString(R.string.invalid_phone_number_error_message));
+            return false;
+        } else {
+            mManagerPhonenumberInputLayout.setError(null);
+        }
+
         return true;
     }
 
@@ -537,5 +659,62 @@ public class RegistrationServiceDetailsFragment extends RegistrationUserDetailsF
         vehicleMakesFragment.setOnVehicleMakesSelectedListener(this);
         Utils.showDialogFragment(getFragmentManager(),
                 vehicleMakesFragment, "vehicle_make_fragment");
+    }
+
+    private boolean isValidServiceName() {
+        return !mServiceNameEditText.getText().toString().isEmpty();
+    }
+
+    private boolean isValidAddress() {
+        return mService.getLocation() != null;
+    }
+
+    private boolean isValidPhonenumber() {
+        return !mPhonenumberEditText.getText().toString().isEmpty();
+    }
+
+    private boolean isValidActiveTime() {
+        return (mService.getOpeningTime() != null && mService.getClosingTime() != null);
+    }
+
+    private boolean isValidServiceTypes() {
+        for (int i = 0; i < SERVICE_CHECKBOX_IDS.length; i++) {
+            if (mServicesCheckBoxes[i].isChecked()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private boolean isValidWorkTypes() {
+        return (mService.getSubWorkTypes() != null && !mService.getSubWorkTypes().isEmpty());
+    }
+
+    private boolean isValidVehicleTypes() {
+        for (int i = 0; i < VEHICLE_TYPE_CHECKBOX_IDS.length; i++) {
+            if (mVehicleTypeCheckBoxes[i].isChecked()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private boolean isValidVehicleMakes() {
+        return (mService.getServicedCarMakes() != null
+                && mService.getServicedCarMakes().length > 0);
+    }
+
+    private boolean isValidDirectorName() {
+        return !mDirectorNameEditText.getText().toString().isEmpty();
+    }
+
+    private boolean isValidManagerName() {
+        return !mManagerNameEditText.getText().toString().isEmpty();
+    }
+
+    private boolean isValidManagerPhonenumber() {
+        return !mManagerPhonenumberEditText.getText().toString().isEmpty();
     }
 }

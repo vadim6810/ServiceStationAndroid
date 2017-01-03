@@ -120,12 +120,16 @@ public class NewProviderUserRequest extends DataRequest {
         requestJSON.put(ServiceStationRequestMaker.JSON_FIELD_SERVICES, workTypesJSON);
 
         // Convert array of car makes (strings) to ArrayList
-        ArrayList<String> servicedCarMakes = new ArrayList<>();
-        for (String carMake : mServiceStation.getServicedCarMakes()) {
-            servicedCarMakes.add(carMake);
+        ArrayList<String> servicedCarMakeStrings = new ArrayList<>();
+
+        String[] servicedCarMakes = mServiceStation.getServicedCarMakes();
+        if (servicedCarMakes.length > 0) {
+            for (String carMake : servicedCarMakes) {
+                servicedCarMakeStrings.add(carMake);
+            }
         }
         requestJSON.put(ServiceStationRequestMaker.JSON_FIELD_SERVICE_CARS,
-                new JSONArray(servicedCarMakes));
+                new JSONArray(servicedCarMakeStrings));
 
         JSONObject categories = new JSONObject();
         for (VehicleType vehicleType : mServiceStation.getVehicleTypes()) {
