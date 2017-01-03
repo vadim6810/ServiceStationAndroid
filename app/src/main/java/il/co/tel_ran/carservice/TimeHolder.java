@@ -74,17 +74,13 @@ public class TimeHolder implements Serializable {
         int minute  = 0;
 
         String[] timePart = time.split(":");
-        switch (timePart.length) {
-            case 1:
-                hour = Integer.parseInt(timePart[0]);
-                break;
-            case 2:
-                minute = Integer.parseInt(timePart[1]);
-                break;
-            default:
-                hour = 0;
-                minute = 0;
-                break;
+
+        if (timePart.length > 0) {
+            hour = Integer.parseInt(timePart[0]);
+        }
+
+        if (timePart.length > 2) {
+            minute = Integer.parseInt(timePart[1]);
         }
 
         return new TimeHolder(hour, minute);
