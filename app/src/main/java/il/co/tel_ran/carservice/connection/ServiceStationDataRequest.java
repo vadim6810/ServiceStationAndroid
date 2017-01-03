@@ -83,20 +83,17 @@ public class ServiceStationDataRequest extends DataRequest {
 
     @Override
     public String getRequestParameters() {
+        String parameters = "";
         // Check if the request method is correct.
         if (getRequestMethod() == Request.Method.GET) {
-            String parameters = "";
             // Check if we need to add any parameters (or get everything)
             if (mId >= 0) {
                 // Add ID parameter
                 parameters += '?' + ServiceStationRequestMaker.JSON_FIELD_SERVICE_ID + '=' + mId;
             }
-
-            return parameters;
-        } else {
-            // Return null because this is the wrong request method.
-            return null;
         }
+
+        return parameters;
     }
 
     @Override

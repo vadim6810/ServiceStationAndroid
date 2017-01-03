@@ -61,19 +61,10 @@ public abstract class RequestMaker {
     }
 
     protected Request makeStringRequest(final DataRequest dataRequest) {
-        // Get parameters
-        String params = dataRequest.getRequestParameters();
-        if (params == null) {
-            params = dataRequest.getRequestString();
-            if (params == null) {
-                params = "";
-            }
-        }
-
         // Build the request
         return new StringRequest(
                 dataRequest.getRequestMethod(),
-                dataRequest.getUrl() + params,
+                dataRequest.getUrl() + getParameters(dataRequest),
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
@@ -92,7 +83,7 @@ public abstract class RequestMaker {
         try {
             return new CustomJsonArrayRequest(
                     dataRequest.getRequestMethod(),
-                    dataRequest.getUrl(),
+                    dataRequest.getUrl() + getParameters(dataRequest),
                     dataRequest.getRequestJSON(),
                     new Response.Listener<JSONArray>() {
                         @Override
@@ -117,7 +108,7 @@ public abstract class RequestMaker {
         try {
             return new JsonObjectRequest(
                     dataRequest.getRequestMethod(),
-                    dataRequest.getUrl(),
+                    dataRequest.getUrl() + getParameters(dataRequest),
                     dataRequest.getRequestJSON(),
                     new Response.Listener<JSONObject>() {
                         @Override
@@ -135,5 +126,18 @@ public abstract class RequestMaker {
         }
 
         return null;
+    }
+
+    private String getParameters(DataRequest dataRequest) {
+        // Get parameters
+        String params = dataRequest.getRequestParameters();
+        if (params == null) {
+            params = dataRequest.getRequestString();
+            if (params == null) {
+                params = "";
+            }
+        }
+
+        return params;
     }
 }
