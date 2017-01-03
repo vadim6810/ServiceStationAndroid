@@ -58,7 +58,7 @@ public class AuthenticationRequest extends DataRequest {
                     long authenticationId = mUser.getId();
                     if (authenticationId > -1) {
                         // Add authentication id parameter
-                        parameters += +'/' + mUser.getId();
+                        parameters += +'/' + Long.toString(mUser.getId());
                     }
                 }
                 break;
