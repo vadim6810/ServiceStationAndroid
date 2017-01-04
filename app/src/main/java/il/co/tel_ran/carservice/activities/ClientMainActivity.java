@@ -413,7 +413,7 @@ public class ClientMainActivity extends AppCompatActivity
                 }
                 break;
             case R.id.show_work_types_button:
-                WorkTypesFragment workTypesFragment = WorkTypesFragment.getInstance(true,
+                WorkTypesFragment workTypesFragment = WorkTypesFragment.getInstance(false,
                         mServiceStationDataRequest.getSubWorkTypes());
                 workTypesFragment.setOnWorkTypesSelectedListener(this);
                 Utils.showDialogFragment(getSupportFragmentManager(), workTypesFragment,

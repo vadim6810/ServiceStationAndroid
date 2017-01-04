@@ -114,18 +114,22 @@ public class ServiceStationDataRequest extends DataRequest {
             jsonObject.put(ServiceStationRequestMaker.JSON_FIELD_SERVICE_CATEGORIES, vehicleTypeStr);
             jsonObject.put(ServiceStationRequestMaker.JSON_FIELD_SERVICE_CARS, new JSONArray(mCarMakes));
 
-            // Currently, filtering on back-end accepts only one type of work.
-            String workTypeStr = "";
-            String subWorkTypeStr = "";
-
-            if (mWorkTypes != null && !mWorkTypes.isEmpty()
-                    && mSubWorkTypes != null && !mSubWorkTypes.isEmpty()) {
-                workTypeStr = ServiceWorkType.getFieldForType(mWorkTypes.get(0));
-                subWorkTypeStr = ServiceSubWorkType.getFieldForType(mSubWorkTypes.get(0));
+            JSONObject workTypesJSONObject = new JSONObject();
+            if (mWorkTypes != null && mSubWorkTypes != null) {
+                for (ServiceWorkType workType : mWorkTypes) {
+                    JSONObject subWorkTypesJSONObject = new JSONObject();
+                    for (ServiceSubWorkType subWorkType : mSubWorkTypes) {
+                        if (subWorkType.getParentWorkType().equals(workType)) {
+                            subWorkTypesJSONObject
+                                    .put(ServiceSubWorkType.getFieldForType(subWorkType), true);
+                        }
+                    }
+                    workTypesJSONObject.put(ServiceWorkType.getFieldForType(workType),
+                            subWorkTypesJSONObject);
+                }
             }
 
-            jsonObject.put(ServiceStationRequestMaker.JSON_FIELD_WORK_TYPE, workTypeStr);
-            jsonObject.put(ServiceStationRequestMaker.JSON_FIELD_SERVICES, subWorkTypeStr);
+            jsonObject.put(ServiceStationRequestMaker.JSON_FIELD_SERVICES, workTypesJSONObject);
 
             JSONObject chosenPlace = new JSONObject();
 
