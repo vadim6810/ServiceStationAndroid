@@ -275,7 +275,7 @@ public class ServiceStation implements Serializable {
         if (mLocation != null && !mLocation.equals(otherService.getLocation()))
             return false;
 
-        if (mPlaceId != null && mPlaceId.equals(otherService.getPlaceId()))
+        if (mPlaceId != null && !mPlaceId.equals(otherService.getPlaceId()))
             return false;
 
         if (mCityName != null && !mCityName.equals(otherService.getCityName()))
