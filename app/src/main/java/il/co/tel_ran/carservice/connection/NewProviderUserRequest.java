@@ -37,8 +37,15 @@ public class NewProviderUserRequest extends DataRequest {
 
     @Override
     public String getRequestParameters() {
-        // Currently we don't require any request parameters.
-        return "";
+        String parameters = "";
+
+        if (getRequestMethod() == Request.Method.PUT) {
+            if (mProviderUser != null) {
+                parameters += '/' + Long.toString(mProviderUser.getMasterId());
+            }
+        }
+
+        return parameters;
     }
 
     @Override
