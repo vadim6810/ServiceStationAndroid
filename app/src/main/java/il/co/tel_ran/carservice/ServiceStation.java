@@ -82,8 +82,8 @@ public class ServiceStation implements Serializable {
         mManagerPhonenumber = otherService.getManagerPhonenumber();
         mServicedCarMakes = otherService.getServicedCarMakes();
         mManagerName = otherService.getManagerName();
-        mServiceWorkTypes = otherService.getWorkTypes();
-        mServiceSubWorkTypes = otherService.getSubWorkTypes();
+        mServiceWorkTypes = new ArrayList<>(otherService.getWorkTypes());
+        mServiceSubWorkTypes = new ArrayList<>(otherService.getSubWorkTypes());
     }
 
     public void setName(String name) {
