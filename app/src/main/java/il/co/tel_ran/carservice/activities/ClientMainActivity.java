@@ -655,6 +655,22 @@ public class ClientMainActivity extends AppCompatActivity
 
                 }
                 break;
+            case REQUEST_CODE_PROFILE_CHANGED:
+                if (resultCode == RESULT_OK) {
+                    Bundle extras = data.getExtras();
+
+                    boolean isUserChanged = extras.getBoolean("any_changes");
+                    if (isUserChanged) {
+                        ClientUser userChanges = (ClientUser) extras.getSerializable("user");
+                        if (userChanges != null) {
+                            mUser = userChanges;
+
+                            // Update layout.
+                            updateDrawerClientName();
+                        }
+                    }
+                }
+                break;
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
@@ -841,6 +857,10 @@ public class ClientMainActivity extends AppCompatActivity
         mIsLoadingUser = false;
         toggleExclusiveDrawerMenuItems(true);
 
+        updateDrawerClientName();
+    }
+
+    private void updateDrawerClientName() {
         mDrawerClientNameTextView.setText(mUser.getName());
     }
 
