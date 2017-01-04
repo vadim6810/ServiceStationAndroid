@@ -290,6 +290,12 @@ public class ServiceStation implements Serializable {
         if (mAvailableServices != null && !mAvailableServices.equals(otherService.getAvailableServices()))
             return false;
 
+        if (mServiceWorkTypes != null && !mServiceWorkTypes.equals(otherService.getWorkTypes()))
+            return false;
+
+        if (mServiceSubWorkTypes != null && !mServiceSubWorkTypes.equals(otherService.getSubWorkTypes()))
+            return false;
+
         if (mPhonenumber != null && !mPhonenumber.equals(otherService.getPhonenumber()))
             return false;
 
