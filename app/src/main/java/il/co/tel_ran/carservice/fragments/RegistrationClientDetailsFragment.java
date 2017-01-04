@@ -26,10 +26,10 @@ import java.util.List;
 
 import il.co.tel_ran.carservice.ClientUser;
 import il.co.tel_ran.carservice.R;
+import il.co.tel_ran.carservice.User;
 import il.co.tel_ran.carservice.Utils;
 import il.co.tel_ran.carservice.VehicleData;
 import il.co.tel_ran.carservice.VehicleExtendedData;
-import il.co.tel_ran.carservice.activities.ClientMainActivity;
 
 /**
  * Created by maxim on 30-Dec-16.
@@ -94,7 +94,32 @@ public class RegistrationClientDetailsFragment extends RegistrationUserDetailsFr
 
         setupVehicleDetailsLayout();
 
+        updateFieldsFromUser();
+
         return mLayout;
+    }
+
+    public void updateFieldsFromUser() {
+        updateFieldsFromUser(mUser);
+    }
+
+    public void updateFieldsFromUser(ClientUser user) {
+        if (user != null) {
+            String name = user.getName();
+            if (name != null && !name.isEmpty()) {
+                mNameInputEditText.setText(name);
+            }
+
+            List<VehicleData> vehicles = user.getVehicles();
+            if (vehicles != null && !vehicles.isEmpty()) {
+                for (VehicleData currentVehicle : vehicles) {
+                    mCurrentEditedVehicleData = currentVehicle;
+                    addNewUserVehicleChipView();
+                }
+
+                mCurrentEditedVehicleData = null;
+            }
+        }
     }
 
     @Override
@@ -210,6 +235,10 @@ public class RegistrationClientDetailsFragment extends RegistrationUserDetailsFr
                 mVehiclesArrangedLayout.removeView(chipView);
             }
         }
+    }
+
+    public void setUser(ClientUser user) {
+        mUser = user;
     }
 
     private void clearAddVehicleFields() {
@@ -346,6 +375,17 @@ public class RegistrationClientDetailsFragment extends RegistrationUserDetailsFr
                 vehicleMakesFragment, "vehicle_make_fragment");
 
         mVehicleAPIData = vehicleMakesFragment.getVehicleData();
+    }
+
+    public static RegistrationClientDetailsFragment getInstance(User mUser) {
+        RegistrationClientDetailsFragment registrationClientDetailsFragment
+                = new RegistrationClientDetailsFragment();
+
+        Bundle args = new Bundle();
+        args.putSerializable("user", mUser);
+        registrationClientDetailsFragment.setArguments(args);
+
+        return registrationClientDetailsFragment;
     }
 
     private class VehicleYearTextWatcher implements TextWatcher {

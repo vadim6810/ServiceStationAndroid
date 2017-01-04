@@ -79,6 +79,7 @@ public class RegistrationServiceDetailsFragment extends RegistrationUserDetailsF
             R.id.service_checkbox_auto_service
     };
     private AppCompatCheckBox[] mServicesCheckBoxes = new AppCompatCheckBox[SERVICE_CHECKBOX_IDS.length];
+    private Button mShowWorkTypesButton;
 
     private final static int[] VEHICLE_TYPE_CHECKBOX_IDS = {
             R.id.service_vehicle_type_private,
@@ -87,6 +88,7 @@ public class RegistrationServiceDetailsFragment extends RegistrationUserDetailsF
             R.id.service_vehicle_type_motorcycles
     };
     private AppCompatCheckBox[] mVehicleTypeCheckBoxes = new AppCompatCheckBox[VEHICLE_TYPE_CHECKBOX_IDS.length];
+    private Button mShowVehicleMakesButton;
 
     private TextInputLayout mDirectorNameInputLayout;
     private EditText mDirectorNameEditText;
@@ -130,14 +132,16 @@ public class RegistrationServiceDetailsFragment extends RegistrationUserDetailsF
                     .findViewById(SERVICE_CHECKBOX_IDS[i]);
         }
 
-        layout.findViewById(R.id.show_work_types_button).setOnClickListener(this);
+        mShowWorkTypesButton = (Button) layout.findViewById(R.id.show_work_types_button);
+        mShowWorkTypesButton.setOnClickListener(this);
 
         for (int i = 0; i< mVehicleTypeCheckBoxes.length; i++) {
             mVehicleTypeCheckBoxes[i] = (AppCompatCheckBox) layout
                     .findViewById(VEHICLE_TYPE_CHECKBOX_IDS[i]);
         }
 
-        layout.findViewById(R.id.show_vehicle_makes_button).setOnClickListener(this);
+        mShowVehicleMakesButton = (Button ) layout.findViewById(R.id.show_vehicle_makes_button);
+        mShowVehicleMakesButton.setOnClickListener(this);
 
         mDirectorNameInputLayout = (TextInputLayout) layout.findViewById(
                 R.id.director_name_input_layout);
@@ -339,10 +343,12 @@ public class RegistrationServiceDetailsFragment extends RegistrationUserDetailsF
         ArrayList<ServiceWorkType> selectedWorkTypes = mService.getWorkTypes();
         ArrayList<ServiceSubWorkType> selectedSubWorkTypes = mService.getSubWorkTypes();
 
+        selectedWorkTypes.clear();
         for (ServiceWorkType workType : workTypes) {
             selectedWorkTypes.add(workType);
         }
 
+        selectedSubWorkTypes.clear();
         for (ServiceSubWorkType subWorkType : subWorkTypes) {
             selectedSubWorkTypes.add(subWorkType);
         }
@@ -488,10 +494,13 @@ public class RegistrationServiceDetailsFragment extends RegistrationUserDetailsF
         for (int i = 0; i < mServicesCheckBoxes.length; i++) {
             mServicesCheckBoxes[i].setEnabled(toggle);
         }
+        mShowWorkTypesButton.setEnabled(toggle);
         for (int i = 0; i< mVehicleTypeCheckBoxes.length; i++) {
             mVehicleTypeCheckBoxes[i].setEnabled(toggle);
         }
+        mShowVehicleMakesButton.setEnabled(toggle);
         mDirectorNameEditText.setEnabled(toggle);
+        mManagerNameEditText.setEnabled(toggle);
         mManagerPhonenumberEditText.setEnabled(toggle);
         mBrowsePhotoButton.setEnabled(toggle);
         mRemovePhotoButton.setEnabled(toggle);
@@ -514,6 +523,14 @@ public class RegistrationServiceDetailsFragment extends RegistrationUserDetailsF
             mServiceLoadingLayout.setVisibility(View.GONE);
 
         }
+    }
+
+    public void setService(ServiceStation service) {
+        mService = service;
+    }
+
+    public void setFieldsFromService() {
+        setFieldsFromService(mService);
     }
 
     public void setFieldsFromService(ServiceStation service) {
@@ -605,6 +622,12 @@ public class RegistrationServiceDetailsFragment extends RegistrationUserDetailsF
                 mManagerPhonenumberEditText.setText(managerPhonenumber);
             else
                 mManagerPhonenumberEditText.setText("");
+
+            String managerName = service.getManagerName();
+            if (managerName != null)
+                mManagerNameEditText.setText(managerName);
+            else
+                mManagerNameEditText.setText("");
 
             // TODO: add code for image loading
         }

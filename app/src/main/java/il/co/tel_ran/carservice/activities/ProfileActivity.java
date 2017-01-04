@@ -1,29 +1,30 @@
 package il.co.tel_ran.carservice.activities;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.Places;
+import com.hotmail.maximglukhov.arrangedlayout.ArrangedLayout;
+import com.hotmail.maximglukhov.chipview.ChipView;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 
 import il.co.tel_ran.carservice.ClientUser;
@@ -31,34 +32,36 @@ import il.co.tel_ran.carservice.LoadPlaceTask;
 import il.co.tel_ran.carservice.ProviderUser;
 import il.co.tel_ran.carservice.R;
 import il.co.tel_ran.carservice.ServiceStation;
+import il.co.tel_ran.carservice.ServiceType;
+import il.co.tel_ran.carservice.TimeHolder;
 import il.co.tel_ran.carservice.User;
 import il.co.tel_ran.carservice.UserType;
 import il.co.tel_ran.carservice.Utils;
 import il.co.tel_ran.carservice.VehicleData;
-import il.co.tel_ran.carservice.dialogs.ChangePasswordDialog;
+import il.co.tel_ran.carservice.VehicleType;
 import il.co.tel_ran.carservice.fragments.RegistrationServiceDetailsFragment;
-import il.co.tel_ran.carservice.fragments.RegistrationVehicleDetailsFragment;
+import il.co.tel_ran.carservice.fragments.VehicleMakesFragment;
+import il.co.tel_ran.carservice.fragments.WorkTypesFragment;
 
 public class ProfileActivity extends AppCompatActivity
-    implements View.OnClickListener, View.OnTouchListener,
-        GoogleApiClient.OnConnectionFailedListener {
+    implements GoogleApiClient.OnConnectionFailedListener {
+
+    public static final int REQUEST_CODE_CLIENT_DETAILS_UPDATED = 1;
+    public static final int REQUEST_CODE_LOGIN_INFO_UPDATED = 2;
+    public static final int REQUEST_CODE_SERVICE_DETAILS_UPDATED = 3;
 
     private UserType mUserType = UserType.CLIENT;
 
-    private Menu mMenu;
-
     private User mUser = new User();
-    private User mUserChanges;
-
-    private boolean mIsEditing = false;
 
     private View mLayout;
 
-    private EditText mNameEditText;
     private EditText mEmailAddressEditText;
+    private EditText mPasswordEditText;
 
-    private View mVehicleDetailsLayout;
-    private TextView mVehicleDetailsTextView;
+    private EditText mNameEditText;
+    private View mClientPersonalInfoLayout;
+    private ArrangedLayout mVehicleDetailsArrangedLayout;
 
     private Snackbar mChangesSnackbar;
     private boolean mUndoChanges;
@@ -72,6 +75,27 @@ public class ProfileActivity extends AppCompatActivity
     private boolean mIsServiceLoading = false;
 
     private boolean mChangesMade;
+    private EditText mServiceNameEditText;
+    private ArrangedLayout mServiceTypesArrangedLayout;
+    private EditText mServiceAddressEditText;
+    private EditText mServicePhonenumberEditText;
+    private EditText mActiveTimeEditText;
+    private ArrangedLayout mVehicleTypesArrangedLayout;
+    private EditText mManagerNameEditText;
+    private EditText mManagerPhonenumberEditText;
+    private EditText mDirectorNameEditText;
+
+    private int mItemSpacing;
+
+    private String mServiceTypeAutoServiceString;
+    private String mServiceTypeTyreRepairString;
+    private String mServiceTypeCarWashString;
+    private String mServiceTypeTowingString;
+
+    private String mVehicleTypePrivateString;
+    private String mVehicleTypeBusString;
+    private String mVehicleTypeTruckString;
+    private String mVehicleTypeMotorcycleString;
 
     @Override
     public void onBackPressed() {
@@ -81,19 +105,13 @@ public class ProfileActivity extends AppCompatActivity
             Log.d("PMA" , "onBackPressed :: any changes: " + mChangesMade);
             Intent intent = new Intent();
             intent.putExtra("any_changes", mChangesMade);
+            intent.putExtra("user", mUser);
+            intent.putExtra("service", mService);
             setResult(RESULT_OK, intent);
             finish();
         }
 
         super.onBackPressed();
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.profile_activity_menu, menu);
-
-        mMenu = menu;
-        return true;
     }
 
     @Override
@@ -103,96 +121,85 @@ public class ProfileActivity extends AppCompatActivity
                 // Navigate on back stack when pressing the back button.
                 onBackPressed();
                 break;
-            case R.id.menu_item_edit:
-                if (mIsServiceLoading) {
-                    Toast.makeText(
-                            ProfileActivity.this, R.string.loading_message, Toast.LENGTH_SHORT)
-                            .show();
-                } else {
-                    // Allow user editing.
-                    mIsEditing = !mIsEditing;
-                    toggleEditing(mIsEditing);
-                }
-
-                break;
             default:
                 super.onOptionsItemSelected(item);
         }
         return true;
     }
 
-    @Override
-    public void onClick(View v) {
+    public void editClientPersonalInfo(View v) {
+        startEditClientPersonalInfoActivity();
     }
 
-    public void updateVehicleDetails(View v) {
-        showUpdateVehicleDetailsDialog();
+    public void editLogin(View view) {
+        startEditLoginInfoActivity();
     }
 
-    public void changePassword(View v) {
-        showChangePaswsordDialog();
-    }
-
-    @Override
-    public boolean onTouch(View v, MotionEvent event) {
-        switch (v.getId()) {
-            case R.id.user_name_edit_text:
-                // FALLTHROUGH
-            case R.id.user_email_edit_text:
-                if (!mIsEditing) {
-                    if (event.getAction() == MotionEvent.ACTION_UP) {
-                        Toast
-                                .makeText(ProfileActivity.this, getString(
-                                        R.string.enable_editing_required_message), Toast.LENGTH_SHORT)
-                                .show();
-                    }
-                    return true;
-                }
-                break;
-        }
-        return false;
-    }
-
-    public void updateVehicleDetails(VehicleData newVehicleData) {
-        if (newVehicleData != null && mUserType == UserType.CLIENT) {
-            List<VehicleData> vehicles = ((ClientUser) mUser).getVehicles();
-            vehicles.set(0, newVehicleData);
-            updateFields(false);
-        }
-    }
-
-    public void onServicesRetrievingStarted() {
-        if (mServiceDetailsFragment != null) {
-            mServiceDetailsFragment.toggleLoadingService(true);
-        }
-
-        mIsServiceLoading = true;
-    }
-
-    public void onServicesRetrieved(ServiceStation serviceStation) {
-        mIsServiceLoading = false;
-
-        if (serviceStation != null) {
-            if (mServiceDetailsFragment != null) {
-                mServiceDetailsFragment.toggleLoadingService(false);
-                mServiceDetailsFragment.setFieldsFromService(serviceStation);
-            }
-
-            try {
-                ((ProviderUser) mUser).setService(serviceStation);
-                // Save as a copy
-                ((ProviderUser) mUserChanges).setService(new ServiceStation(serviceStation));
-            } catch (ClassCastException e) {
-                e.printStackTrace();
-            }
+    public void editServiceInfo(View view) {
+        if (mIsServiceLoading) {
+            Toast.makeText(ProfileActivity.this, R.string.loading_message, Toast.LENGTH_SHORT)
+                    .show();
         } else {
-            // TODO: Add text view to display if service failed to load.
+            startEditServiceInfoActivity();
         }
+    }
+
+    public void showWorkTypes(View view) {
+        showWorkTypesSelectionDialog();
+    }
+
+    public void showVehicleMakes(View view) {
+        showVehicleMakesSelectionDialog();
     }
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+        // TODO: handle error
+    }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case REQUEST_CODE_CLIENT_DETAILS_UPDATED:
+                if (resultCode == RESULT_OK) {
+                    if (data != null) {
+                        ClientUser clientUserChanges = (ClientUser) data
+                                .getSerializableExtra("edited_user");
+                        handleClientUserChanges(clientUserChanges);
+                    }
+                } else if (resultCode == EditProfileInfoActivity.RESULT_ERROR) {
+                    // TODO: handle error
+                }
+                break;
+            case REQUEST_CODE_LOGIN_INFO_UPDATED:
+                if (resultCode == RESULT_OK) {
+                    if (data != null) {
+                        User userChanges;
+                        if (mUserType == UserType.CLIENT) {
+                            userChanges = (ClientUser) data
+                                    .getSerializableExtra("edited_user");
+                        } else {
+                            userChanges = (ProviderUser) data
+                                    .getSerializableExtra("edited_user");
+                        }
+                        handleLoginInfoChanges(userChanges);
+                    }
+                } else if (resultCode == EditProfileInfoActivity.RESULT_ERROR) {
+                    // TODO: handle error
+                }
+                break;
+            case REQUEST_CODE_SERVICE_DETAILS_UPDATED:
+                if (resultCode == RESULT_OK) {
+                    if (data != null) {
+                        ServiceStation serviceStation = (ServiceStation) data
+                                .getSerializableExtra("edited_service");
+                        handleServiceDetailsChanges(serviceStation);
+                    }
+                } else if (resultCode == EditProfileInfoActivity.RESULT_ERROR) {
+                    // TODO: handle error
+                }
+                break;
+        }
     }
 
     @Override
@@ -219,35 +226,28 @@ public class ProfileActivity extends AppCompatActivity
 
         mLayout = findViewById(R.id.activity_profile);
 
-        mNameEditText = (EditText) findViewById(R.id.user_name_edit_text);
-        mNameEditText.setOnTouchListener(this);
-        mEmailAddressEditText = (EditText) findViewById(R.id.user_email_edit_text);
-        mEmailAddressEditText.setOnTouchListener(this);
+        setupLoginInfoLayout();
 
-        mVehicleDetailsLayout = findViewById(R.id.vehicle_info_layout);
-        mVehicleDetailsTextView = (TextView) findViewById(R.id.vehicle_details_text_view);
+        mClientPersonalInfoLayout = findViewById(R.id.client_personal_info_layout);
 
-        mServiceDetailsLayout = findViewById(R.id.service_info_layout);
-
-        setupServiceDetailsFragment();
-
-        setupChangesSnackbar();
+        loadResources();
 
         // TODO: Remove mock user later.
         switch (mUserType) {
             case MASTER:
                 // Hide vehicle details layout since it's visible by default.
-                mVehicleDetailsLayout.setVisibility(View.GONE);
-                findViewById(R.id.update_button).setVisibility(View.GONE);
+                mClientPersonalInfoLayout.setVisibility(View.GONE);
+
+                setupServiceInfoLayout();
+
+                loadServiceResources();
+
                 // Show the service details layout since it's hidden by default.
                 mServiceDetailsLayout.setVisibility(View.VISIBLE);
 
                 getGooglePlaceForService();
 
-                mUserChanges = new ProviderUser(mUser);
-
-                /*if (mServiceDetailsFragment != null)
-                    ((ProviderUser) mUserChanges).setService(mServiceDetailsFragment.getService());*/
+                updateServiceInfoFields();
 
                 break;
             case CLIENT:
@@ -255,181 +255,65 @@ public class ProfileActivity extends AppCompatActivity
             default:
                 // Service details is hidden by default.
 
-                mUserChanges = new ClientUser(mUser);
+                setupClientPersonalInfoLayout();
+
+                updatePersonalInfoFields();
                 break;
         }
 
-        updateFields(false);
+        updateLoginInfoFields();
 
         setupActionBar();
     }
 
-    private void setupServiceDetailsFragment() {
-        mServiceDetailsFragment = (RegistrationServiceDetailsFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.service_details_fragment);
-
-        mServiceDetailsFragment.toggleFields(false);
-
-        mServiceDetailsFragment.hideTitle(true);
-        mServiceDetailsFragment.hideCaption(true);
+    private void loadResources() {
+        mItemSpacing = getResources().getDimensionPixelSize(R.dimen.item_spacing);
     }
 
-    private void toggleEditing(boolean toggle) {
-        MenuItem editProfileMenuItem = mMenu.getItem(0);
+    private void loadServiceResources() {
+        mServiceTypeTowingString = getString(R.string.towing_title);
+        mServiceTypeAutoServiceString = getString(R.string.auto_service_title);
+        mServiceTypeCarWashString = getString(R.string.car_wash_title);
+        mServiceTypeTyreRepairString = getString(R.string.tyre_repair_title);
 
-        if (toggle) {
-            Toast.makeText(ProfileActivity.this, getString(R.string.editing_enabled_messeage), Toast.LENGTH_SHORT).show();
-
-            if (editProfileMenuItem != null) {
-                editProfileMenuItem.setIcon(R.drawable.ic_check_white_24dp);
-                editProfileMenuItem.setTitle(getString(R.string.done));
-            }
-
-            // Make sure the user can't undo changes while editing.
-            if (mChangesSnackbar.isShownOrQueued()) {
-                mChangesSnackbar.dismiss();
-            }
-        } else {
-            mLayout.requestFocus();
-
-            // Force the keyboard to hide to ensure no changes are made when editing is disabled.
-            InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(mLayout.getWindowToken(), 0);
-
-            if (editProfileMenuItem != null) {
-                editProfileMenuItem.setIcon(R.drawable.ic_edit_white_24dp);
-                editProfileMenuItem.setTitle(getString(R.string.edit));
-            }
-
-            finishEditing();
-        }
-
-        if (mServiceDetailsFragment != null) {
-            mServiceDetailsFragment.toggleFields(toggle);
-        }
+        mVehicleTypePrivateString = getString(R.string.vehicle_type_private);
+        mVehicleTypeBusString = getString(R.string.vehicle_type_bus);
+        mVehicleTypeMotorcycleString = getString(R.string.vehicle_type_motorcycle);
+        mVehicleTypeTruckString = getString(R.string.vehicle_type_truck);
     }
 
-    private void finishEditing() {
-        // Save changes
-        mUserChanges.setEmail(mEmailAddressEditText.getText().toString());
-
-        if (mUserType == UserType.MASTER && mServiceDetailsFragment != null) {
-            // Update Service in fragment
-            mServiceDetailsFragment.updateServiceFromFields();
-
-            try {
-                // Get a copy of the service.
-                ((ProviderUser) mUserChanges).setService(mServiceDetailsFragment.getService());
-            } catch (ClassCastException e) {
-                e.printStackTrace();
-            }
-        }
-
-        // Check if any of the fields were changed
-        if (changesMade()) {
-            // Show the user a message notifying him about the changes, also giving him an option to undo the changes.
-            mChangesSnackbar.show();
-        }
+    private void setupLoginInfoLayout() {
+        mEmailAddressEditText = (EditText) findViewById(R.id.user_email_edit_text);
+        mPasswordEditText = (EditText) findViewById(R.id.user_password_edit_text);
     }
 
-    private boolean changesMade() {
-        return !mUserChanges.equals(mUser);
+    private void setupClientPersonalInfoLayout() {
+        mNameEditText = (EditText) findViewById(R.id.user_name_edit_text);
+        mVehicleDetailsArrangedLayout = (ArrangedLayout) findViewById(
+                R.id.vehicles_arranged_layout);
     }
 
-    private void undoChanges() {
-        Toast.makeText(ProfileActivity.this, getString(R.string.discarding_changes_message),
-                Toast.LENGTH_SHORT).show();
+    private void setupServiceInfoLayout() {
+        mServiceDetailsLayout = findViewById(R.id.service_info_layout);
 
-        if (mUserType == UserType.MASTER) {
-            mUserChanges = new ProviderUser((ProviderUser) mUser);
-        } else {
-            mUserChanges = new ClientUser((ClientUser) mUser);
-        }
+        mServiceNameEditText = (EditText) findViewById(R.id.service_name_edit_text);
 
-        updateFields(true);
-    }
+        mServiceTypesArrangedLayout = (ArrangedLayout) findViewById(
+                R.id.service_types_arranged_layout);
 
-    private void saveChanges() {
-        mChangesMade = true;
+        mServiceAddressEditText = (EditText) findViewById(R.id.address_edit_text);
 
-        mUser.setEmail(mEmailAddressEditText.getText().toString());
+        mServicePhonenumberEditText = (EditText) findViewById(R.id.phonenumber_edit_text);
 
-        try {
-            if (mUserType == UserType.MASTER) {
-                // Get a copy of the internal service
-                ((ProviderUser) mUser).setService((mServiceDetailsFragment.getService()));
-                mUserChanges = new ProviderUser((ProviderUser) mUser);
-            } else {
-                mUserChanges = new ClientUser((ClientUser) mUser);
-            }
-        } catch (ClassCastException e) {
-            e.printStackTrace();
-        }
-    }
+        mActiveTimeEditText = (EditText) findViewById(R.id.active_time_edit_text);
 
-    private void updateFields(boolean undo) {
-        mEmailAddressEditText.setText(mUser.getEmail());
+        mVehicleTypesArrangedLayout = (ArrangedLayout) findViewById(
+                R.id.vehicle_types_arranged_layout);
 
-        switch (mUserType) {
-            case NONE:
-                // FALLTHROUGH
-            case CLIENT:
-                VehicleData vehicleData = ((ClientUser) mUser).getVehicles().get(0);
-                if (vehicleData != null) {
-                    mVehicleDetailsTextView.setText(vehicleData.toString());
-                }
-                break;
-            case MASTER:
-                if (mServiceDetailsFragment != null) {
-                    try {
-                        // TODO: fix this
-                        if (undo) {
-                            mServiceDetailsFragment.setFieldsFromService(mService);
-                        } else {
-                            mServiceDetailsFragment.setFieldsFromService(mService);
-                        }
-                    } catch (ClassCastException e) {
-                        e.printStackTrace();
-                    }
-                }
-                break;
-        }
-    }
+        mManagerNameEditText = (EditText) findViewById(R.id.manager_name_edit_text);
+        mManagerPhonenumberEditText = (EditText) findViewById(R.id.manager_phonenumber_edit_text);
 
-    private void setupChangesSnackbar() {
-        mChangesSnackbar = Snackbar
-                .make(mLayout, getString(R.string.saving_changes_message), Snackbar.LENGTH_LONG)
-                .setAction(getString(R.string.undo), new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        undoChanges();
-                        mUndoChanges = true;
-                    }
-                })
-                .setCallback(new Snackbar.Callback() {
-
-                    @Override
-                    public void onDismissed(Snackbar snackbar, int event) {
-                        // Check if the event was dismissed by anything but the action
-                        switch (event) {
-                            case DISMISS_EVENT_TIMEOUT:
-                                // FALLTHROUGH
-                            case DISMISS_EVENT_MANUAL:
-                                // FALLTHROUGH
-                            case DISMISS_EVENT_CONSECUTIVE:
-                                // FALLTHROUGH
-                            case DISMISS_EVENT_SWIPE:
-                                // FALLTHROUGH
-                            default:
-                                // FALLTHROUGH
-                                if (!mUndoChanges)
-                                    saveChanges();
-
-                                mUndoChanges = false;
-                                break;
-                        }
-                    }
-                });
+        mDirectorNameEditText = (EditText) findViewById(R.id.director_name_edit_text);
     }
 
     private void setupActionBar() {
@@ -447,18 +331,30 @@ public class ProfileActivity extends AppCompatActivity
         }
     }
 
-    private void showChangePaswsordDialog() {
-        ChangePasswordDialog changePasswordDialog = ChangePasswordDialog.getInstance();
-        Utils.showDialogFragment(getSupportFragmentManager(), changePasswordDialog,
-                "change_password_dialog");
+    private void startEditClientPersonalInfoActivity() {
+        Intent intent = new Intent(ProfileActivity.this, EditClientDetailsActivity.class);
+        // Pass user object
+        intent.putExtra("user", mUser);
+        intent.putExtra("user_type", mUserType);
+        startActivityForResult(intent, REQUEST_CODE_CLIENT_DETAILS_UPDATED);
     }
 
-    private void showUpdateVehicleDetailsDialog() {
-        VehicleData vehicleData = ((ClientUser) mUser).getVehicles().get(0);
-        RegistrationVehicleDetailsFragment vehicleDetailsFragment =
-                RegistrationVehicleDetailsFragment.getInstance(vehicleData);
-        Utils.showDialogFragment(getSupportFragmentManager(), vehicleDetailsFragment,
-                "change_password_dialog");
+    private void startEditServiceInfoActivity() {
+        Intent intent = new Intent(ProfileActivity.this, EditServiceDetailsActivity.class);
+        // Pass user object
+        intent.putExtra("user", mUser);
+        intent.putExtra("user_type", mUserType);
+        // Pass service object
+        intent.putExtra("service", mService);
+        startActivityForResult(intent, REQUEST_CODE_SERVICE_DETAILS_UPDATED);
+    }
+
+    private void startEditLoginInfoActivity() {
+        Intent intent = new Intent(ProfileActivity.this, EditUserLoginActivity.class);
+        // Pass user object
+        intent.putExtra("user", mUser);
+        intent.putExtra("user_type", mUserType);
+        startActivityForResult(intent, REQUEST_CODE_LOGIN_INFO_UPDATED);
     }
 
     private void setupGoogleApiClient() {
@@ -471,7 +367,7 @@ public class ProfileActivity extends AppCompatActivity
     }
 
     private void getGooglePlaceForService() {
-        if (mService != null && mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
+        if (mService != null && mGoogleApiClient != null) {
             final String placeId = mService.getPlaceId();
             if (placeId != null && !placeId.isEmpty()) {
                 new LoadPlaceTask(mGoogleApiClient) {
@@ -486,6 +382,8 @@ public class ProfileActivity extends AppCompatActivity
 
                         if (places != null && places.length > 0) {
                             mService.setLocation(places[0]);
+
+                            updateServiceAddress();
                         } else {
                             // TODO: handle error.
                         }
@@ -493,5 +391,270 @@ public class ProfileActivity extends AppCompatActivity
                 }.execute(placeId);
             }
         }
+    }
+
+    private void handleClientUserChanges(ClientUser clientUserChanges) {
+        if (!mUser.equals(clientUserChanges)) {
+            // User has made changes.
+            mChangesMade = true;
+
+            mUser = clientUserChanges;
+
+            updatePersonalInfoFields();
+        }
+    }
+
+    private void handleLoginInfoChanges(User userChanges) {
+        if (!mUser.equals(userChanges)) {
+            // User has made changes (authentication).
+            mChangesMade = true;
+
+            mUser = userChanges;
+
+            updateLoginInfoFields();
+        }
+    }
+
+    private void handleServiceDetailsChanges(ServiceStation serviceStation) {
+        // We must handle location (Place) respectively since it is transient and is not passed with extras.
+        // The solution would be to compare place ids - if they are different that means there is a change.
+        String newPlaceId = serviceStation.getPlaceId();
+        String currentPlaceId = mService.getPlaceId();
+
+        boolean isPlaceIdEquals = currentPlaceId.equals(newPlaceId);
+
+        // Compare place ids first
+        if (isPlaceIdEquals) {
+            // If they are the same simply assign the current Place object to the new service.
+            // This is important because otherwise it will interfere with equals method.
+            serviceStation.setLocation(mService.getLocation());
+        } else {
+            // Update current service
+            mService = serviceStation;
+
+            // Update place object.
+            getGooglePlaceForService();
+
+            // Update fields
+            updateServiceInfoFields();
+
+            mChangesMade = true;
+        }
+
+        // Now compare other fields, knowing that Place object being transient does not bother equals method.
+        if (isPlaceIdEquals && !mService.equals(serviceStation)) {
+            // Update current service
+            mService = serviceStation;
+
+            // Update fields
+            updateServiceInfoFields();
+
+            mChangesMade = true;
+        }
+    }
+
+    private void updateLoginInfoFields() {
+        updateEmailAddress();
+        updatePassword();
+    }
+
+    private void updatePersonalInfoFields() {
+        updateClientVehiclesArrangedLayout();
+        updateClientName();
+    }
+
+    private void updateServiceInfoFields() {
+        if (mService != null) {
+            updateServiceName();
+            updateServicesArrangedLayout();
+            updateServiceAddress();
+            updateServicePhonenumber();
+            updateServiceActiveTime();
+            updateVehicleTypesArrangedLayout();
+            updateManagerName();
+            updateManagerPhonenumber();
+            updateDirectorName();
+        }
+    }
+
+    private void updateEmailAddress() {
+        String emailAddress = mUser.getEmail();
+        if (emailAddress != null) {
+            mEmailAddressEditText.setText(emailAddress);
+        } else {
+            mEmailAddressEditText.setText("");
+        }
+    }
+
+    private void updatePassword() {
+        String password = mUser.getPassword();
+        if (password != null) {
+            String asteriskedPassword = Utils.generateAsteriskString(password.length());
+
+            mPasswordEditText.setText(asteriskedPassword);
+        } else {
+            mPasswordEditText.setText("");
+        }
+    }
+
+    private void updateClientName() {
+        String name = ((ClientUser) mUser).getName();
+        if (name != null) {
+            mNameEditText.setText(name);
+        } else {
+            mNameEditText.setText("");
+        }
+    }
+
+    private void updateClientVehiclesArrangedLayout() {
+        mVehicleDetailsArrangedLayout.removeAllViews();
+
+        List<VehicleData> vehicles = ((ClientUser) mUser).getVehicles();
+        if (vehicles != null && !vehicles.isEmpty()) {
+
+            for (VehicleData vehicleData : vehicles) {
+                // Create a ChipView for every vehicle
+                ChipView vehicleStringChipView = new ChipView(ProfileActivity.this);
+                ViewCompat.setPaddingRelative(vehicleStringChipView, mItemSpacing, 0, 0,
+                        mItemSpacing);
+                // Make sure the chip is not deletable, it will be handled on another fragment.
+                vehicleStringChipView.setDeletable(false);
+                vehicleStringChipView.setText(vehicleData.toString());
+
+                mVehicleDetailsArrangedLayout.addView(vehicleStringChipView);
+            }
+        }
+    }
+
+    public void updateServiceName() {
+        String serviceName = mService.getName();
+        if (serviceName != null && !serviceName.isEmpty()) {
+            mServiceNameEditText.setText(serviceName);
+        }
+    }
+
+    public void updateServicesArrangedLayout() {
+        EnumSet<ServiceType> availableServices = mService.getAvailableServices();
+
+        mServiceTypesArrangedLayout.removeAllViews();
+        if (availableServices != null && !availableServices.isEmpty()) {
+            for (ServiceType serviceType : availableServices) {
+                ChipView serviceTypeChipView = new ChipView(ProfileActivity.this);
+                serviceTypeChipView.setDeletable(false);
+
+                switch (serviceType) {
+                    case CAR_WASH:
+                        serviceTypeChipView.setText(mServiceTypeCarWashString);
+                        break;
+                    case TOWING:
+                        serviceTypeChipView.setText(mServiceTypeTowingString);
+                        break;
+                    case TYRE_REPAIR:
+                        serviceTypeChipView.setText(mServiceTypeTyreRepairString);
+                        break;
+                    case AUTO_SERVICE:
+                        serviceTypeChipView.setText(mServiceTypeAutoServiceString);
+                        break;
+                }
+
+                serviceTypeChipView.setPadding(mItemSpacing, 0, mItemSpacing, 0);
+                mServiceTypesArrangedLayout.addView(serviceTypeChipView);
+            }
+        }
+    }
+
+    public void updateServiceAddress() {
+        Place location = mService.getLocation();
+        if (location != null) {
+            mServiceAddressEditText.setText(location.getAddress());
+        }
+    }
+
+    public void updateServicePhonenumber() {
+        String phonenumber = mService.getPhonenumber();
+        if (phonenumber != null && !phonenumber.isEmpty()) {
+            mServicePhonenumberEditText.setText(phonenumber);
+        }
+    }
+
+    public void updateServiceActiveTime() {
+        TimeHolder openingTime = mService.getOpeningTime();
+        TimeHolder closingTime = mService.getClosingTime();
+
+        if (openingTime != null && closingTime != null) {
+            mActiveTimeEditText.setText(openingTime.toString() + " - " + closingTime.toString());
+        }
+    }
+
+    public void updateVehicleTypesArrangedLayout() {
+        EnumSet<VehicleType> vehicleTypes = mService.getVehicleTypes();
+
+        mVehicleTypesArrangedLayout.removeAllViews();
+        if (vehicleTypes != null && !vehicleTypes.isEmpty()) {
+            for (VehicleType vehicleType : vehicleTypes) {
+                ChipView vehicleTypeChipView = new ChipView(ProfileActivity.this);
+                vehicleTypeChipView.setDeletable(false);
+
+                switch (vehicleType) {
+                    case PRIVATE:
+                        vehicleTypeChipView.setText(mVehicleTypePrivateString);
+                        break;
+                    case MOTORCYCLE:
+                        vehicleTypeChipView.setText(mVehicleTypeMotorcycleString);
+                        break;
+                    case BUS:
+                        vehicleTypeChipView.setText(mVehicleTypeBusString);
+                        break;
+                    case TRUCK:
+                        vehicleTypeChipView.setText(mVehicleTypeTruckString);
+                        break;
+                }
+
+                vehicleTypeChipView.setPadding(mItemSpacing, mItemSpacing, mItemSpacing, 0);
+                mVehicleTypesArrangedLayout.addView(vehicleTypeChipView);
+            }
+        }
+    }
+
+    public void updateManagerName() {
+        String managerName = mService.getManagerName();
+        if (managerName != null && !managerName.isEmpty()) {
+            mManagerNameEditText.setText(managerName);
+        }
+    }
+
+    public void updateManagerPhonenumber() {
+        String managerPhonenumber = mService.getManagerPhonenumber();
+        if (managerPhonenumber != null && !managerPhonenumber.isEmpty()) {
+            mManagerPhonenumberEditText.setText(managerPhonenumber);
+        }
+    }
+
+    public void updateDirectorName() {
+        String directorName = mService.getDirectorName();
+        if (directorName != null && !directorName.isEmpty()) {
+            mDirectorNameEditText.setText(directorName);
+        }
+    }
+
+    private void showWorkTypesSelectionDialog() {
+        WorkTypesFragment workTypesFragment = WorkTypesFragment.getInstance(false,
+                mService.getSubWorkTypes());
+        Utils.showDialogFragment(getSupportFragmentManager(), workTypesFragment,
+                "work_type_fragment");
+    }
+
+    private void showVehicleMakesSelectionDialog() {
+        ArrayList<String> servicesCarMakes = new ArrayList<>();
+
+        String[] servicedCarMakesArr = mService.getServicedCarMakes();
+        if (servicedCarMakesArr != null && servicedCarMakesArr.length > 0) {
+            Collections.addAll(servicesCarMakes, mService.getServicedCarMakes());
+        }
+
+        VehicleMakesFragment vehicleMakesFragment = VehicleMakesFragment.getInstance(
+                servicesCarMakes, false);
+        Utils.showDialogFragment(getSupportFragmentManager(),
+                vehicleMakesFragment, "vehicle_make_fragment");
     }
 }

@@ -5,10 +5,9 @@
     tools:context="com.example.menuexample.MenuExampleActivity">
 
     <item
-        android:id="@+id/menu_item_edit"
+        android:id="@+id/menu_item_done"
         android:orderInCategory="0"
         app:showAsAction="ifRoom"
-        android:title="Edit"
-        android:icon="@drawable/ic_edit_white_24dp"/>
-
+        android:icon="@drawable/ic_check_white_24dp"
+        android:title="@string/done"/>
 </menu>

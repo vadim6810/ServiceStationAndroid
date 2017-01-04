@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_sign_up"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -40,5 +41,43 @@
             android:hint="@string/hint_email"
             android:inputType="textEmailAddress" />
     </android.support.design.widget.TextInputLayout>
+
+    <!-- This layout is only visible when user is directed from ProfileActivity in order to make changes. -->
+    <LinearLayout
+        android:id="@+id/password_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/user_password_input_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/item_spacing">
+
+            <EditText
+                android:id="@+id/user_password_edit_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@drawable/custom_edit_text_color"
+                android:imeOptions="actionDone"
+                android:maxLines="1"
+                android:hint="@string/hint_password"
+                android:inputType="text"
+                android:enabled="false"
+                tools:ignore="TextFields" />
+        </android.support.design.widget.TextInputLayout>
+
+        <Button
+            android:id="@+id/change_password_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/item_spacing"
+            android:background="@drawable/transparent_background_interactive"
+            android:text="@string/change_password_button"
+            android:textColor="?attr/colorAccent"
+            android:textAllCaps="false" />
+    </LinearLayout>
 
 </LinearLayout>

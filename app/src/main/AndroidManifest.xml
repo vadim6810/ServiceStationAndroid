@@ -29,7 +29,10 @@
         <activity android:name=".activities.SignInActivity" />
         <activity android:name=".activities.ProfileActivity" />
         <activity android:name=".activities.PostTenderActivity" />
-        <activity android:name=".activities.ProviderMainActivity"></activity>
+        <activity android:name=".activities.ProviderMainActivity" />
+        <activity android:name=".activities.EditClientDetailsActivity" />
+        <activity android:name=".activities.EditUserLoginActivity" />
+        <activity android:name=".activities.EditServiceDetailsActivity" />
     </application>
 
 </manifest>

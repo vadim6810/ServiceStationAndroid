@@ -228,4 +228,25 @@
     <string name="price_in_nis_hint">Price in NIS:</string>
     <string name="message_title">Message</string>
     <string name="enter_a_message_hint">Enter a message:</string>
+    <string name="login_title">Login</string>
+    <string name="personal_info_title">Personal Info</string>
+    <string name="finish_editing_title">Finish Editing</string>
+    <string name="keep_changes_confirmation_message">Are you sure you want to keep the changes you\'ve made?</string>
+    <string name="invalid_password_error_message">Invalid password</string>
+    <string name="no_changes_made_message">No changes made.</string>
+    <string name="service_name_hint">Service Name:</string>
+    <string name="address_hint">Address:</string>
+    <string name="phone_number_hint">Phone Number:</string>
+    <string name="active_time_hint">Active Time:</string>
+    <string name="manager_name_hint">Manager Name:</string>
+    <string name="manager_phone_number_hint">Manager Phone Number:</string>
+    <string name="director_name_hint">Director Name:</string>
+    <string name="invalid_name_error_message">Please enter a valid name</string>
+    <string name="address_field_empty_error_message">Please select an address</string>
+    <string name="invalid_phone_number_error_message">Please enter a valid phone number</string>
+    <string name="invalid_active_time_error_message">Please select valid active time</string>
+    <string name="empty_service_types_error_message">Please select at least one service type</string>
+    <string name="empty_work_types_error_message">Please select at least one work type</string>
+    <string name="empty_vehicle_types_error_message">Please select at least one vehicle type</string>
+    <string name="empty_vehicle_makes_error_message">Please select at least one vehicle make</string>
 </resources>

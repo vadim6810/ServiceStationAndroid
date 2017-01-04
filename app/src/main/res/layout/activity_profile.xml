@@ -42,25 +42,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/item_spacing"
-                    android:text="@string/general"
+                    android:text="@string/login_title"
                     android:textSize="20sp"/>
-                <android.support.design.widget.TextInputLayout
-                    android:id="@+id/user_name_input_layout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/activity_horizontal_margin">
-
-                    <EditText
-                        android:id="@+id/user_name_edit_text"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/custom_edit_text_background"
-                        android:textColor="@drawable/custom_edit_text_color"
-                        android:inputType="textPersonName"
-                        android:imeOptions="actionNext"
-                        android:maxLines="1"
-                        android:hint="@string/hint_name"/>
-                </android.support.design.widget.TextInputLayout>
 
                 <android.support.design.widget.TextInputLayout
                     android:id="@+id/user_email_input_layout"
@@ -77,7 +60,28 @@
                         android:imeOptions="actionDone"
                         android:maxLines="1"
                         android:hint="@string/hint_email"
-                        android:inputType="textEmailAddress"/>
+                        android:inputType="textEmailAddress"
+                        android:enabled="false"/>
+                </android.support.design.widget.TextInputLayout>
+
+                <android.support.design.widget.TextInputLayout
+                    android:id="@+id/user_password_input_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/item_spacing">
+
+                    <EditText
+                        android:id="@+id/user_password_edit_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/custom_edit_text_background"
+                        android:textColor="@drawable/custom_edit_text_color"
+                        android:imeOptions="actionDone"
+                        android:maxLines="1"
+                        android:hint="@string/hint_password"
+                        android:inputType="text"
+                        android:enabled="false"
+                        tools:ignore="TextFields" />
                 </android.support.design.widget.TextInputLayout>
 
                 <Button
@@ -85,14 +89,14 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/item_spacing"
                     android:background="@drawable/transparent_background_interactive"
-                    android:text="@string/change_password_button"
+                    android:text="@string/edit"
                     android:textColor="?attr/colorAccent"
                     android:textAllCaps="false"
-                    android:onClick="changePassword"/>
+                    android:onClick="editLogin"/>
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/vehicle_info_layout"
+                android:id="@+id/client_personal_info_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/profile_section_background"
@@ -107,24 +111,46 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/item_spacing"
-                    android:text="@string/vehicle_details"
+                    android:text="@string/personal_info_title"
                     android:textSize="20sp"/>
-                <TextView
-                    android:id="@+id/vehicle_details_text_view"
+                <android.support.design.widget.TextInputLayout
+                    android:id="@+id/user_name_input_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/activity_horizontal_margin">
+
+                    <EditText
+                        android:id="@+id/user_name_edit_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/custom_edit_text_background"
+                        android:textColor="@drawable/custom_edit_text_color"
+                        android:inputType="textPersonName"
+                        android:imeOptions="actionNext"
+                        android:maxLines="1"
+                        android:hint="@string/hint_name"
+                        android:enabled="false"/>
+                </android.support.design.widget.TextInputLayout>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/activity_horizontal_margin"
+                    android:text="@string/vehicle_details"
+                    android:textSize="20sp"/>
+                <com.hotmail.maximglukhov.arrangedlayout.ArrangedLayout
                     android:layout_marginTop="@dimen/item_spacing"
-                    android:textColor="@color/colorPrimaryText"
-                    android:textSize="16sp"/>
+                    android:id="@+id/vehicles_arranged_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
                 <Button
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/item_spacing"
                     android:background="@drawable/transparent_background_interactive"
-                    android:text="@string/update"
+                    android:text="@string/edit"
                     android:textColor="?attr/colorAccent"
                     android:textAllCaps="false"
-                    android:onClick="updateVehicleDetails"/>
+                    android:onClick="editClientPersonalInfo"/>
             </LinearLayout>
             <LinearLayout
                 android:id="@+id/service_info_layout"
@@ -143,22 +169,185 @@
                     android:layout_marginTop="@dimen/item_spacing"
                     android:text="@string/service_details_title"
                     android:textSize="20sp"/>
-                <fragment
-                    android:id="@+id/service_details_fragment"
-                    class="il.co.tel_ran.carservice.fragments.RegistrationServiceDetailsFragment"
+                <android.support.design.widget.TextInputLayout
+                    android:id="@+id/service_name_input_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    tools:layout="@layout/fragment_registration_step_servicedetails" />
+                    android:layout_marginTop="@dimen/activity_horizontal_margin">
+
+                    <EditText
+                        android:id="@+id/service_name_edit_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/custom_edit_text_background"
+                        android:textColor="@drawable/custom_edit_text_color"
+                        android:inputType="textPersonName"
+                        android:imeOptions="actionNext"
+                        android:maxLines="1"
+                        android:hint="@string/service_name_hint"
+                        android:enabled="false"/>
+                </android.support.design.widget.TextInputLayout>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/item_spacing"
+                    android:text="@string/services"
+                    android:textSize="20sp"/>
+                <com.hotmail.maximglukhov.arrangedlayout.ArrangedLayout
+                    android:layout_marginTop="@dimen/item_spacing"
+                    android:id="@+id/service_types_arranged_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
                 <Button
-                    android:id="@+id/update_button"
+                    android:id="@+id/show_work_types_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/transparent_background_interactive"
+                    android:gravity="start|center_vertical"
+                    android:text="@string/tap_to_view_work_types_button"
+                    android:textColor="?attr/colorAccent"
+                    android:textAllCaps="false"
+                    android:textSize="20sp"
+                    android:onClick="showWorkTypes"/>
+                <android.support.design.widget.TextInputLayout
+                    android:id="@+id/address_input_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/activity_horizontal_margin">
+
+                    <EditText
+                        android:id="@+id/address_edit_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/custom_edit_text_background"
+                        android:textColor="@drawable/custom_edit_text_color"
+                        android:inputType="textPersonName"
+                        android:imeOptions="actionNext"
+                        android:maxLines="1"
+                        android:hint="@string/address_hint"
+                        android:enabled="false"/>
+                </android.support.design.widget.TextInputLayout>
+                <android.support.design.widget.TextInputLayout
+                    android:id="@+id/phonenumber_input_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/activity_horizontal_margin">
+
+                    <EditText
+                        android:id="@+id/phonenumber_edit_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/custom_edit_text_background"
+                        android:textColor="@drawable/custom_edit_text_color"
+                        android:inputType="phone"
+                        android:imeOptions="actionNext"
+                        android:maxLines="1"
+                        android:hint="@string/phone_number_hint"
+                        android:enabled="false"/>
+                </android.support.design.widget.TextInputLayout>
+                <android.support.design.widget.TextInputLayout
+                    android:id="@+id/active_time_input_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/activity_horizontal_margin">
+
+                    <EditText
+                        android:id="@+id/active_time_edit_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/custom_edit_text_background"
+                        android:textColor="@drawable/custom_edit_text_color"
+                        android:inputType="text"
+                        android:imeOptions="actionNext"
+                        android:maxLines="1"
+                        android:hint="@string/active_time_hint"
+                        android:enabled="false"/>
+                </android.support.design.widget.TextInputLayout>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/item_spacing"
+                    android:text="@string/vehicle_types"
+                    android:textSize="20sp"/>
+                <com.hotmail.maximglukhov.arrangedlayout.ArrangedLayout
+                    android:layout_marginTop="@dimen/item_spacing"
+                    android:id="@+id/vehicle_types_arranged_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+                <Button
+                    android:id="@+id/show_vehicle_makes_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/transparent_background_interactive"
+                    android:gravity="start|center_vertical"
+                    android:text="@string/tap_to_view_vehicle_makes_button"
+                    android:textColor="?attr/colorAccent"
+                    android:textAllCaps="false"
+                    android:textSize="20sp"
+                    android:onClick="showVehicleMakes"/>
+                <android.support.design.widget.TextInputLayout
+                    android:id="@+id/manager_name_input_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/activity_horizontal_margin">
+
+                    <EditText
+                        android:id="@+id/manager_name_edit_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/custom_edit_text_background"
+                        android:textColor="@drawable/custom_edit_text_color"
+                        android:inputType="phone"
+                        android:imeOptions="actionNext"
+                        android:maxLines="1"
+                        android:hint="@string/manager_name_hint"
+                        android:enabled="false"/>
+                </android.support.design.widget.TextInputLayout>
+                <android.support.design.widget.TextInputLayout
+                    android:id="@+id/manager_phonenumber_input_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/activity_horizontal_margin">
+
+                    <EditText
+                        android:id="@+id/manager_phonenumber_edit_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/custom_edit_text_background"
+                        android:textColor="@drawable/custom_edit_text_color"
+                        android:inputType="phone"
+                        android:imeOptions="actionNext"
+                        android:maxLines="1"
+                        android:hint="@string/manager_phone_number_hint"
+                        android:enabled="false"/>
+                </android.support.design.widget.TextInputLayout>
+                <android.support.design.widget.TextInputLayout
+                    android:id="@+id/director_name_input_layout_input_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/activity_horizontal_margin">
+
+                    <EditText
+                        android:id="@+id/director_name_edit_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/custom_edit_text_background"
+                        android:textColor="@drawable/custom_edit_text_color"
+                        android:inputType="phone"
+                        android:imeOptions="actionNext"
+                        android:maxLines="1"
+                        android:hint="@string/director_name_hint"
+                        android:enabled="false"/>
+                </android.support.design.widget.TextInputLayout>
+                <Button
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/item_spacing"
                     android:background="@drawable/transparent_background_interactive"
-                    android:text="@string/update"
+                    android:text="@string/edit"
                     android:textColor="?attr/colorAccent"
                     android:textAllCaps="false"
-                    android:onClick="updateVehicleDetails"/>
+                    android:onClick="editServiceInfo"/>
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
