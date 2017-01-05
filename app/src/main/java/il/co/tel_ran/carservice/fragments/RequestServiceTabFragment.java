@@ -24,7 +24,6 @@ import java.util.List;
 
 import il.co.tel_ran.carservice.ClientUser;
 import il.co.tel_ran.carservice.R;
-import il.co.tel_ran.carservice.VehicleData;
 import il.co.tel_ran.carservice.connection.ServerConnection;
 import il.co.tel_ran.carservice.ServiceStation;
 import il.co.tel_ran.carservice.TenderReply;
@@ -93,7 +92,7 @@ public class RequestServiceTabFragment extends RefreshingFragment
             mRequestMessageTextView = (TextView) mMainLayout.findViewById(R.id.request_message_text_view);
             mRequestLocationTextView = (TextView) mMainLayout.findViewById(R.id.request_location_text_view);
 
-            mRequestStatusTextView = (TextView) mMainLayout.findViewById(R.id.request_status_text_view);
+            mRequestStatusTextView = (TextView) mMainLayout.findViewById(R.id.request_work_types_text_view);
 
             mDeadlineTextView = (TextView) mMainLayout.findViewById(R.id.request_deadline_text_view);
 

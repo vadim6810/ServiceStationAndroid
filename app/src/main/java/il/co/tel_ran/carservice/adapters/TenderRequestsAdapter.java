@@ -217,7 +217,7 @@ public class TenderRequestsAdapter
             removeRequestButton = (ImageButton) layout.findViewById(R.id.remove_tender_request_button);
             // Hide delete button.
             removeRequestButton.setVisibility(View.GONE);
-            statusTextView = (TextView) layout.findViewById(R.id.request_status_text_view);
+            statusTextView = (TextView) layout.findViewById(R.id.request_work_types_text_view);
             // Hide status text - If status is anything but opened it's irrelevant to the provider.
             statusTextView.setVisibility(View.GONE);
             deadlineTextView = (TextView) layout.findViewById(R.id.request_deadline_text_view);

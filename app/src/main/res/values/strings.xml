@@ -249,4 +249,7 @@
     <string name="empty_work_types_error_message">Please select at least one work type</string>
     <string name="empty_vehicle_types_error_message">Please select at least one vehicle type</string>
     <string name="empty_vehicle_makes_error_message">Please select at least one vehicle make</string>
+    <string name="tender_sender">Posted by %1$s</string>
+    <string name="tender_deadline">Get it done by %1$s</string>
+    <string name="tender_required_work_Types">Requires %s</string>
 </resources>
