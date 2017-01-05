@@ -354,6 +354,10 @@ public class TenderRequestsAdapter
         }
     }
 
+    public List<TenderRequest> getAllItems() {
+        return mTenderRequests;
+    }
+
     public void addItem(TenderRequest tenderRequest) {
         addItem(tenderRequest, true);
     }
