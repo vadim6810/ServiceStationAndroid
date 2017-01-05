@@ -109,17 +109,10 @@ public class ClientUserDataRequestMaker extends RequestMaker {
             for (int j = 0; j < carsJSONArray.length(); j++) {
                 String carString = carsJSONArray.optString(j);
                 if (carString != null) {
-                    String[] carProperties = carString.split(",");
-                    if (carProperties.length != 4)
-                        continue;
-
-                    VehicleData vehicleData = new VehicleData();
-                    vehicleData.setVehicleMake(carProperties[0]);
-                    vehicleData.setVehicleModel(carProperties[1]);
-                    vehicleData.setVehicleYear(Integer.parseInt(carProperties[2].trim()));
-                    vehicleData.setVehicleModifications(carProperties[3]);
-
-                    cars.add(vehicleData);
+                    VehicleData vehicleData = VehicleData.parseVehicleData(carString);
+                    if (vehicleData != null) {
+                        cars.add(vehicleData);
+                    }
                 }
             }
         }

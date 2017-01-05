@@ -78,4 +78,21 @@ public class VehicleData implements Serializable {
     public String toPersistedString() {
         return mVehicleMake + ", " + mVehicleModel + ", " + Integer.toString(mVehicleYear) + ", " + mVehicleModifications;
     }
+
+    public static VehicleData parseVehicleData(String vehicleDataString) {
+        VehicleData parsedVehicleData = new VehicleData();
+
+        if (vehicleDataString != null && !vehicleDataString.isEmpty()) {
+            String[] vehicleProperties = vehicleDataString.split(",");
+            if (vehicleProperties.length != 4)
+                return null;
+
+            parsedVehicleData.setVehicleMake(vehicleProperties[0]);
+            parsedVehicleData.setVehicleModel(vehicleProperties[1]);
+            parsedVehicleData.setVehicleYear(Integer.parseInt(vehicleProperties[2].trim()));
+            parsedVehicleData.setVehicleModifications(vehicleProperties[3]);
+        }
+
+        return parsedVehicleData;
+    }
 }
