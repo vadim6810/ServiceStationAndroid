@@ -180,6 +180,7 @@ public class PostTenderActivity extends AppCompatActivity implements View.OnClic
                                 mAcquireLocationProgressbar.setVisibility(View.GONE);
 
                                 if (likelyPlace != null) {
+                                    mTenderRequest.setPlace(likelyPlace.freeze());
                                     mTenderRequest.setLocation(likelyPlace.getAddress().toString());
                                     mTenderRequest.setPlaceID(likelyPlace.getId());
                                     // Update the text to the highest likelihood place.
@@ -295,8 +296,11 @@ public class PostTenderActivity extends AppCompatActivity implements View.OnClic
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         String vehicleString = (String) parent.getItemAtPosition(position);
 
-        if (vehicleString != null && !vehicleString.isEmpty()) {
-            mTenderRequest.setVehicleData(VehicleData.parseVehicleData(vehicleString));
+        for (VehicleData vehicleData : mClientUser.getVehicles()) {
+            if (vehicleData.toString().equals(vehicleString)) {
+                mTenderRequest.setVehicleData(vehicleData);
+                break;
+            }
         }
     }
 
@@ -309,13 +313,9 @@ public class PostTenderActivity extends AppCompatActivity implements View.OnClic
         Intent intent = new Intent();
 
         if (mTenderRequest != null) {
-            if (!checkFields()) {
-                Toast.makeText(
-                        PostTenderActivity.this, R.string.incomplete_fields_message, Toast.LENGTH_SHORT)
-                        .show();
-                return;
-            }
             mTenderRequest.setPrice(Float.valueOf(mPriceEditText.getText().toString()));
+
+            mTenderRequest.setMessage(mMessageEditText.getText().toString());
 
             Date currentDate = Calendar.getInstance().getTime();
 
@@ -326,6 +326,25 @@ public class PostTenderActivity extends AppCompatActivity implements View.OnClic
             } else {
                 // Updating the request.
                 mTenderRequest.setUpdatedAtDate(currentDate);
+            }
+
+            EnumSet<VehicleType> vehicleTypes = EnumSet.noneOf(VehicleType.class);
+            if (mVehicleTypeCheckBoxes[0].isChecked())
+                vehicleTypes.add(VehicleType.PRIVATE);
+            if (mVehicleTypeCheckBoxes[1].isChecked())
+                vehicleTypes.add(VehicleType.TRUCK);
+            if (mVehicleTypeCheckBoxes[2].isChecked())
+                vehicleTypes.add(VehicleType.BUS);
+            if (mVehicleTypeCheckBoxes[3].isChecked())
+                vehicleTypes.add(VehicleType.MOTORCYCLE);
+
+            mTenderRequest.setVehicleTypes(vehicleTypes);
+
+            if (!checkFields()) {
+                Toast.makeText(
+                        PostTenderActivity.this, R.string.incomplete_fields_message, Toast.LENGTH_SHORT)
+                        .show();
+                return;
             }
 
             intent.putExtra("tender_request", mTenderRequest);
@@ -389,6 +408,11 @@ public class PostTenderActivity extends AppCompatActivity implements View.OnClic
                 mTenderRequest = new TenderRequest();
             }
             mClientUser = (ClientUser) extras.getSerializable("user");
+
+            if (mClientUser != null) {
+                mTenderRequest.setIdUser(mClientUser.getClientId());
+                mTenderRequest.setSender(mClientUser.getName());
+            }
         } else {
             // TODO: handle error
             finish();
@@ -463,6 +487,7 @@ public class PostTenderActivity extends AppCompatActivity implements View.OnClic
                     Place place = PlaceAutocomplete.getPlace(PostTenderActivity.this, data);
                     mTenderRequest.setLocation(place.getAddress().toString());
                     mTenderRequest.setPlaceID(place.getId());
+                    mTenderRequest.setPlace(place);
                     mSearchLocationButton.setText(place.getAddress());
                 } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
                     Status status = PlaceAutocomplete.getStatus(PostTenderActivity.this, data);
@@ -648,6 +673,7 @@ public class PostTenderActivity extends AppCompatActivity implements View.OnClic
                 break;
             }
         }
+
         boolean isVehicleSelected = mTenderRequest.getVehicleData() != null;
 
         ArrayList<ServiceSubWorkType> subWorkTypes = mTenderRequest.getSubWorkTypes();
@@ -656,16 +682,15 @@ public class PostTenderActivity extends AppCompatActivity implements View.OnClic
         float price = mTenderRequest.getPrice();
         boolean isPriceSet = price > 0;
 
+
         String message = mTenderRequest.getMessage();
-        boolean isMessageSet = (message != null &&  !message.trim().isEmpty());
+        boolean isMessageSet = (message != null && !message.trim().isEmpty());
 
         boolean isDeadlineSet = mTenderRequest.getDeadlineDate() != null;
 
-        if (isLocationSet && isVehicleTypeSet && isDeadlineSet && isVehicleSelected
-                && isWorkTypeSelected && isPriceSet && isMessageSet)
-            return true;
+        return isLocationSet && isVehicleTypeSet && isDeadlineSet && isVehicleSelected
+                && isWorkTypeSelected && isPriceSet && isMessageSet;
 
-        return false;
     }
 
     private void showWorkTypesSelectionDialog() {
