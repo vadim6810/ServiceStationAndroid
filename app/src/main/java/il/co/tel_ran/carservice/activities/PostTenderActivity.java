@@ -18,6 +18,7 @@ import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -67,7 +68,8 @@ import il.co.tel_ran.carservice.fragments.WorkTypesFragment;
 
 public class PostTenderActivity extends AppCompatActivity implements View.OnClickListener,
         GoogleApiClient.OnConnectionFailedListener, DatePickerDialog.OnDateSetListener,
-        CompoundButton.OnCheckedChangeListener, WorkTypesFragment.SelectWorkTypesDialogListener, ChipView.OnChipDeleteClickListener {
+        CompoundButton.OnCheckedChangeListener, WorkTypesFragment.SelectWorkTypesDialogListener,
+        ChipView.OnChipDeleteClickListener, AdapterView.OnItemSelectedListener {
 
     private static final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 2;
@@ -276,8 +278,30 @@ public class PostTenderActivity extends AppCompatActivity implements View.OnClic
         }
     }
 
+    /*
+     * GoogleApiClient.OnConnectionFailedListener
+     */
+
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+    }
+
+    /*
+     * AdapterView.OnItemSelectedListener
+     */
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        String vehicleString = (String) parent.getItemAtPosition(position);
+
+        if (vehicleString != null && !vehicleString.isEmpty()) {
+            mTenderRequest.setVehicleData(VehicleData.parseVehicleData(vehicleString));
+        }
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
 
     }
 
@@ -476,6 +500,7 @@ public class PostTenderActivity extends AppCompatActivity implements View.OnClic
                 .findViewById(R.id.user_vehicles_spinner);
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(PostTenderActivity.this,
                 android.R.layout.simple_spinner_item, vehicleStrings);
+        vehiclesSpinner.setOnItemSelectedListener(this);
 
         vehiclesSpinner.setAdapter(arrayAdapter);
 
