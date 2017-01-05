@@ -43,6 +43,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import il.co.tel_ran.carservice.ClientUser;
+import il.co.tel_ran.carservice.LoadPlaceTask;
 import il.co.tel_ran.carservice.R;
 import il.co.tel_ran.carservice.TenderRequest;
 import il.co.tel_ran.carservice.connection.ServiceStationDataRequest;
@@ -58,6 +59,8 @@ import il.co.tel_ran.carservice.connection.DataRequest;
 import il.co.tel_ran.carservice.connection.DataResult;
 import il.co.tel_ran.carservice.connection.RequestMaker;
 import il.co.tel_ran.carservice.connection.ServerResponseError;
+import il.co.tel_ran.carservice.connection.TenderRequestDataRequest;
+import il.co.tel_ran.carservice.connection.TenderRequestMaker;
 import il.co.tel_ran.carservice.fragments.RefreshingFragment;
 import il.co.tel_ran.carservice.fragments.RequestServiceTabFragment;
 import il.co.tel_ran.carservice.fragments.ReviewsFragment;
@@ -382,6 +385,11 @@ public class ClientMainActivity extends AppCompatActivity
                 mUser.setUpdateDate(user.getUpdateDate());
 
                 onClientLoaded();
+            }
+        } else if (result.getDataType() == DataResult.Type.TENDER_REQUEST) {
+            if (mTenderRequestsFragment != null
+                    && mSelectedDrawerItem == NAVIGATION_MENU_ITEM_TENDER_INDEX) {
+                mTenderRequestsFragment.onRefreshStart();
             }
         }
     }
@@ -940,5 +948,31 @@ public class ClientMainActivity extends AppCompatActivity
         if (collection != null && !collection.isEmpty()) {
             collection.remove(removal);
         }
+    }
+
+    private void handleNewTenderRequest(final TenderRequest tenderRequest) {
+        if (tenderRequest != null && mGoogleApiClient != null) {
+            final String placeId = tenderRequest.getPlaceID();
+            if (placeId != null) {
+                new LoadPlaceTask(mGoogleApiClient) {
+                    @Override
+                    protected void onPostExecute(Place[] places) {
+                        if (places != null && places.length > 0) {
+                            tenderRequest.setPlace(places[0]);
+
+                            // Add this tender request to back-end
+                            sendNewTenderRequest(tenderRequest);
+                        }
+                    }
+                }.execute(placeId);
+            }
+        }
+    }
+
+    private void sendNewTenderRequest(TenderRequest tenderRequest) {
+        // Make the request
+        TenderRequestDataRequest request = new TenderRequestDataRequest(tenderRequest);
+
+        new TenderRequestMaker(this).makeRequest(ClientMainActivity.this, request);
     }
 }
