@@ -192,8 +192,12 @@ public class TenderRequestMaker extends RequestMaker {
             }
         }
 
+        float price = 0.0f;
+
         String priceString = jsonObject.optString(JSON_FIELD_SUM, "0.0");
-        float price = Float.parseFloat(priceString);
+        try {
+            price = Float.parseFloat(priceString);
+        } catch (NumberFormatException ignored) {}
 
         String message = jsonObject.optString(JSON_FIELD_COMMENT, "");
 
