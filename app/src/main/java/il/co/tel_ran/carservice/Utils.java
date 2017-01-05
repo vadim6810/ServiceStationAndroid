@@ -18,6 +18,7 @@ import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.location.places.AutocompleteFilter;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
+import com.google.android.gms.maps.model.LatLng;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -347,5 +348,13 @@ public class Utils {
         }
 
         return asterisks;
+    }
+
+    public static LatLng getDefaultPlaceLatLang() {
+        return new LatLng(31.046051, 34.85161199999993f);
+    }
+
+    public static String[] getDefaultPlaceAddressAndId() {
+        return new String[]{"Israel", "ChIJi8mnMiRJABURuiw1EyBCa2o"};
     }
 }

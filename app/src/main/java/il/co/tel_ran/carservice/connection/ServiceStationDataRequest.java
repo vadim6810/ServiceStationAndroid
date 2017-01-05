@@ -2,6 +2,7 @@ package il.co.tel_ran.carservice.connection;
 
 import com.android.volley.Request;
 import com.google.android.gms.location.places.Place;
+import com.google.android.gms.maps.model.LatLng;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -12,6 +13,7 @@ import java.util.ArrayList;
 import il.co.tel_ran.carservice.ServiceSubWorkType;
 import il.co.tel_ran.carservice.ServiceType;
 import il.co.tel_ran.carservice.ServiceWorkType;
+import il.co.tel_ran.carservice.Utils;
 import il.co.tel_ran.carservice.VehicleType;
 
 /**
@@ -145,14 +147,16 @@ public class ServiceStationDataRequest extends DataRequest {
                         location.getId());
             } else {
                 // Set default location as Israel.
+                LatLng defaultLatLang = Utils.getDefaultPlaceLatLang();
+                String[] defaultAddressAndId = Utils.getDefaultPlaceAddressAndId();
                 chosenPlace.put(ServiceStationRequestMaker.JSON_FIELD_SERVICE_LOCATION_LAT,
-                        31.046051);
+                        defaultLatLang.latitude);
                 chosenPlace.put(ServiceStationRequestMaker.JSON_FIELD_SERVICE_LOCATION_LONG,
-                        34.85161199999993f);
+                        defaultLatLang.longitude);
                 chosenPlace.put(ServiceStationRequestMaker.JSON_FIELD_SERVICE_LOCATION_ADDRESS,
-                        "Israel");
+                        defaultAddressAndId[0]);
                 chosenPlace.put(ServiceStationRequestMaker.JSON_FIELD_SERVICE_LOCATION_ID,
-                        "ChIJi8mnMiRJABURuiw1EyBCa2o");
+                        defaultAddressAndId[1]);
             }
             jsonObject.put(ServiceStationRequestMaker.JSON_FIELD_SERVICE_CHOSEN_PLACE, chosenPlace);
 
