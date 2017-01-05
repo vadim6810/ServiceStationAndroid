@@ -91,12 +91,6 @@ public class RequestServiceTabFragment extends RefreshingFragment
         return mMainLayout;
     }
 
-    public void onTenderRequestUpdate(TenderRequest request) {
-        if (request != null) {
-            // TODO: send request to back-end
-        }
-    }
-
     public void setUserData(ClientUser userData) {
         mUser = userData;
     }

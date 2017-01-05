@@ -634,8 +634,8 @@ public class ClientMainActivity extends AppCompatActivity
                         // Get data from PostTenderActivity
                         TenderRequest tenderRequest = (TenderRequest) data
                                 .getSerializableExtra("tender_request");
-                        // Update tender fragment
-                        mTenderRequestsFragment.onTenderRequestUpdate(tenderRequest);
+
+                        handleNewTenderRequest(tenderRequest);
                     }
                 }
                 break;
