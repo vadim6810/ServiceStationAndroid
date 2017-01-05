@@ -62,6 +62,8 @@ public class TenderRequestMaker extends RequestMaker {
         // Build the request.
         if (dataRequest.getRequestMethod() == Request.Method.GET) {
             request = makeStringRequest(dataRequest);
+        } else if (dataRequest.getRequestMethod() == Request.Method.POST) {
+            request = makeJSONObjectRequest(dataRequest);
         }
 
         if (request != null) {
