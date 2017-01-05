@@ -64,10 +64,12 @@ public class TenderRequestMaker extends RequestMaker {
             request = makeStringRequest(dataRequest);
         }
 
-        // Send the request
-        RequestQueueSingleton.getInstance(context).addToRequestQueue(request);
+        if (request != null) {
+            // Send the request
+            RequestQueueSingleton.getInstance(context).addToRequestQueue(request);
 
-        mWorkTypeCategories = ServiceWorkTypeCategory.generateWorkTypeCategories(context);
+            mWorkTypeCategories = ServiceWorkTypeCategory.generateWorkTypeCategories(context);
+        }
     }
 
     @Override
