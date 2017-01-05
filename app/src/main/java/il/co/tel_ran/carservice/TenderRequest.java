@@ -1,5 +1,7 @@
 package il.co.tel_ran.carservice;
 
+import com.google.android.gms.location.places.Place;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -25,6 +27,7 @@ public class TenderRequest implements Serializable {
 
     private String mLocation;
     private String mLocationPlaceID;
+    private transient Place mLocationPlace;
 
     private float mPrice;
 
@@ -47,15 +50,15 @@ public class TenderRequest implements Serializable {
 
     }
 
-    private TenderRequest(long id, long idUser, String place, String placeID,
+    private TenderRequest(long id, long idUser, String location, String placeID,
                           VehicleData vehicleData, float price, EnumSet<VehicleType> vehicleTypes,
                           ArrayList<ServiceWorkType> workTypes,
                           ArrayList<ServiceSubWorkType> subWorkTypes, String message,
                           Date createdAtDate, Date updatedAtDate, Date deadlineDate, Status status,
-                          String sender) {
+                          String sender, Place place) {
         mId              = id;
         mIdUser          = idUser;
-        mLocation        = place;
+        mLocation        = location;
         mLocationPlaceID = placeID;
         mVehicleData     = vehicleData;
         mPrice           = price;
@@ -68,6 +71,7 @@ public class TenderRequest implements Serializable {
         mDeadlineDate    = deadlineDate;
         mStatus          = status;
         mSender          = sender;
+        mLocationPlace   = place;
     }
 
     public static class Builder {
@@ -76,6 +80,7 @@ public class TenderRequest implements Serializable {
         private long idUser;
         private String location;
         private String locationPlaceId;
+        private Place place;
         private float price;
         private VehicleData vehicleData;
         private EnumSet<VehicleType> vehicleTypes;
@@ -100,6 +105,11 @@ public class TenderRequest implements Serializable {
 
         public Builder setLocation(String location) {
             this.location = location;
+            return this;
+        }
+
+        public Builder setPlace(Place place) {
+            this.place = place;
             return this;
         }
 
@@ -166,7 +176,7 @@ public class TenderRequest implements Serializable {
         public TenderRequest build() {
             return new TenderRequest(id, idUser, location, locationPlaceId, vehicleData, price,
                     vehicleTypes, serviceWorkTypes, serviceSubWorkTypes, message, createdAtDate,
-                    updatedAtDate, deadlineDate, status, sender);
+                    updatedAtDate, deadlineDate, status, sender, place);
         }
     }
 
@@ -184,6 +194,14 @@ public class TenderRequest implements Serializable {
 
     public String getPlaceID() {
         return mLocationPlaceID;
+    }
+
+    public void setPlace(Place place) {
+        mLocationPlace = place;
+    }
+
+    public Place getPlace() {
+        return mLocationPlace;
     }
 
     public void setPrice(float price) {
