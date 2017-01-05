@@ -389,7 +389,9 @@ public class ClientMainActivity extends AppCompatActivity
     @Override
     public void onDataRetrieveFailed(DataRequest dataRequest, DataResult.Type resultType,
                                      ServerResponseError error, @Nullable String message) {
-        mIsLoadingUser = false;
+        if (resultType == DataResult.Type.CLIENT_USER) {
+            mIsLoadingUser = false;
+        }
         // TODO: handle error
     }
 
