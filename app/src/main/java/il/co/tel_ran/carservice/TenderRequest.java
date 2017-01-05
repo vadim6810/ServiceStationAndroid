@@ -1,10 +1,9 @@
 package il.co.tel_ran.carservice;
 
-import com.google.android.gms.location.places.Place;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.EnumSet;
 
 /**
@@ -19,6 +18,11 @@ public class TenderRequest implements Serializable {
         RESOLVED
     }
 
+    private long mId;
+    private long mIdUser;
+
+    private String mSender;
+
     private String mLocation;
     private String mLocationPlaceID;
 
@@ -32,12 +36,10 @@ public class TenderRequest implements Serializable {
 
     private String mMessage;
 
-    private long mSubmitTimestamp = -1;
-    private long mUpdateTimestamp = -1;
+    private Date mCreatedAtDate;
+    private Date mUpdatedAtDate;
 
-    private int mDeadlineYear;
-    private int mDeadlineMonth;
-    private int mDeadlineDay;
+    private Date mDeadlineDate;
 
     private Status mStatus =  Status.OPENED;
 
@@ -45,11 +47,14 @@ public class TenderRequest implements Serializable {
 
     }
 
-    private TenderRequest(String place, String placeID, VehicleData vehicleData, float price,
-                          EnumSet<VehicleType> vehicleTypes, ArrayList<ServiceWorkType> workTypes,
+    private TenderRequest(long id, long idUser, String place, String placeID,
+                          VehicleData vehicleData, float price, EnumSet<VehicleType> vehicleTypes,
+                          ArrayList<ServiceWorkType> workTypes,
                           ArrayList<ServiceSubWorkType> subWorkTypes, String message,
-                          long submitTimeStamp, long updateTimeStamp, int deadlineYear,
-                          int deadlineMonth, int deadlineDay, Status status) {
+                          Date createdAtDate, Date updatedAtDate, Date deadlineDate, Status status,
+                          String sender) {
+        mId              = id;
+        mIdUser          = idUser;
         mLocation        = place;
         mLocationPlaceID = placeID;
         mVehicleData     = vehicleData;
@@ -58,16 +63,17 @@ public class TenderRequest implements Serializable {
         mWorkTypes       = workTypes;
         mSubWorkTypes    = subWorkTypes;
         mMessage         = message;
-        mSubmitTimestamp = submitTimeStamp;
-        mUpdateTimestamp = updateTimeStamp;
-        mDeadlineYear    = deadlineYear;
-        mDeadlineMonth   = deadlineMonth;
-        mDeadlineDay     = deadlineDay;
+        mCreatedAtDate   = createdAtDate;
+        mUpdatedAtDate   = updatedAtDate;
+        mDeadlineDate    = deadlineDate;
         mStatus          = status;
+        mSender          = sender;
     }
 
     public static class Builder {
 
+        private long id;
+        private long idUser;
         private String location;
         private String locationPlaceId;
         private float price;
@@ -76,17 +82,26 @@ public class TenderRequest implements Serializable {
         private ArrayList<ServiceWorkType> serviceWorkTypes = new ArrayList<>();
         private ArrayList<ServiceSubWorkType> serviceSubWorkTypes = new ArrayList<>();
         private String message;
-        private long submitTimeStamp;
-        private long updateTimeStamp;
-        private int deadlineYear;
-        private int deadlineMonth;
-        private int deadlineDay;
+        private Date createdAtDate;
+        private Date updatedAtDate;
+        private Date deadlineDate;
+        private String sender;
         private Status status;
 
-       public Builder setLocation(String location) {
-           this.location = location;
-           return this;
-       }
+        public Builder setId(long id){
+            this.id = id;
+            return this;
+        }
+
+        public Builder setIdUser(long idUser){
+            this.idUser = idUser;
+            return this;
+        }
+
+        public Builder setLocation(String location) {
+            this.location = location;
+            return this;
+        }
 
         public Builder setLocationPlaceId(String locationPlaceId) {
             this.locationPlaceId = locationPlaceId;
@@ -123,28 +138,18 @@ public class TenderRequest implements Serializable {
             return this;
         }
 
-        public Builder setSubmitTimeStamp(long submitTimeStamp) {
-            this.submitTimeStamp = submitTimeStamp;
+        public Builder setCreatedAtDate(Date createdAtDate) {
+            this.createdAtDate = createdAtDate;
             return this;
         }
 
-        public Builder setUpdateTimeStamp(long updateTimeStamp) {
-            this.updateTimeStamp = updateTimeStamp;
+        public Builder setUpdatedAtDate(Date updatedAtDate) {
+            this.updatedAtDate = updatedAtDate;
             return this;
         }
 
-        public Builder setDeadlineYear(int deadlineYear) {
-            this.deadlineYear = deadlineYear;
-            return this;
-        }
-
-        public Builder setDeadlineMonth(int deadlineMonth) {
-            this.deadlineMonth = deadlineMonth;
-            return this;
-        }
-
-        public Builder setDeadlineDay(int deadlineDay) {
-            this.deadlineDay = deadlineDay;
+        public Builder setDeadlineDate(Date date) {
+            deadlineDate = date;
             return this;
         }
 
@@ -153,10 +158,15 @@ public class TenderRequest implements Serializable {
             return this;
         }
 
+        public Builder setSender(String sender) {
+            this.sender = sender;
+            return this;
+        }
+
         public TenderRequest build() {
-            return new TenderRequest(location, locationPlaceId, vehicleData, price, vehicleTypes,
-                    serviceWorkTypes, serviceSubWorkTypes, message, submitTimeStamp,
-                    updateTimeStamp, deadlineYear, deadlineMonth, deadlineDay, status);
+            return new TenderRequest(id, idUser, location, locationPlaceId, vehicleData, price,
+                    vehicleTypes, serviceWorkTypes, serviceSubWorkTypes, message, createdAtDate,
+                    updatedAtDate, deadlineDate, status, sender);
         }
     }
 
@@ -192,20 +202,20 @@ public class TenderRequest implements Serializable {
         return mVehicleData;
     }
 
-    public void setSubmitTimestamp(long time) {
-        mSubmitTimestamp = time;
+    public void setCreatedAtDate(Date createdAtDate) {
+        mCreatedAtDate = createdAtDate;
     }
 
-    public long getSubmitTimeStamp() {
-        return mSubmitTimestamp;
+    public Date getCreatedAtDate() {
+        return mCreatedAtDate;
     }
 
-    public void setUpdateTimestamp(long time) {
-        mUpdateTimestamp = time;
+    public void setUpdatedAtDate(Date updatedAtDate) {
+        mUpdatedAtDate = updatedAtDate;
     }
 
-    public long getUpdateTimestamp() {
-        return mUpdateTimestamp;
+    public Date getUpdatedAtDate() {
+        return mUpdatedAtDate;
     }
 
     public void setVehicleTypes(EnumSet<VehicleType> vehicleTypes) {
@@ -236,29 +246,12 @@ public class TenderRequest implements Serializable {
         return mMessage;
     }
 
-    public void setDeadlineDate(int day, int month, int year) {
-        mDeadlineYear = year;
-        mDeadlineMonth = month;
-        mDeadlineDay = day;
+    public void setDeadlineDate(Date date) {
+        mDeadlineDate = date;
     }
 
-    /**
-     * Get deadline date.
-     * @param type refers to type of date component.
-     *             Calendar.YEAR - year. Calendar.MONTH - month. Calendar.DAY_OF_MONTH - day.
-     * @return the component
-     */
-    public int getDeadline(int type) {
-        switch (type) {
-            case Calendar.YEAR:
-                return mDeadlineYear;
-            case Calendar.MONTH:
-                return mDeadlineMonth;
-            case Calendar.DAY_OF_MONTH:
-                return mDeadlineDay;
-        }
-
-        return -1;
+    public Date getDeadlineDate() {
+        return mDeadlineDate;
     }
 
     public void setStatus(Status status) {
@@ -267,5 +260,29 @@ public class TenderRequest implements Serializable {
 
     public Status getStatus() {
         return mStatus;
+    }
+
+    public void setSender(String sender) {
+        mSender = sender;
+    }
+
+    public String getSender() {
+        return mSender;
+    }
+
+    public void setId(long id) {
+        mId = id;
+    }
+
+    public long getId() {
+        return mId;
+    }
+
+    public void setIdUser(long iduser) {
+        mIdUser = iduser;
+    }
+
+    public long getIdUser() {
+        return mIdUser;
     }
 }

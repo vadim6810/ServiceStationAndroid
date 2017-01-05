@@ -6,6 +6,7 @@ import android.support.design.widget.TextInputLayout;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,31 +19,41 @@ import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
 import il.co.tel_ran.carservice.MaxLengthTextWatcher;
 import il.co.tel_ran.carservice.R;
+import il.co.tel_ran.carservice.ServiceSubWorkType;
 import il.co.tel_ran.carservice.TenderRequest;
+import il.co.tel_ran.carservice.UserType;
 import il.co.tel_ran.carservice.Utils;
+import il.co.tel_ran.carservice.VehicleData;
 
 /**
  * Created by maxim on 12-Nov-16.
  */
 
 public class TenderRequestsAdapter
-        extends RecyclerView.Adapter<TenderRequestsAdapter.ViewHolder> {
+        extends RecyclerView.Adapter<TenderRequestsAdapter.ViewHolder>
+        implements View.OnClickListener {
+
+    private static final int VIEW_TYPE_MASTER = 1;
+    private static final int VIEW_TYPE_CLIENT = 2;
 
     private static final int MAX_MESSAGE_LENGTH = 50;
 
     private final Context mContext;
 
-    private List<TenderRequest> mTenderRequests = new ArrayList<>();
+    private final String mRequiredWorkTypesString;
 
-    private final String mTenderRequestString;
+    private final String mTenderSenderString;
 
     private final String mDeadlineTextString;
     private final DateFormat mDateFormat;
+
+    private List<TenderRequest> mTenderRequests = new ArrayList<>();
 
     private TenderRequestClickListener mListener;
 
@@ -55,12 +66,27 @@ public class TenderRequestsAdapter
 
     private final String mUpdateString;
 
+    private final int mViewType;
+
+    @Override
+    public void onClick(View v) {
+        if (mListener != null) {
+            mListener.onClickRequest(v);
+        }
+    }
+
     public interface TenderRequestClickListener {
+        void onClickRequest(View v);
         void onSendReply(View view, String message, boolean isUpdate);
     }
 
     public TenderRequestsAdapter(List<TenderRequest> requests, Context context,
                                  TenderRequestClickListener listener) {
+        this(requests, context, listener, UserType.MASTER);
+    }
+
+    public TenderRequestsAdapter(List<TenderRequest> requests, Context context,
+                                 TenderRequestClickListener listener, UserType userType) {
         if (requests != null) {
             mTenderRequests.clear();
             addItems(requests);
@@ -70,9 +96,11 @@ public class TenderRequestsAdapter
 
         mListener = listener;
 
-        mTenderRequestString = context.getString(R.string.tender_request_message);
+        mRequiredWorkTypesString = context.getString(R.string.tender_required_work_Types);
 
-        mDeadlineTextString = context.getString(R.string.deadline_with_date);
+        mTenderSenderString = context.getString(R.string.tender_sender);
+
+        mDeadlineTextString = context.getString(R.string.tender_deadline);
         mDateFormat = android.text.format.DateFormat.getDateFormat(context);
 
         mExceedingTextLengthColor = ContextCompat.getColor(context, R.color.colorSecondaryText);
@@ -83,22 +111,54 @@ public class TenderRequestsAdapter
         mConfirmationDialogMessage = context.getString(R.string.reply_to_tender_request_dialog_message);
 
         mUpdateString = context.getString(R.string.update);
+
+        switch (userType) {
+            case NONE:
+                // FALLTHROUGH
+            default:
+                // FALLTHROUGH
+            case CLIENT:
+                mViewType = VIEW_TYPE_CLIENT;
+                break;
+            case MASTER:
+                mViewType = VIEW_TYPE_MASTER;
+                break;
+        }
     }
 
     @Override
     public TenderRequestsAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         Context parentContext = parent.getContext();
 
-        View tenderRequestLayout = LayoutInflater.from(parentContext)
-                .inflate(R.layout.provider_tender_request_layout, parent, false);
+        ViewHolder holder;
 
-        ViewHolder holder = new ViewHolder(tenderRequestLayout);
+        View layout;
+        switch (viewType) {
+            case VIEW_TYPE_MASTER:
+                layout = LayoutInflater.from(parentContext)
+                        .inflate(R.layout.provider_tender_request_layout, parent, false);
 
-        holder.messageEditText.addTextChangedListener(new MaxLengthTextWatcher(MAX_MESSAGE_LENGTH,
-                holder.messageInputLayout, holder.messageEditText,
-                mEmptyMessageErrorText,
-                mMessageTooLongErrorText,
-                mExceedingTextLengthColor));
+                holder = new ViewHolder(layout, viewType);
+
+                holder.messageEditText.addTextChangedListener(new MaxLengthTextWatcher(
+                        MAX_MESSAGE_LENGTH,
+                        holder.messageInputLayout, holder.messageEditText,
+                        mEmptyMessageErrorText,
+                        mMessageTooLongErrorText,
+                        mExceedingTextLengthColor));
+
+                break;
+            case VIEW_TYPE_CLIENT:
+                // FALLTHROUGH:
+                default:
+                    layout = LayoutInflater.from(parentContext)
+                        .inflate(R.layout.client_tender_request_layout, parent, false);
+
+                holder = new ViewHolder(layout, viewType);
+                break;
+        }
+
+        layout.findViewById(R.id.request_details_layout).setOnClickListener(this);
 
         return holder;
     }
@@ -108,79 +168,103 @@ public class TenderRequestsAdapter
         try {
             TenderRequest tenderRequest = mTenderRequests.get(position);
 
+            VehicleData vehicleData = tenderRequest.getVehicleData();
+            if (vehicleData != null) {
+                holder.titleTextView.setText(vehicleData.toString());
+            }
+
+            float price = tenderRequest.getPrice();
+            holder.priceTextView.setText(String.format(Locale.getDefault(), "%.2f₪", price));
+
+            String workTypes = getSubWorkTypesString(tenderRequest.getSubWorkTypes());
+            holder.requiredWorkTypesTextView.setText(String.format(Locale.getDefault(),
+                    mRequiredWorkTypesString, workTypes));
+
             // Set deadline text.
-            int deadlineYear = tenderRequest.getDeadline(Calendar.YEAR);
-            int deadlineMonth = tenderRequest.getDeadline(Calendar.MONTH);
-            int deadlineDay = tenderRequest.getDeadline(Calendar.DAY_OF_MONTH);
-            if (deadlineYear != 0) {
+            Date deadlineDate = tenderRequest.getDeadlineDate();
+            if (deadlineDate != null) {
+                String formattedDate = mDateFormat.format(deadlineDate);
+
                 holder.deadlineTextView.setVisibility(View.VISIBLE);
-                holder.deadlineTextView.setText(String.format(
-                        Locale.getDefault(),
-                        mDeadlineTextString,
-                        Utils.getFormattedDate(mDateFormat, deadlineYear, deadlineMonth, deadlineDay)));
+                holder.deadlineTextView.setText(String.format(Locale.getDefault(),
+                        mDeadlineTextString, formattedDate));
             } else {
                 holder.deadlineTextView.setVisibility(View.GONE);
             }
 
-            // Set message text
-            holder.messageTextView.setText(String.format(Locale.getDefault(), mTenderRequestString,
-                    tenderRequest.getPrice(), tenderRequest.getVehicleData()));
+            String message = tenderRequest.getMessage();
+            if (message != null) {
+                // Set message text
+                holder.messageTextView.setText(message);
+            } else {
+                holder.messageTextView.setVisibility(View.GONE);
+            }
 
             // Set location text
             holder.locationTextView.setText(tenderRequest.getLocation());
 
-            holder.sendButton.setOnClickListener(new View.OnClickListener() {
+            String sender = tenderRequest.getSender();
+            if (sender != null) {
+                holder.senderTextView.setText(String.format(Locale.getDefault(),
+                        mTenderSenderString, sender));
+            } else {
+                holder.senderTextView.setVisibility(View.GONE);
+            }
 
-                private String mPrevMessage = null;
+            if (mViewType == VIEW_TYPE_MASTER) {
+                holder.sendButton.setOnClickListener(new View.OnClickListener() {
 
-                @Override
-                public void onClick(final View v) {
-                    if (mListener != null) {
-                        final String replyMessage = holder.getReplyMessage();
+                    private String mPrevMessage = null;
 
-                        // Make sure message is not empty
-                        if (replyMessage.length() == 0) {
-                            holder.messageInputLayout.setError(mEmptyMessageErrorText);
-                            // Don't send the message.
-                            return;
-                        }
+                    @Override
+                    public void onClick(final View v) {
+                        if (mListener != null) {
+                            final String replyMessage = holder.getReplyMessage();
 
-                        final boolean isFirstMessage = mPrevMessage == null;
+                            // Make sure message is not empty
+                            if (replyMessage.length() == 0) {
+                                holder.messageInputLayout.setError(mEmptyMessageErrorText);
+                                // Don't send the message.
+                                return;
+                            }
 
-                       if (!isFirstMessage && mPrevMessage.equals(replyMessage)) {
-                           holder.messageInputLayout.setError(mMessageTheSameErrorText);
-                           // Show error
-                           return;
-                       }
-                        showMessageSendConfirmationDialog(replyMessage, new DialogInterface.OnClickListener() {
-                                    // Positive button
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        boolean isUpdate = false;
+                            final boolean isFirstMessage = mPrevMessage == null;
 
-                                        // Check if we had a previous message, if not then the user is send a new one.
-                                        // Update the buttons to let the user know that the next time it will be an update.
-                                        if (isFirstMessage) {
-                                            // Update reply button and send button
-                                            holder.sendButton.setText(mUpdateString);
-                                            holder.replyButton.setText(mUpdateString);
-                                        } else {
-                                            isUpdate = true;
-                                        }
+                            if (!isFirstMessage && mPrevMessage.equals(replyMessage)) {
+                                holder.messageInputLayout.setError(mMessageTheSameErrorText);
+                                // Show error
+                                return;
+                            }
+                            showMessageSendConfirmationDialog(replyMessage, new DialogInterface.OnClickListener() {
+                                // Positive button
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    boolean isUpdate = false;
 
-                                        toggleReplyLayout(holder, false);
-
-                                        mListener.onSendReply(v, replyMessage, isUpdate);
-
-                                        mPrevMessage = replyMessage;
+                                    // Check if we had a previous message, if not then the user is send a new one.
+                                    // Update the buttons to let the user know that the next time it will be an update.
+                                    if (isFirstMessage) {
+                                        // Update reply button and send button
+                                        holder.sendButton.setText(mUpdateString);
+                                        holder.replyButton.setText(mUpdateString);
+                                    } else {
+                                        isUpdate = true;
                                     }
-                                }, null);
 
-                                // TODO: Add check for message length.
-                                // TODO: Add confirmation dialog.
+                                    toggleReplyLayout(holder, false);
+
+                                    mListener.onSendReply(v, replyMessage, isUpdate);
+
+                                    mPrevMessage = replyMessage;
+                                }
+                            }, null);
+
+                            // TODO: Add check for message length.
+                            // TODO: Add confirmation dialog.
+                        }
                     }
-                }
-            });
+                });
+            }
         } catch (IndexOutOfBoundsException e) {
             e.printStackTrace();
         }
@@ -191,48 +275,62 @@ public class TenderRequestsAdapter
         return mTenderRequests.size();
     }
 
+    @Override
+    public int getItemViewType(int position) {
+        return mViewType;
+    }
+
     public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         private final TextView titleTextView;
         private final ImageButton removeRequestButton;
-        private final TextView statusTextView;
+        private final TextView priceTextView;
+
+        private final TextView requiredWorkTypesTextView;
         private final TextView deadlineTextView;
         private final TextView messageTextView;
         private final TextView locationTextView;
+        private final TextView senderTextView;
 
-        private final View replyLayout;
-        private final Button replyButton;
-        private final View messageLayout;
-        private final TextInputLayout messageInputLayout;
-        private final EditText messageEditText;
-        private final ImageButton collapseButton;
-        private final Button sendButton;
+        private View replyLayout;
+        private Button replyButton;
+        private View messageLayout;
+        private TextInputLayout messageInputLayout;
+        private EditText messageEditText;
+        private ImageButton collapseButton;
+        private Button sendButton;
 
-        public ViewHolder(View layout) {
+        public ViewHolder(View layout, int viewType) {
             super(layout);
 
             titleTextView = (TextView) layout.findViewById(R.id.request_title_text_view);
             // Set title to be more general
             titleTextView.setText(R.string.tender_request_title);
-            removeRequestButton = (ImageButton) layout.findViewById(R.id.remove_tender_request_button);
+            removeRequestButton = (ImageButton) layout.findViewById(
+                    R.id.remove_tender_request_button);
             // Hide delete button.
             removeRequestButton.setVisibility(View.GONE);
-            statusTextView = (TextView) layout.findViewById(R.id.request_work_types_text_view);
-            // Hide status text - If status is anything but opened it's irrelevant to the provider.
-            statusTextView.setVisibility(View.GONE);
+
+            priceTextView = (TextView) layout.findViewById(R.id.request_price_text_view);
+
+            requiredWorkTypesTextView = (TextView) layout.findViewById(
+                    R.id.request_work_types_text_view);
             deadlineTextView = (TextView) layout.findViewById(R.id.request_deadline_text_view);
             messageTextView = (TextView) layout.findViewById(R.id.request_message_text_view);
             locationTextView = (TextView) layout.findViewById(R.id.request_location_text_view);
+            senderTextView = (TextView) layout.findViewById(R.id.request_sender_text_view);
 
-            replyLayout = layout.findViewById(R.id.reply_layout);
-            replyButton = (Button) layout.findViewById(R.id.reply_button);
-            replyButton.setOnClickListener(this);
-            messageLayout = layout.findViewById(R.id.leave_message_layout);
-            messageInputLayout = (TextInputLayout) layout.findViewById(R.id.leave_message_input_layout);
-            messageEditText = (EditText) layout.findViewById(R.id.leave_message_edit_text);
-            collapseButton = (ImageButton) layout.findViewById(R.id.collapse_image_button);
-            collapseButton.setOnClickListener(this);
-            sendButton = (Button) layout.findViewById(R.id.send_button);
+            if (viewType == VIEW_TYPE_MASTER) {
+                replyLayout = layout.findViewById(R.id.reply_layout);
+                replyButton = (Button) layout.findViewById(R.id.reply_button);
+                replyButton.setOnClickListener(this);
+                messageLayout = layout.findViewById(R.id.leave_message_layout);
+                messageInputLayout = (TextInputLayout) layout.findViewById(R.id.leave_message_input_layout);
+                messageEditText = (EditText) layout.findViewById(R.id.leave_message_edit_text);
+                collapseButton = (ImageButton) layout.findViewById(R.id.collapse_image_button);
+                collapseButton.setOnClickListener(this);
+                sendButton = (Button) layout.findViewById(R.id.send_button);
+            }
         }
 
         @Override
@@ -277,8 +375,8 @@ public class TenderRequestsAdapter
     }
 
     private void addItem(TenderRequest tenderRequest, boolean notify) {
-        if (!checkRequestOpened(tenderRequest))
-            return;
+        /*if (!checkRequestOpened(tenderRequest))
+            return;*/
 
         mTenderRequests.add(tenderRequest);
 
@@ -332,5 +430,18 @@ public class TenderRequestsAdapter
                 .setMessage(String.format(Locale.getDefault(), mConfirmationDialogMessage, message))
                 .setPositiveButton(R.string.send_title, positiveButtonLister)
                 .setNegativeButton(R.string.button_cancel, negativeButtonListener).create().show();
+    }
+
+    private String getSubWorkTypesString(ArrayList<ServiceSubWorkType> subWorkTypes) {
+        String subWorkTypesString = "";
+        if (subWorkTypes != null) {
+            for (ServiceSubWorkType subWorkType : subWorkTypes) {
+                subWorkTypesString += subWorkType.toString() + ", ";
+            }
+        }
+
+        subWorkTypesString = subWorkTypesString.substring(0, subWorkTypesString.length() - 2);
+
+        return subWorkTypesString;
     }
 }

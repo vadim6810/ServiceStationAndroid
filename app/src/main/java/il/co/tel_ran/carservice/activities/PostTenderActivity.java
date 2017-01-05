@@ -45,9 +45,11 @@ import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 import com.hotmail.maximglukhov.arrangedlayout.ArrangedLayout;
 import com.hotmail.maximglukhov.chipview.ChipView;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
@@ -291,12 +293,15 @@ public class PostTenderActivity extends AppCompatActivity implements View.OnClic
             }
             mTenderRequest.setPrice(Float.valueOf(mPriceEditText.getText().toString()));
 
-            if (mTenderRequest.getSubmitTimeStamp() == -1) {
+            Date currentDate = Calendar.getInstance().getTime();
+
+            if (mTenderRequest.getCreatedAtDate() == null) {
                 // Posting for the first time
-                mTenderRequest.setSubmitTimestamp(System.currentTimeMillis());
+                mTenderRequest.setCreatedAtDate(currentDate);
+                mTenderRequest.setUpdatedAtDate(currentDate);
             } else {
                 // Updating the request.
-                mTenderRequest.setUpdateTimestamp(System.currentTimeMillis());
+                mTenderRequest.setUpdatedAtDate(currentDate);
             }
 
             intent.putExtra("tender_request", mTenderRequest);
@@ -318,10 +323,10 @@ public class PostTenderActivity extends AppCompatActivity implements View.OnClic
     @Override
     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
         if (mTenderRequest != null) {
-            mTenderRequest.setDeadlineDate(dayOfMonth, month, year);
-
             Calendar calendar = Calendar.getInstance();
             calendar.set(year, month, dayOfMonth);
+
+            mTenderRequest.setDeadlineDate(calendar.getTime());
 
             // Picked date is earlier or current date
             if (calendar.compareTo(Calendar.getInstance()) == -1) {
@@ -516,11 +521,13 @@ public class PostTenderActivity extends AppCompatActivity implements View.OnClic
     private void setupDeadlineButton() {
         mSetDeadlineButton = (Button) findViewById(R.id.set_deadline_button);
 
-        if (mTenderRequest != null && mTenderRequest.getDeadline(Calendar.YEAR) != 0) {
-            mSetDeadlineButton.setText(Utils.getFormattedDate(PostTenderActivity.this,
-                    mTenderRequest.getDeadline(Calendar.YEAR),
-                    mTenderRequest.getDeadline(Calendar.MONTH),
-                    mTenderRequest.getDeadline(Calendar.DAY_OF_MONTH)));
+        Date deadlineDate = mTenderRequest.getDeadlineDate();
+        if (mTenderRequest != null && deadlineDate != null) {
+            DateFormat dateFormat = android.text.format.DateFormat
+                    .getDateFormat(PostTenderActivity.this);
+
+            String formattedDate = dateFormat.format(deadlineDate);
+            mSetDeadlineButton.setText(formattedDate);
         }
     }
 
@@ -564,10 +571,9 @@ public class PostTenderActivity extends AppCompatActivity implements View.OnClic
         DatePickerDialogFragment datePickerFragment = new DatePickerDialogFragment();
 
         Bundle bundle = new Bundle();
-        if (mTenderRequest != null && mTenderRequest.getDeadline(Calendar.YEAR)  != 0) {
-            bundle.putInt("year", mTenderRequest.getDeadline(Calendar.YEAR));
-            bundle.putInt("month", mTenderRequest.getDeadline(Calendar.MONTH));
-            bundle.putInt("day_of_month", mTenderRequest.getDeadline(Calendar.DAY_OF_MONTH));
+        Date deadlineDate = mTenderRequest.getDeadlineDate();
+        if (mTenderRequest != null && deadlineDate != null) {
+            bundle.putSerializable("date", deadlineDate);
             datePickerFragment.setArguments(bundle);
         }
 
@@ -610,7 +616,7 @@ public class PostTenderActivity extends AppCompatActivity implements View.OnClic
         boolean isLocationSet = mTenderRequest.getLocation() != null
                 && !mTenderRequest.getLocation().isEmpty();
         boolean isServicesTextField = !mPriceEditText.getText().toString().trim().isEmpty();
-        boolean isDeadlineSet = mTenderRequest.getDeadline(Calendar.YEAR) != 0;
+        boolean isDeadlineSet = mTenderRequest.getDeadlineDate() != null;
 
         if (isLocationSet && isServicesTextField && isDeadlineSet)
             return true;

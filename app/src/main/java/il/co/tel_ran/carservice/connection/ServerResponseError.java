@@ -25,7 +25,10 @@ public enum ServerResponseError {
     INVALID_PARAMETER,
     USER_NOT_FOUND,
     SERVICE_NOT_FOUND,
-    INVALID_ID, REVIEW_NOT_FOUND, VEHICLE_DB_EMPTY;
+    INVALID_ID,
+    REVIEW_NOT_FOUND,
+    VEHICLE_DB_EMPTY,
+    TENDER_REQUEST_NOT_FOUND;
 
     public static ServerResponseError getErrorFromVolley(VolleyError volleyError) {
         if (volleyError instanceof TimeoutError) {

@@ -16,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -24,6 +25,11 @@ import java.util.List;
 
 import il.co.tel_ran.carservice.ClientUser;
 import il.co.tel_ran.carservice.R;
+import il.co.tel_ran.carservice.UserType;
+import il.co.tel_ran.carservice.adapters.TenderRequestsAdapter;
+import il.co.tel_ran.carservice.connection.DataRequest;
+import il.co.tel_ran.carservice.connection.DataResult;
+import il.co.tel_ran.carservice.connection.RequestMaker;
 import il.co.tel_ran.carservice.connection.ServerConnection;
 import il.co.tel_ran.carservice.ServiceStation;
 import il.co.tel_ran.carservice.TenderReply;
@@ -32,44 +38,32 @@ import il.co.tel_ran.carservice.Utils;
 import il.co.tel_ran.carservice.activities.ClientMainActivity;
 import il.co.tel_ran.carservice.activities.PostTenderActivity;
 import il.co.tel_ran.carservice.adapters.TenderRepliesAdapter;
+import il.co.tel_ran.carservice.connection.ServerResponseError;
+import il.co.tel_ran.carservice.connection.TenderRequestDataRequest;
+import il.co.tel_ran.carservice.connection.TenderRequestMaker;
 import il.co.tel_ran.carservice.dialogs.ServiceDetailsDialog;
 
 /**
  * Created by Max on 16/09/2016.
  */
 public class RequestServiceTabFragment extends RefreshingFragment
-        implements View.OnClickListener, TenderRepliesAdapter.TenderReplyClickListener,
-        ServerConnection.OnTenderRepliesRetrievedListener,
-        ServiceDetailsDialog.ServiceDetailsDialogListener {
+        implements View.OnClickListener, TenderRequestsAdapter.TenderRequestClickListener,
+        RequestMaker.OnDataRetrieveListener {
 
     private View mMainLayout;
 
-    private RecyclerView mTenderRepliesRecyclerView;
+    private RecyclerView mTenderRequestsRecyclerView;
 
-    private FloatingActionButton mPostTenderFAB;
+    private ProgressBar mProgressbar;
+
+    private TextView mNoRequestsTextView;
 
     private ClientUser mUser;
-
-    private View mTenderRequestLayout;
-    private View mTenderRequestCard;
-    private View mTenderRequestDetailsLayout;
-    private TextView mRequestMessageTextView;
-    private TextView mRequestLocationTextView;
-
-    private TextView mRequestStatusTextView;
-
-    private TenderRequest mTenderRequest;
-
-    private ServerConnection mServerConnection;
-
-    private TextView mDeadlineTextView;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
-
-        mServerConnection = new ServerConnection();
     }
 
     @Nullable
@@ -78,32 +72,80 @@ public class RequestServiceTabFragment extends RefreshingFragment
         if (mMainLayout == null) {
             mMainLayout = inflater.inflate(R.layout.fragment_tab_request_service, container, false);
 
-            mTenderRequestCard = mMainLayout.findViewById(R.id.active_tender_request_card);
-            mTenderRequestCard.setVisibility(View.GONE);
+            mProgressbar = (ProgressBar) mMainLayout.findViewById(R.id.progress_bar);
 
-            mTenderRequestLayout = mMainLayout.findViewById(R.id.active_tender_request_layout);
-            mTenderRequestDetailsLayout = mMainLayout.findViewById(R.id.active_tender_request_details_layout);
-            mTenderRequestDetailsLayout.setOnClickListener(this);
+            mNoRequestsTextView = (TextView) mMainLayout.findViewById(
+                    R.id.no_tender_requests_text_view);
 
-            mPostTenderFAB = (FloatingActionButton) mMainLayout
+            FloatingActionButton postTenderFAB = (FloatingActionButton) mMainLayout
                     .findViewById(R.id.post_tender_request_fab);
-            mPostTenderFAB.setOnClickListener(this);
-
-            mRequestMessageTextView = (TextView) mMainLayout.findViewById(R.id.request_message_text_view);
-            mRequestLocationTextView = (TextView) mMainLayout.findViewById(R.id.request_location_text_view);
-
-            mRequestStatusTextView = (TextView) mMainLayout.findViewById(R.id.request_work_types_text_view);
-
-            mDeadlineTextView = (TextView) mMainLayout.findViewById(R.id.request_deadline_text_view);
+            postTenderFAB.setOnClickListener(this);
 
             setupRecyclerView();
 
-            setupRemoveRequestButton();
+            toggleProgressBar(true);
 
-            mTenderRequest = new TenderRequest();
+            loadTenderRequests();
         }
 
         return mMainLayout;
+    }
+
+    public void onTenderRequestUpdate(TenderRequest request) {
+        if (request != null) {
+            // TODO: send request to back-end
+        }
+    }
+
+    public void setUserData(ClientUser userData) {
+        mUser = userData;
+    }
+
+    /*
+     * RequestMaker.OnDataRetrieveListener
+     */
+
+    @Override
+    public void onDataRetrieveSuccess(DataRequest dataRequest, DataResult result) {
+        boolean anyResults = false;
+        if (result.getDataType() == DataResult.Type.TENDER_REQUEST) {
+            TenderRequest[] requests = (TenderRequest[]) result.getData();
+            if (requests != null && requests.length > 0) {
+
+                TenderRequestsAdapter adapter = (TenderRequestsAdapter) mTenderRequestsRecyclerView
+                        .getAdapter();
+
+                adapter.removeAllItems();
+                adapter.addItems(requests);
+
+                anyResults = true;
+
+            } else {
+                // TODO: handle error
+            }
+        }
+
+        toggleProgressBar(false);
+
+        if (anyResults)
+            mNoRequestsTextView.setVisibility(View.GONE);
+
+        onRefreshEnd();
+    }
+
+    @Override
+    public void onDataRetrieveFailed(DataRequest dataRequest, DataResult.Type resultType,
+                                     ServerResponseError error, @Nullable String message) {
+        // TODO: handle error.
+
+        TenderRequestsAdapter adapter = (TenderRequestsAdapter) mTenderRequestsRecyclerView
+                .getAdapter();
+
+        adapter.removeAllItems();
+
+        toggleProgressBar(false);
+
+        onRefreshEnd();
     }
 
     /*
@@ -123,11 +165,8 @@ public class RequestServiceTabFragment extends RefreshingFragment
         }
         switch (v.getId()) {
             case R.id.post_tender_request_fab:
-                // FALLTHROUGH
-            case R.id.active_tender_request_details_layout:
                 if (mUser != null) {
                     Intent intent = new Intent(getContext(), PostTenderActivity.class);
-                    intent.putExtra("tender_request", mTenderRequest);
                     intent.putExtra("user", mUser);
 
                     if (clientMainActivity != null) {
@@ -136,132 +175,20 @@ public class RequestServiceTabFragment extends RefreshingFragment
                     }
                 }
                 break;
-            case R.id.remove_tender_request_button:
-                // TODO: Add confirmation
-                // TODO: Add undo snackbar
-
-                // Hide the layout.
-                mTenderRequestCard.setVisibility(View.GONE);
-
-                onTenderRepliesRetrievingStarted();
-
-                // Show the FAB
-                mPostTenderFAB.show();
-                break;
         }
     }
 
-    public void onTenderRequestUpdate(TenderRequest request) {
-        if (request != null) {
-            mTenderRequest = request;
+    /*
+     * TenderRequestsAdapter.TenderRequestClickListener
+     */
 
-            // Update the message.
-            /*mRequestMessageTextView.setText(getString(
-                    R.string.tender_request_message, Float.toString(request.getPrice()),
-                    request.getVehicleData().toString()));*/
-
-            // Update the location.
-            if (request.getLocation() != null)
-                mRequestLocationTextView.setText(request.getLocation());
-
-            // Hide the fab if visible.
-            mPostTenderFAB.setVisibility(View.GONE);
-
-            // Make sure the layout is visible.
-            mTenderRequestCard.setVisibility(View.VISIBLE);
-
-            mRequestStatusTextView.setText(
-                    Utils.toSentenceCase(mTenderRequest.getStatus().toString()));
-            mRequestStatusTextView.setTextColor(getColorForStatus(mTenderRequest.getStatus()));
-
-            int deadlineYear = mTenderRequest.getDeadline(Calendar.YEAR);
-            int deadlineMonth = mTenderRequest.getDeadline(Calendar.MONTH);
-            int deadlineDay = mTenderRequest.getDeadline(Calendar.DAY_OF_MONTH);
-            if (deadlineYear != 0) {
-                mDeadlineTextView.setVisibility(View.VISIBLE);
-                mDeadlineTextView.setText(getString(R.string.deadline_with_date,
-                        Utils.getFormattedDate(getContext(), deadlineYear, deadlineMonth, deadlineDay)));
-            } else {
-                mDeadlineTextView.setVisibility(View.GONE);
-            }
-
-//            getTenderReplies();
-        }
-    }
-
-    public void setUserData(ClientUser userData) {
-        mUser = userData;
+    @Override
+    public void onClickRequest(View v) {
     }
 
     @Override
-    public void onTenderRepliesRetrievingStarted() {
-        Log.d("RSTF", "onTenderRepliesRetrievingStarted :: called.");
-        TenderRepliesAdapter repliesAdapter = (TenderRepliesAdapter) mTenderRepliesRecyclerView
-                .getAdapter();
+    public void onSendReply(View view, String message, boolean isUpdate) {
 
-        repliesAdapter.removeAllItems();
-    }
-
-    @Override
-    public void onTenderRepliesRetrieved(List<TenderReply> tenderReplies) {
-        Log.d("RSTF", "onTenderRepliesRetrieved :: called.");
-        Log.d("RSTF", "onTenderRepliesRetrieved :: tenderReplies: " + tenderReplies);
-
-        if (tenderReplies != null && !tenderReplies.isEmpty()) {
-            TenderRepliesAdapter repliesAdapter = (TenderRepliesAdapter) mTenderRepliesRecyclerView
-                    .getAdapter();
-
-            repliesAdapter.addItems(tenderReplies);
-        }
-    }
-
-    @Override
-    public void onClickTenderReply(View view) {
-        TenderRepliesAdapter repliesAdapter = (TenderRepliesAdapter) mTenderRepliesRecyclerView
-                .getAdapter();
-
-        View parent = mTenderRepliesRecyclerView.findContainingItemView(view);
-        // Find the position in the adapter for this view.
-        int itemPos = mTenderRepliesRecyclerView.getChildAdapterPosition(parent);
-        // Get the result object for this position.
-        final TenderReply tenderReply = repliesAdapter.getItem(itemPos);
-        ServiceStation serviceStation = tenderReply.getReplyingService();
-
-        ServiceDetailsDialog serviceDetailsDialog = ServiceDetailsDialog.getInstance(
-                serviceStation, this);
-        Utils.showDialogFragment(getFragmentManager(), serviceDetailsDialog,
-                "service_details_dialog");
-    }
-
-    @Override
-    public void onDeleteTenderReply(View view) {
-        TenderRepliesAdapter repliesAdapter = (TenderRepliesAdapter) mTenderRepliesRecyclerView
-                .getAdapter();
-
-        View parent = mTenderRepliesRecyclerView.findContainingItemView(view);
-        // Find the position in the adapter for this view.
-        int itemPos = mTenderRepliesRecyclerView.getChildAdapterPosition(parent);
-
-        repliesAdapter.removeItem(itemPos);
-    }
-
-    @Override
-    public void onItemClick(DialogFragment dialogFragment, ServiceDetailsDialog.ITEM_TYPE itemType,
-                            ServiceStation sevice, View view) {
-
-    }
-
-    public int getColorForStatus(TenderRequest.Status status) {
-        switch (status) {
-            case CLOSED:
-                return Color.RED;
-            case OPENED:
-                return Color.MAGENTA;
-            case RESOLVED:
-                return Color.GREEN;
-        }
-
-        return 0;
     }
 
     /*
@@ -272,60 +199,38 @@ public class RequestServiceTabFragment extends RefreshingFragment
     public void onRefreshStart() {
         super.onRefreshStart();
 
-        // Make sure we only request for replies once we show the active request (meaning the user has posted a request)
-        if (mTenderRequestCard.getVisibility() == View.VISIBLE) {
-//            getTenderReplies();
-        } else {
-            onRefreshEnd();
-        }
+        loadTenderRequests();
     }
 
     private void setupRecyclerView() {
-        mTenderRepliesRecyclerView = (RecyclerView) mMainLayout.findViewById(
-                R.id.tender_replies_recycler_view);
+        mTenderRequestsRecyclerView = (RecyclerView) mMainLayout.findViewById(
+                R.id.tender_requests_recycler_view);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
-        mTenderRepliesRecyclerView.setLayoutManager(layoutManager);
+        mTenderRequestsRecyclerView.setLayoutManager(layoutManager);
 
-        TenderRepliesAdapter tenderRepliesAdapter = new TenderRepliesAdapter(
-                new ArrayList<TenderReply>(), getContext(), this);
-        mTenderRepliesRecyclerView.setAdapter(tenderRepliesAdapter);
+        TenderRequestsAdapter tenderRequestsAdapter = new TenderRequestsAdapter(
+                new ArrayList<TenderRequest>(), getContext(), this, UserType.CLIENT);
+        mTenderRequestsRecyclerView.setAdapter(tenderRequestsAdapter);
     }
 
-    private void setupRemoveRequestButton() {
-        ImageButton removeButton = (ImageButton) mMainLayout.findViewById(
-                R.id.remove_tender_request_button);
+    private void toggleProgressBar(boolean toggle) {
+        if (toggle) {
+            mTenderRequestsRecyclerView.setVisibility(View.GONE);
+            mNoRequestsTextView.setVisibility(View.GONE);
+            mProgressbar.setVisibility(View.VISIBLE);
+        } else {
+            mTenderRequestsRecyclerView.setVisibility(View.VISIBLE);
+            mNoRequestsTextView.setVisibility(View.VISIBLE);
+            mProgressbar.setVisibility(View.GONE);
 
-        // Set the color to match the title
-        removeButton.setColorFilter(ContextCompat.getColor(getContext(), android.R.color.white),
-                PorterDuff.Mode.SRC_ATOP);
-
-        removeButton.setOnClickListener(this);
-    }
-
-    /*private void getTenderReplies() {
-        Log.d("RSTF", "getTenderReplies :: called.");
-        if (mServerConnection != null) {
-            Log.d("RSTF", "getTenderReplies :: mServerConnection not null.");
-            Activity containerActivity = getActivity();
-            if (containerActivity != null) {
-                Log.d("RSTF", "getTenderReplies :: containerActivity not null.");
-                try {
-                    // Try to cast to ClientMainActivity
-                    ClientMainActivity clientMainActivity = (ClientMainActivity) containerActivity;
-
-                    // Get Google api client
-                    GoogleApiClient googleApiClient = clientMainActivity.getGoogleApiClient();
-                    Log.d("RSTF", "getTenderReplies :: googleApiClient: " + googleApiClient);
-                    if (googleApiClient != null) {
-                        Log.d("RSTF", "getTenderReplies :: googleApiClient not null and connected.");
-                        mServerConnection.getTenderReplies(googleApiClient, this);
-                    }
-                } catch (ClassCastException e) {
-                    e.printStackTrace();
-                }
-            }
         }
+    }
 
-        onRefreshEnd();
-    }*/
+    private void loadTenderRequests() {
+        // Make the request
+        TenderRequestDataRequest request = new TenderRequestDataRequest();
+
+        // Send the request
+        new TenderRequestMaker(this).makeRequest(getContext(), request);
+    }
 }

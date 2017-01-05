@@ -80,6 +80,11 @@ public class TenderRequestsFragment extends RefreshingFragment
                 .show();
     }
 
+    @Override
+    public void onClickRequest(View v) {
+
+    }
+
 
     /*
      * ServerConnection.OnTenderRequestsRetrievedListener
@@ -120,7 +125,7 @@ public class TenderRequestsFragment extends RefreshingFragment
                 ServerConnection serverConnection = providerActivity.getServerConnection();
                 // Retrieve services from server
                 if (serverConnection != null) {
-                    serverConnection.getTenderRequests(this);
+//                    serverConnection.getTenderRequests(this);
                 }
             } catch (ClassCastException e) {
                 e.printStackTrace();

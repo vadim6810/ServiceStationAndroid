@@ -21,7 +21,7 @@
             android:paddingTop="@dimen/item_spacing"
             android:paddingBottom="@dimen/item_spacing"
             android:textColor="@android:color/white"
-            android:textSize="20sp"/>
+            android:textSize="16sp"/>
         <TextView
             android:id="@+id/request_price_text_view"
             android:gravity="center"
@@ -43,59 +43,62 @@
             android:background="@drawable/transparent_background_round_interactive"
             android:clickable="true"/>
     </LinearLayout>
-    <TextView
-        android:id="@+id/request_work_types_text_view"
-        android:text="@string/tender_required_work_Types"
-        android:textSize="18sp"
-        android:paddingTop="@dimen/item_spacing"
-        android:paddingLeft="@dimen/item_spacing"
-        android:paddingRight="@dimen/item_spacing"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
     <LinearLayout
-        android:id="@+id/active_tender_request_details_layout"
+        android:id="@+id/request_details_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/item_spacing"
-        android:background="@drawable/profile_section_background"
-        android:clickable="true"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:background="@drawable/transparent_background_interactive">
         <TextView
-            android:id="@+id/request_message_text_view"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/item_spacing"
-            android:paddingLeft="@dimen/activity_horizontal_margin"
-            android:paddingRight="@dimen/activity_horizontal_margin"
-            android:textSize="16sp"/>
-        <TextView
-            android:id="@+id/request_deadline_text_view"
-            android:text="@string/tender_deadline"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/activity_horizontal_margin"
-            android:layout_marginBottom="@dimen/item_spacing"
+            android:id="@+id/request_work_types_text_view"
+            android:textSize="18sp"
+            android:paddingTop="@dimen/item_spacing"
             android:paddingLeft="@dimen/item_spacing"
             android:paddingRight="@dimen/item_spacing"
-            android:textSize="14sp"/>
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="@dimen/item_spacing"
-        android:orientation="horizontal">
-        <TextView
-            android:id="@+id/request_location_text_view"
-            android:layout_width="0dp"
-            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+        <LinearLayout
+            android:id="@+id/active_tender_request_details_layout"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="bottom"
-            android:textSize="14sp"
-            android:textStyle="italic" />
-        <TextView
-            android:id="@+id/request_sender_text_view"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:text="@string/tender_sender"/>
+            android:layout_margin="@dimen/item_spacing"
+            android:background="@drawable/profile_section_background"
+            android:orientation="vertical">
+            <TextView
+                android:id="@+id/request_message_text_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/item_spacing"
+                android:paddingLeft="@dimen/activity_horizontal_margin"
+                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:textSize="16sp"/>
+            <TextView
+                android:id="@+id/request_deadline_text_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/activity_horizontal_margin"
+                android:layout_marginBottom="@dimen/item_spacing"
+                android:paddingLeft="@dimen/item_spacing"
+                android:paddingRight="@dimen/item_spacing"
+                android:textSize="14sp"/>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/item_spacing"
+            android:orientation="horizontal">
+            <TextView
+                android:id="@+id/request_location_text_view"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:gravity="bottom"
+                android:textSize="14sp"
+                android:textStyle="italic" />
+            <TextView
+                android:id="@+id/request_sender_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"/>
+        </LinearLayout>
     </LinearLayout>
 </LinearLayout>

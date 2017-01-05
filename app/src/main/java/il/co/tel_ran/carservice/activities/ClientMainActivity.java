@@ -205,6 +205,8 @@ public class ClientMainActivity extends AppCompatActivity
             case R.id.drawer_menu_item_reviews:
                 refreshingFragment = mReviewsFragment;
                 break;
+            case R.id.drawer_menu_item_requests:
+                refreshingFragment = mTenderRequestsFragment;
             default:
                 // If we haven't defined refreshing for this drawer item cancel the refreshing.
                 onRefreshEnd();

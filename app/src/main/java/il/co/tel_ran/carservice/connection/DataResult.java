@@ -18,7 +18,8 @@ public class DataResult<T> {
         NEW_USER,
         AUTHENTICATION,
         VEHICLE_API,
-        CLIENT_USER
+        CLIENT_USER,
+        TENDER_REQUEST,
     }
 
     private T[] mData;
