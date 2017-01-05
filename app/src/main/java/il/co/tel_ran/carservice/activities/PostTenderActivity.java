@@ -640,10 +640,29 @@ public class PostTenderActivity extends AppCompatActivity implements View.OnClic
     private boolean checkFields() {
         boolean isLocationSet = mTenderRequest.getLocation() != null
                 && !mTenderRequest.getLocation().isEmpty();
-        boolean isServicesTextField = !mPriceEditText.getText().toString().trim().isEmpty();
+
+        boolean isVehicleTypeSet = false;
+        for (AppCompatCheckBox checkBox : mVehicleTypeCheckBoxes) {
+            if (checkBox.isChecked()) {
+                isVehicleTypeSet = true;
+                break;
+            }
+        }
+        boolean isVehicleSelected = mTenderRequest.getVehicleData() != null;
+
+        ArrayList<ServiceSubWorkType> subWorkTypes = mTenderRequest.getSubWorkTypes();
+        boolean isWorkTypeSelected = (subWorkTypes != null && !subWorkTypes.isEmpty());
+
+        float price = mTenderRequest.getPrice();
+        boolean isPriceSet = price > 0;
+
+        String message = mTenderRequest.getMessage();
+        boolean isMessageSet = (message != null &&  !message.trim().isEmpty());
+
         boolean isDeadlineSet = mTenderRequest.getDeadlineDate() != null;
 
-        if (isLocationSet && isServicesTextField && isDeadlineSet)
+        if (isLocationSet && isVehicleTypeSet && isDeadlineSet && isVehicleSelected
+                && isWorkTypeSelected && isPriceSet && isMessageSet)
             return true;
 
         return false;
@@ -656,6 +675,4 @@ public class PostTenderActivity extends AppCompatActivity implements View.OnClic
         Utils.showDialogFragment(getSupportFragmentManager(), workTypesFragment,
                 "work_type_fragment");
     }
-
-
 }
